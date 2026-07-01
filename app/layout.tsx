@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
-import AppSidebar from "../components/layout/app-sidebar";
-import AppHeader from "../components/layout/app-header";
+import AppSidebar from "@/components/layout/app-sidebar"
+import AppHeader from "@/components/layout/app-header"
 
 const inter = Inter({
   subsets: ["latin"],
