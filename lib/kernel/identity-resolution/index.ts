@@ -13,3 +13,4 @@ export type {
   IdentityResolutionEngine,
   IdentityResolutionEngineResult,
 } from "./identity-resolution-engine";
+export { BasicIdentityResolutionEngine } from "./basic-identity-resolution-engine";
