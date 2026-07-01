@@ -1,4 +1,7 @@
+import Link from "next/link"
+
 import { getInteractions } from "@/lib/interaction-service"
+import { getPerson } from "@/lib/person-service"
 
 export default function InboxPage() {
   const interactions = getInteractions()
@@ -14,30 +17,44 @@ export default function InboxPage() {
       </div>
 
       <div className="space-y-4">
-        {interactions.map((interaction) => (
-          <div
-            key={interaction.id}
-            className="rounded-xl border border-zinc-800 bg-zinc-900 p-5 transition hover:border-zinc-700"
-          >
-            <div className="mb-2 flex items-center justify-between gap-4">
-              <div>
-                <p className="font-medium text-white">
-                  {interaction.subject}
-                </p>
+        {interactions.map((interaction) => {
+          const person = getPerson(interaction.personSlug)
 
-                <p className="text-sm text-zinc-500">
-                  {interaction.source} · {interaction.createdAt}
-                </p>
+          return (
+            <div
+              key={interaction.id}
+              className="rounded-xl border border-zinc-800 bg-zinc-900 p-5 transition hover:border-zinc-700"
+            >
+              <div className="mb-2 flex items-center justify-between gap-4">
+                <div>
+                  <p className="font-medium text-white">
+                    {interaction.subject}
+                  </p>
+
+                  <p className="text-sm text-zinc-500">
+                    {person ? (
+                      <Link
+                        href={`/people/${person.slug}`}
+                        className="transition hover:text-amber-400"
+                      >
+                        {person.name}
+                      </Link>
+                    ) : (
+                      "Unknown person"
+                    )}{" "}
+                    · {interaction.source} · {interaction.createdAt}
+                  </p>
+                </div>
+
+                <span className="rounded-full border border-zinc-800 px-3 py-1 text-xs uppercase tracking-wide text-zinc-400">
+                  {interaction.sentiment}
+                </span>
               </div>
 
-              <span className="rounded-full border border-zinc-800 px-3 py-1 text-xs uppercase tracking-wide text-zinc-400">
-                {interaction.sentiment}
-              </span>
+              <p className="leading-7 text-zinc-300">{interaction.body}</p>
             </div>
-
-            <p className="leading-7 text-zinc-300">{interaction.body}</p>
-          </div>
-        ))}
+          )
+        })}
       </div>
     </div>
   )
