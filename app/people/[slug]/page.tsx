@@ -2,6 +2,7 @@ import { notFound } from "next/navigation"
 
 import { getInteractionsForPerson } from "@/lib/interaction-service"
 import { getPerson } from "@/lib/person-service"
+import { getTasksForPerson } from "@/lib/task-service"
 
 interface PersonPageProps {
   params: Promise<{
@@ -18,6 +19,7 @@ export default async function PersonPage({ params }: PersonPageProps) {
   }
 
   const personInteractions = getInteractionsForPerson(person.slug)
+  const personTasks = getTasksForPerson(person.slug)
 
   return (
     <div className="max-w-7xl p-10">
@@ -26,9 +28,7 @@ export default async function PersonPage({ params }: PersonPageProps) {
           {person.status}
         </p>
 
-        <h1 className="mt-2 text-4xl font-bold tracking-tight">
-          {person.name}
-        </h1>
+        <h1 className="mt-2 text-4xl font-bold tracking-tight">{person.name}</h1>
 
         <p className="mt-2 text-zinc-400">
           {person.role} · {person.platform}
@@ -62,9 +62,7 @@ export default async function PersonPage({ params }: PersonPageProps) {
             Last Interaction
           </h2>
 
-          <p className="mt-3 text-2xl font-bold">
-            {person.lastInteraction}
-          </p>
+          <p className="mt-3 text-2xl font-bold">{person.lastInteraction}</p>
         </div>
 
         <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-6 lg:col-span-3">
@@ -72,16 +70,42 @@ export default async function PersonPage({ params }: PersonPageProps) {
             Notes
           </h2>
 
-          <p className="mt-3 leading-7 text-zinc-300">
-            {person.notes}
-          </p>
+          <p className="mt-3 leading-7 text-zinc-300">{person.notes}</p>
         </div>
       </div>
 
+      <section className="mb-10">
+        <h2 className="mb-4 text-2xl font-bold tracking-tight">Tasks</h2>
+
+        {personTasks.length === 0 ? (
+          <p className="text-zinc-500">No open tasks for this person.</p>
+        ) : (
+          <div className="space-y-4">
+            {personTasks.map((task) => (
+              <div
+                key={task.id}
+                className="rounded-xl border border-zinc-800 bg-zinc-900 p-5"
+              >
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <p className="font-medium text-white">{task.title}</p>
+                    <p className="mt-1 text-sm text-zinc-500">
+                      Due {task.dueDate}
+                    </p>
+                  </div>
+
+                  <span className="rounded-full border border-zinc-800 px-3 py-1 text-xs uppercase tracking-wide text-zinc-400">
+                    {task.priority}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
       <section>
-        <h2 className="mb-4 text-2xl font-bold tracking-tight">
-          Timeline
-        </h2>
+        <h2 className="mb-4 text-2xl font-bold tracking-tight">Timeline</h2>
 
         <div className="space-y-4">
           {personInteractions.map((interaction) => (
@@ -105,9 +129,7 @@ export default async function PersonPage({ params }: PersonPageProps) {
                 </span>
               </div>
 
-              <p className="leading-7 text-zinc-300">
-                {interaction.body}
-              </p>
+              <p className="leading-7 text-zinc-300">{interaction.body}</p>
 
               <div className="mt-4 flex flex-wrap gap-2">
                 {interaction.tags.map((tag) => (
