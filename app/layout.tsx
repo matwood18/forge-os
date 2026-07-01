@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
-import AppSidebar from "@/components/layout/app-sidebar"
-import AppHeader from "@/components/layout/app-header"
+import AppSidebar from "@/components/layout/app-sidebar";
+import AppHeader from "@/components/layout/app-header";
+import AppProviders from "@/components/layout/app-providers";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -30,12 +31,14 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${jetbrains.variable} bg-zinc-950 text-white`}
       >
-        <AppSidebar />
-        <AppHeader />
+        <AppProviders>
+          <AppSidebar />
+          <AppHeader />
 
-        <main className="min-h-screen pl-64 pt-16">
-          {children}
-        </main>
+          <main className="min-h-screen pl-64 pt-16">
+            {children}
+          </main>
+        </AppProviders>
       </body>
     </html>
   );
