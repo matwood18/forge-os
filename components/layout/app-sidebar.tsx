@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { usePathname } from "next/navigation"
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   BarChart3,
   Home,
@@ -10,20 +10,22 @@ import {
   Settings,
   SquareCheckBig,
   Users,
-} from "lucide-react"
+} from "lucide-react";
 
-const navItems = [
-  { label: "Home", href: "/", icon: Home },
-  { label: "People", href: "/people", icon: Users },
-  { label: "Inbox", href: "/inbox", icon: Inbox },
-  { label: "Tasks", href: "/tasks", icon: SquareCheckBig },
-  { label: "Products", href: "/products", icon: Package },
-  { label: "Analytics", href: "/analytics", icon: BarChart3 },
-  { label: "Settings", href: "/settings", icon: Settings },
-]
+import { navigationItems } from "@/lib/kernel/registry/navigation";
+
+const iconMap = {
+  dashboard: Home,
+  people: Users,
+  inbox: Inbox,
+  tasks: SquareCheckBig,
+  products: Package,
+  analytics: BarChart3,
+  settings: Settings,
+};
 
 export default function AppSidebar() {
-  const pathname = usePathname()
+  const pathname = usePathname();
 
   return (
     <aside className="fixed left-0 top-0 h-screen w-64 border-r border-zinc-800 bg-zinc-950 p-4 text-white">
@@ -33,12 +35,11 @@ export default function AppSidebar() {
       </div>
 
       <nav className="space-y-1">
-        {navItems.map((item) => {
-          const Icon = item.icon
+        {navigationItems.map((item) => {
+          const Icon = iconMap[item.id as keyof typeof iconMap] ?? Home;
+
           const isActive =
-            item.href === "/"
-              ? pathname === "/"
-              : pathname.startsWith(item.href)
+            item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
 
           return (
             <Link
@@ -59,9 +60,9 @@ export default function AppSidebar() {
               />
               {item.label}
             </Link>
-          )
+          );
         })}
       </nav>
     </aside>
-  )
+  );
 }
