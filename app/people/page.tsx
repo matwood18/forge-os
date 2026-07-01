@@ -1,4 +1,5 @@
 import { Search } from "lucide-react"
+import Link from "next/link"
 
 const people = [
   {
@@ -58,9 +59,14 @@ export default function PeoplePage() {
                 key={person.name}
                 className="border-t border-zinc-800 transition hover:bg-zinc-900/60"
               >
-                <td className="px-6 py-4 font-medium text-white">
+                <td className="px-6 py-4 font-medium">
+                <Link
+                  href={`/people/${person.name.toLowerCase().replace(/\s+/g, "-")}`}
+                  className="text-white transition hover:text-amber-400"
+                >
                   {person.name}
-                </td>
+                </Link>
+              </td>
                 <td className="text-zinc-400">{person.company}</td>
                 <td className="text-zinc-400">{person.platform}</td>
                 <td className="text-zinc-500">{person.lastInteraction}</td>
