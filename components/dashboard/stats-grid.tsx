@@ -7,11 +7,13 @@ import {
 
 import { getInteractions } from "@/lib/interaction-service"
 import { getPeople } from "@/lib/person-service"
+import { getOpenTasks } from "@/lib/task-service"
 import StatCard from "./stat-card"
 
 export default function StatsGrid() {
   const people = getPeople()
   const interactions = getInteractions()
+  const openTasks = getOpenTasks()
 
   const dashboardStats = [
     {
@@ -30,7 +32,7 @@ export default function StatsGrid() {
     },
     {
       title: "Open Tasks",
-      value: 0,
+      value: openTasks.length,
       description: "Follow-ups waiting",
       icon: SquareCheckBig,
     },
