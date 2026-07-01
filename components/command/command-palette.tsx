@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
-import { commands } from "@/lib/commands";
+import { commands } from "@/lib/kernel/registry/commands";
 
 import {
   CommandDialog,
