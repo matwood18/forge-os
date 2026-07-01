@@ -3,15 +3,14 @@ import { ForgeKernel } from "@/lib/kernel";
 export default async function KernelTestPage() {
   const forge = new ForgeKernel();
 
-  const result = await forge.ingest({
-    source: "manual",
-    type: "manual.note",
-    payload: {
-      text: "Met John at APA pool tonight.",
-    },
-  });
+  await forge.capture("Met John at APA pool tonight.");
 
-  const reasoning = await forge.reason("Met John at APA pool tonight.");
+  const questions = await forge.questions();
+
+  const answerResult =
+    questions[0] !== undefined
+      ? await forge.answerIdentityQuestion(questions[0], "John Davis")
+      : null;
 
   const events = await forge.events();
 
@@ -21,16 +20,16 @@ export default async function KernelTestPage() {
 
       <div className="grid gap-6">
         <section>
-          <h2 className="mb-2 text-lg font-semibold">Ingest Result</h2>
+          <h2 className="mb-2 text-lg font-semibold">Questions</h2>
           <pre className="rounded-xl border border-zinc-800 bg-zinc-950 p-4 text-sm text-zinc-300">
-            {JSON.stringify(result, null, 2)}
+            {JSON.stringify(questions, null, 2)}
           </pre>
         </section>
 
         <section>
-          <h2 className="mb-2 text-lg font-semibold">Reasoning Result</h2>
+          <h2 className="mb-2 text-lg font-semibold">Answer Result</h2>
           <pre className="rounded-xl border border-zinc-800 bg-zinc-950 p-4 text-sm text-zinc-300">
-            {JSON.stringify(reasoning, null, 2)}
+            {JSON.stringify(answerResult, null, 2)}
           </pre>
         </section>
 

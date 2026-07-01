@@ -10,16 +10,40 @@ import type { ReasoningResult } from "./reasoning";
 
 import { BasicCuriosityEngine } from "./curiosity";
 
+import {
+  BasicIdentityResolutionEngine,
+  type IdentityResolutionEngineResult,
+} from "./identity-resolution";
+
+import { InMemoryPersonStore } from "./person-store";
+
+export type CaptureResult = EventIngestResult;
+
 export class ForgeKernel {
   private readonly eventStore = new InMemoryEventStore();
 
   private readonly questionStore = new InMemoryQuestionStore();
+
+  private readonly personStore = new InMemoryPersonStore();
 
   private readonly eventIngestor = new BasicEventIngestor(this.eventStore);
 
   private readonly reasoningEngine = new BasicReasoningEngine();
 
   private readonly curiosityEngine = new BasicCuriosityEngine();
+
+  private readonly identityResolutionEngine =
+    new BasicIdentityResolutionEngine(this.personStore);
+
+  async capture(text: string): Promise<CaptureResult> {
+    return this.ingest({
+      source: "manual",
+      type: "manual.note",
+      payload: {
+        text,
+      },
+    });
+  }
 
   async ingest(input: EventIngestInput): Promise<EventIngestResult> {
     const result = await this.eventIngestor.ingest(input);
@@ -46,6 +70,16 @@ export class ForgeKernel {
       ...result,
       questions,
     };
+  }
+
+  async answerIdentityQuestion(
+    question: Question,
+    displayName: string
+  ): Promise<IdentityResolutionEngineResult> {
+    return this.identityResolutionEngine.answer({
+      question,
+      displayName,
+    });
   }
 
   async reason(text: string): Promise<ReasoningResult> {
