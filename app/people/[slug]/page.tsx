@@ -31,7 +31,28 @@ export default async function PersonPage({ params }: PersonPageProps) {
         </p>
       </div>
 
+      <div className="mb-6 flex flex-wrap gap-2">
+        {person.tags.map((tag) => (
+          <span
+            key={tag}
+            className="rounded-full border border-zinc-800 bg-zinc-900 px-3 py-1 text-sm text-zinc-300"
+          >
+            {tag}
+          </span>
+        ))}
+      </div>
+
       <div className="grid gap-6 lg:grid-cols-3">
+        <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-6">
+          <h2 className="text-sm font-medium uppercase tracking-wide text-zinc-500">
+            Relationship Score
+          </h2>
+
+          <p className="mt-3 font-mono text-5xl font-bold">
+            {person.relationshipScore}
+          </p>
+        </div>
+
         <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-6">
           <h2 className="text-sm font-medium uppercase tracking-wide text-zinc-500">
             Last Interaction
@@ -42,7 +63,7 @@ export default async function PersonPage({ params }: PersonPageProps) {
           </p>
         </div>
 
-        <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-6 lg:col-span-2">
+        <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-6 lg:col-span-3">
           <h2 className="text-sm font-medium uppercase tracking-wide text-zinc-500">
             Notes
           </h2>

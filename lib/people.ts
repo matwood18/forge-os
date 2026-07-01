@@ -6,7 +6,10 @@ export const people = [
     platform: "YouTube",
     status: "Active Reviewer",
     lastInteraction: "Today",
-    notes: "Installed Polydigm tip on Predator Revo and posted break-and-run videos.",
+    relationshipScore: 86,
+    tags: ["Creator", "Reviewer", "Customer"],
+    notes:
+      "Installed Polydigm tip on Predator Revo and posted break-and-run videos.",
   },
   {
     slug: "elliot",
@@ -15,7 +18,10 @@ export const people = [
     platform: "Reddit",
     status: "Long-term Tester",
     lastInteraction: "Yesterday",
-    notes: "Installed 95A by hand and gave detailed feedback on chalk retention and installation.",
+    relationshipScore: 92,
+    tags: ["Installer", "Tester", "Technical Feedback"],
+    notes:
+      "Installed 95A by hand and gave detailed feedback on chalk retention and installation.",
   },
   {
     slug: "doug",
@@ -24,6 +30,8 @@ export const people = [
     platform: "Facebook",
     status: "Early Feedback",
     lastInteraction: "2 Days Ago",
+    relationshipScore: 74,
+    tags: ["Customer", "Feedback"],
     notes: "Provided early comparison feedback on hardness and feel.",
   },
 ]
