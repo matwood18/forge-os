@@ -8,3 +8,4 @@ export type { Organization } from "./organization";
 export type { Person } from "./person";
 export type { Relationship } from "./relationship";
 export type { Workspace } from "./workspace";
+export type { Question, QuestionStatus, QuestionType } from "./question";
