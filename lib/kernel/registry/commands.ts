@@ -1,3 +1,5 @@
+import { navigationItems } from "./navigation";
+
 export type ForgeCommand = {
   id: string;
   label: string;
@@ -5,25 +7,8 @@ export type ForgeCommand = {
   href: string;
 };
 
-export const commands: ForgeCommand[] = [
-  {
-    id: "dashboard",
-    label: "Dashboard",
-    href: "/",
-  },
-  {
-    id: "inbox",
-    label: "Inbox",
-    href: "/inbox",
-  },
-  {
-    id: "people",
-    label: "People",
-    href: "/people",
-  },
-  {
-    id: "tasks",
-    label: "Tasks",
-    href: "/tasks",
-  },
-];
+export const commands: ForgeCommand[] = navigationItems.map((item) => ({
+  id: item.id,
+  label: item.label,
+  href: item.href,
+}));
