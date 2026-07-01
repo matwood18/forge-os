@@ -5,3 +5,4 @@ export type {
   IdentityResolutionStatus,
 } from "./types";
 export type { IdentityResolver } from "./resolver";
+export { createIdentityResolutionQuestion } from "./question-factory";
