@@ -1,4 +1,6 @@
-export const people = [
+import { Person } from "@/types/person"
+
+export const people: Person[] = [
   {
     slug: "jay-n-jax",
     name: "Jay N Jax",

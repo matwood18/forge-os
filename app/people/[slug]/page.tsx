@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation"
-import { people } from "@/lib/people"
+import { getPerson } from "@/lib/person-service"
 
 interface PersonPageProps {
   params: Promise<{
@@ -9,7 +9,7 @@ interface PersonPageProps {
 
 export default async function PersonPage({ params }: PersonPageProps) {
   const { slug } = await params
-  const person = people.find((item) => item.slug === slug)
+  const person = getPerson(slug)
 
   if (!person) {
     notFound()
