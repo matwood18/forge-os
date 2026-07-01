@@ -1,7 +1,15 @@
-import { runIdentityResolutionSmokeTest } from "@/lib/kernel";
+import { ForgeKernel } from "@/lib/kernel";
 
 export default async function KernelTestPage() {
-  const result = await runIdentityResolutionSmokeTest();
+  const forge = new ForgeKernel();
+
+  const result = await forge.ingest({
+    source: "manual",
+    type: "test.event",
+    payload: {
+      message: "Forge kernel smoke test",
+    },
+  });
 
   return (
     <div className="p-8">
