@@ -4,3 +4,4 @@ export type {
   IdentityResolutionResult,
   IdentityResolutionStatus,
 } from "./types";
+export type { IdentityResolver } from "./resolver";
