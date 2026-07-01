@@ -9,3 +9,6 @@ export { searchRegistry } from "./search";
 
 export type { ForgeAction, ForgeActionId } from "./actions";
 export { actions } from "./actions";
+
+export type { IntentionMode, IntentionModeId } from "./intentions";
+export { intentionModes } from "./intentions";
