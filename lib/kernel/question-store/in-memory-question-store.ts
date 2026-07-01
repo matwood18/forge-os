@@ -12,6 +12,21 @@ export class InMemoryQuestionStore implements QuestionStore {
     return [...this.questions];
   }
 
+  async listOpen(): Promise<Question[]> {
+    return this.questions.filter((question) => question.status === "open");
+  }
+
+  async markAnswered(id: string): Promise<void> {
+    const question = this.questions.find((item) => item.id === id);
+
+    if (!question) {
+      return;
+    }
+
+    question.status = "answered";
+    question.answeredAt = new Date();
+  }
+
   async clear(): Promise<void> {
     this.questions.length = 0;
   }

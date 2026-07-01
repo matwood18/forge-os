@@ -5,5 +5,9 @@ export interface QuestionStore {
 
   list(): Promise<Question[]>;
 
+  listOpen(): Promise<Question[]>;
+
+  markAnswered(id: string): Promise<void>;
+
   clear(): Promise<void>;
 }

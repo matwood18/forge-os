@@ -30,7 +30,7 @@ export class ForgeKernel {
 
   private readonly reasoningEngine = new BasicReasoningEngine();
 
-  private readonly curiosityEngine = new BasicCuriosityEngine();
+  private readonly curiosityEngine = new BasicCuriosityEngine(this.personStore);
 
   private readonly identityResolutionEngine =
     new BasicIdentityResolutionEngine(this.personStore);
@@ -64,7 +64,7 @@ export class ForgeKernel {
       await this.questionStore.add(question);
     }
 
-    const questions = await this.questionStore.list();
+    const questions = await this.questionStore.listOpen();
 
     return {
       ...result,
@@ -73,13 +73,17 @@ export class ForgeKernel {
   }
 
   async answerIdentityQuestion(
-    question: Question,
-    displayName: string
+   question: Question,
+   displayName: string
   ): Promise<IdentityResolutionEngineResult> {
-    return this.identityResolutionEngine.answer({
-      question,
-      displayName,
+    const result = await this.identityResolutionEngine.answer({
+     question,
+     displayName,
     });
+
+    await this.questionStore.markAnswered(question.id);
+
+    return result;
   }
 
   async reason(text: string): Promise<ReasoningResult> {
@@ -91,7 +95,7 @@ export class ForgeKernel {
   }
 
   async questions(): Promise<Question[]> {
-    return this.questionStore.list();
+    return this.questionStore.listOpen();
   }
 
   private getTextFromPayload(payload: unknown): string | null {

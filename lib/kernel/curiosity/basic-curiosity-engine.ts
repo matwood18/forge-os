@@ -1,16 +1,25 @@
 import type { Question } from "@/lib/domain";
+import type { PersonStore } from "@/lib/kernel/person-store";
 
 import type { CuriosityEngine } from "./curiosity-engine";
 import type { CuriosityInput, CuriosityResult } from "./types";
 
 export class BasicCuriosityEngine implements CuriosityEngine {
-  async generate(
-    input: CuriosityInput
-  ): Promise<CuriosityResult> {
+  constructor(private readonly personStore: PersonStore) {}
+
+  async generate(input: CuriosityInput): Promise<CuriosityResult> {
     const questions: Question[] = [];
 
     for (const observation of input.observations) {
       if (observation.kind !== "possible-person") {
+        continue;
+      }
+
+      const existingPerson = await this.personStore.findByDisplayName(
+        observation.value
+      );
+
+      if (existingPerson) {
         continue;
       }
 
