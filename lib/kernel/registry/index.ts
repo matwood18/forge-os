@@ -6,3 +6,6 @@ export { navigationItems } from "./navigation";
 
 export type { SearchEntityType, SearchRegistryItem } from "./search";
 export { searchRegistry } from "./search";
+
+export type { ForgeAction, ForgeActionId } from "./actions";
+export { actions } from "./actions";
