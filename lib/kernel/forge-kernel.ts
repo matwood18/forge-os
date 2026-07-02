@@ -1,5 +1,11 @@
 import type { Event, Question } from "@/lib/domain";
 
+import {
+  EventBusSubscriberRegistrar,
+  InMemoryEventBus,
+  type EventBus,
+  type EventBusSubscriber,
+} from "./event-bus";
 import { BasicEventIngestor, InMemoryEventStore } from "./event-store";
 import type { EventIngestInput, EventIngestResult } from "./event-store";
 
@@ -22,15 +28,31 @@ import type { EntityRepository } from "./repositories";
 
 import type { ObservationRepository } from "./observation/observation-repository";
 
+import {
+  BasicRelationshipEngine,
+  createDefaultRelationshipRules,
+  InMemoryRelationshipRepository,
+  type RelationshipEngine,
+  type RelationshipRecord,
+  type RelationshipRepository,
+} from "./relationship";
+
 export type CaptureResult = EventIngestResult;
 
 export type ForgeKernelDependencies = {
   reasoningEngine?: ReasoningEngine;
   observationRepository?: ObservationRepository;
   entityRepository?: EntityRepository;
+  relationshipEngine?: RelationshipEngine;
+  relationshipRepository?: RelationshipRepository;
+  eventBus?: EventBus;
+  eventBusSubscribers?: EventBusSubscriber[];
 };
 
 export class ForgeKernel {
+  private readonly eventBus: EventBus;
+  private readonly eventBusSubscriberRegistrar: EventBusSubscriberRegistrar;
+
   private readonly eventStore = new InMemoryEventStore();
   private readonly questionStore = new InMemoryQuestionStore();
   private readonly personStore = new InMemoryPersonStore();
@@ -39,23 +61,48 @@ export class ForgeKernel {
   private readonly reasoningEngine: ReasoningEngine;
   private readonly memory: MemoryService;
   private readonly curiosityEngine: CuriosityEngine;
+  private readonly observationRepository?: ObservationRepository;
+  private readonly relationshipRepository: RelationshipRepository;
+  private readonly relationshipEngine: RelationshipEngine;
 
   private readonly identityResolutionEngine =
     new BasicIdentityResolutionEngine(this.personStore);
 
   constructor(dependencies: ForgeKernelDependencies = {}) {
+    this.eventBus = dependencies.eventBus ?? new InMemoryEventBus();
+    this.eventBusSubscriberRegistrar = new EventBusSubscriberRegistrar(
+      this.eventBus
+    );
+
+    this.eventBusSubscriberRegistrar.registerMany(
+      dependencies.eventBusSubscribers ?? []
+    );
+
     this.reasoningEngine =
       dependencies.reasoningEngine ?? new BasicReasoningEngine();
 
+    this.observationRepository = dependencies.observationRepository;
+
     this.memory = new MemoryService(
       dependencies.entityRepository,
-      dependencies.observationRepository
+      this.observationRepository
     );
 
     this.curiosityEngine = new BasicCuriosityEngine(
       this.personStore,
       dependencies.entityRepository
     );
+
+    this.relationshipRepository =
+      dependencies.relationshipRepository ??
+      new InMemoryRelationshipRepository();
+
+    this.relationshipEngine =
+      dependencies.relationshipEngine ??
+      new BasicRelationshipEngine(
+        this.relationshipRepository,
+        createDefaultRelationshipRules()
+      );
   }
 
   async capture(text: string): Promise<CaptureResult> {
@@ -78,6 +125,8 @@ export class ForgeKernel {
 
     const reasoning = await this.reason(text);
 
+    await this.inferRelationshipsFromObservations();
+
     const curiosity = await this.curiosityEngine.generate({
       observations: reasoning.observations,
     });
@@ -90,6 +139,14 @@ export class ForgeKernel {
       ...result,
       questions: await this.questionStore.listOpen(),
     };
+  }
+
+  async publish(event: Parameters<EventBus["publish"]>[0]): Promise<void> {
+    await this.eventBus.publish(event);
+  }
+
+  eventSystem(): EventBus {
+    return this.eventBus;
   }
 
   async answerIdentityQuestion(
@@ -106,6 +163,8 @@ export class ForgeKernel {
       displayName: result.displayName,
     });
 
+    await this.inferRelationshipsFromObservations();
+
     await this.questionStore.markAnswered(question.id);
 
     return result;
@@ -121,6 +180,20 @@ export class ForgeKernel {
 
   async questions(): Promise<Question[]> {
     return this.questionStore.listOpen();
+  }
+
+  async relationships(): Promise<RelationshipRecord[]> {
+    return this.relationshipRepository.all();
+  }
+
+  private async inferRelationshipsFromObservations(): Promise<void> {
+    if (!this.observationRepository) {
+      return;
+    }
+
+    const observations = await this.observationRepository.all();
+
+    await this.relationshipEngine.inferRelationships(observations);
   }
 
   private getTextFromPayload(payload: unknown): string | null {
