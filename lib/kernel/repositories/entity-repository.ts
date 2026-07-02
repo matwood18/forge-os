@@ -19,12 +19,23 @@ export type EntityCreateInput = {
   displayName: string;
 };
 
+export type EntityMatchCandidate = {
+  entity: EntityRecord;
+  confidence: number;
+  reason: string;
+};
+
 export interface EntityRepository {
   remember(entity: EntityCreateInput): Promise<EntityRecord>;
 
   recall(id: string): Promise<EntityRecord | null>;
 
   recallByDisplayName(displayName: string): Promise<EntityRecord | null>;
+
+  findCandidatesByMention(
+    mention: string,
+    type?: EntityType
+  ): Promise<EntityMatchCandidate[]>;
 
   all(): Promise<EntityRecord[]>;
 }

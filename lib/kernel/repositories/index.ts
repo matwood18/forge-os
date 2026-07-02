@@ -1,5 +1,6 @@
 export type {
   EntityCreateInput,
+  EntityMatchCandidate,
   EntityRecord,
   EntityRepository,
   EntityType,

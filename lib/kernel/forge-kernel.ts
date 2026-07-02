@@ -9,37 +9,36 @@ import { BasicReasoningEngine, type ReasoningEngine } from "./reasoning";
 import type { ReasoningResult } from "./reasoning";
 
 import { BasicCuriosityEngine } from "./curiosity";
+import type { CuriosityEngine } from "./curiosity";
 
 import {
   BasicIdentityResolutionEngine,
   type IdentityResolutionEngineResult,
 } from "./identity-resolution";
 
+import { MemoryService } from "./memory";
 import { InMemoryPersonStore } from "./person-store";
-
 import type { EntityRepository } from "./repositories";
+
+import type { ObservationRepository } from "./observation/observation-repository";
 
 export type CaptureResult = EventIngestResult;
 
 export type ForgeKernelDependencies = {
   reasoningEngine?: ReasoningEngine;
+  observationRepository?: ObservationRepository;
   entityRepository?: EntityRepository;
 };
 
 export class ForgeKernel {
   private readonly eventStore = new InMemoryEventStore();
-
   private readonly questionStore = new InMemoryQuestionStore();
-
   private readonly personStore = new InMemoryPersonStore();
 
   private readonly eventIngestor = new BasicEventIngestor(this.eventStore);
-
   private readonly reasoningEngine: ReasoningEngine;
-
-  private readonly entityRepository?: EntityRepository;
-
-  private readonly curiosityEngine = new BasicCuriosityEngine(this.personStore);
+  private readonly memory: MemoryService;
+  private readonly curiosityEngine: CuriosityEngine;
 
   private readonly identityResolutionEngine =
     new BasicIdentityResolutionEngine(this.personStore);
@@ -48,35 +47,34 @@ export class ForgeKernel {
     this.reasoningEngine =
       dependencies.reasoningEngine ?? new BasicReasoningEngine();
 
-    this.entityRepository = dependencies.entityRepository;
+    this.memory = new MemoryService(
+      dependencies.entityRepository,
+      dependencies.observationRepository
+    );
+
+    this.curiosityEngine = new BasicCuriosityEngine(
+      this.personStore,
+      dependencies.entityRepository
+    );
   }
 
   async capture(text: string): Promise<CaptureResult> {
     return this.ingest({
       source: "manual",
       type: "manual.note",
-      payload: {
-        text,
-      },
+      payload: { text },
     });
   }
 
   async people() {
-    if (this.entityRepository) {
-      return this.entityRepository.all();
-    }
-
-    return this.personStore.list();
+    return this.memory.entities();
   }
 
   async ingest(input: EventIngestInput): Promise<EventIngestResult> {
     const result = await this.eventIngestor.ingest(input);
-
     const text = this.getTextFromPayload(input.payload);
 
-    if (!text) {
-      return result;
-    }
+    if (!text) return result;
 
     const reasoning = await this.reason(text);
 
@@ -88,11 +86,9 @@ export class ForgeKernel {
       await this.questionStore.add(question);
     }
 
-    const questions = await this.questionStore.listOpen();
-
     return {
       ...result,
-      questions,
+      questions: await this.questionStore.listOpen(),
     };
   }
 
@@ -105,18 +101,10 @@ export class ForgeKernel {
       displayName,
     });
 
-    if (this.entityRepository) {
-      const existing = await this.entityRepository.recallByDisplayName(
-        result.displayName
-      );
-
-      if (!existing) {
-        await this.entityRepository.remember({
-          type: "PERSON",
-          displayName: result.displayName,
-        });
-      }
-    }
+    await this.memory.learnEntity({
+      type: "PERSON",
+      displayName: result.displayName,
+    });
 
     await this.questionStore.markAnswered(question.id);
 

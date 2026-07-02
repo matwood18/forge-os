@@ -20,9 +20,37 @@ model Entity {
   id          String     @id @default(cuid())
   type        EntityType
   displayName String
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  subjectObservations Observation[] @relation("SubjectObservations")
+  objectObservations  Observation[] @relation("ObjectObservations")
 
   @@index([type])
   @@index([displayName])
+}
+
+model Observation {
+  id String @id @default(cuid())
+
+  subjectEntityId String
+  subjectEntity   Entity @relation("SubjectObservations", fields: [subjectEntityId], references: [id])
+
+  predicate String
+
+  objectEntityId String?
+  objectEntity   Entity? @relation("ObjectObservations", fields: [objectEntityId], references: [id])
+
+  objectValue String?
+  confidence  Float
+
+  sourceEventId String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([subjectEntityId])
+  @@index([objectEntityId])
+  @@index([predicate])
 }

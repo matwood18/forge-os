@@ -7,3 +7,4 @@ export * from "./question-store";
 export * from "./curiosity";
 export * from "./person-store";
 export * from "./repositories";
+export * from "./memory";

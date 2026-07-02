@@ -15,17 +15,15 @@ export default function QuestionCard({
   const [answer, setAnswer] = useState("");
   const [busy, setBusy] = useState(false);
 
-  async function handleSave() {
-    const value = answer.trim();
+  async function handleSave(value: string) {
+    const trimmed = value.trim();
 
-    if (!value || busy) {
-      return;
-    }
+    if (!trimmed || busy) return;
 
     setBusy(true);
 
     try {
-      await onAnswered(question, value);
+      await onAnswered(question, trimmed);
       setAnswer("");
     } finally {
       setBusy(false);
@@ -35,28 +33,44 @@ export default function QuestionCard({
   return (
     <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-4">
       <div className="mb-2 text-sm font-medium text-amber-300">
-        I need one detail.
+        Help me understand.
       </div>
 
       <div className="text-lg font-semibold">{question.prompt}</div>
+
+      {question.options && question.options.length > 0 && (
+        <div className="mt-4 flex flex-wrap gap-3">
+          {question.options.map((option) => (
+            <button
+              key={option.id}
+              type="button"
+              onClick={() => handleSave(option.value)}
+              disabled={busy}
+              className="rounded-xl bg-amber-500 px-4 py-2 text-sm font-medium text-black transition hover:bg-amber-400 disabled:opacity-50"
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
+      )}
 
       <div className="mt-4 flex gap-3">
         <input
           value={answer}
           onChange={(event) => setAnswer(event.target.value)}
-          placeholder="Full name"
+          placeholder="Or type the right answer..."
           className="flex-1 rounded-xl border border-zinc-700 bg-zinc-950 px-4 py-2 text-sm outline-none transition focus:border-amber-500"
           onKeyDown={(event) => {
             if (event.key === "Enter") {
               event.preventDefault();
-              handleSave();
+              handleSave(answer);
             }
           }}
         />
 
         <button
           type="button"
-          onClick={handleSave}
+          onClick={() => handleSave(answer)}
           disabled={busy}
           className="rounded-xl bg-amber-500 px-4 py-2 text-sm font-medium text-black transition hover:bg-amber-400 disabled:opacity-50"
         >

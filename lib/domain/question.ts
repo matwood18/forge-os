@@ -6,6 +6,12 @@ export type QuestionType =
   | "relationship-context"
   | "attention-priority";
 
+export type QuestionOption = {
+  id: string;
+  label: string;
+  value: string;
+};
+
 export interface Question {
   id: string;
 
@@ -20,4 +26,6 @@ export interface Question {
   createdAt: Date;
 
   answeredAt?: Date;
+
+  options?: QuestionOption[];
 }

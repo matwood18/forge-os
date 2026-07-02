@@ -7,7 +7,7 @@ export default async function PeoplePage() {
   const forge = getKernel();
   const entities = await forge.people();
 
-  const people = entities.filter((entity) => entity.type === "PERSON");
+  const people = entities;
 
   return (
     <div className="max-w-7xl p-10">
@@ -53,7 +53,7 @@ export default async function PeoplePage() {
                   </Link>
                 </td>
 
-                <td className="text-zinc-400">{person.type}</td>
+                <td className="text-zinc-400">PERSON</td>
                 <td className="text-zinc-500">
                   {person.createdAt.toLocaleDateString()}
                 </td>
