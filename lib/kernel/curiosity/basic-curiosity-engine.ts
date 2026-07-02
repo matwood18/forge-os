@@ -15,18 +15,26 @@ export class BasicCuriosityEngine implements CuriosityEngine {
         continue;
       }
 
-      const existingPerson = await this.personStore.findByDisplayName(
+      const candidates = await this.personStore.findCandidatesByMention(
         observation.value
       );
 
-      if (existingPerson) {
+      const exactCandidate = candidates.find(
+        (candidate) => candidate.confidence >= 0.95
+      );
+
+      if (exactCandidate) {
         continue;
       }
+
+      const bestCandidate = candidates[0];
 
       questions.push({
         id: crypto.randomUUID(),
         type: "identity-resolution",
-        prompt: `Who is "${observation.value}" in this context?`,
+        prompt: bestCandidate
+          ? `Did you mean ${bestCandidate.person.displayName}, or another ${observation.value}?`
+          : `Who is "${observation.value}" in this context?`,
         status: "open",
         impact: 75,
         createdAt: new Date(),

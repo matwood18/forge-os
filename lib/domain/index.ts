@@ -9,3 +9,4 @@ export type { Person } from "./person";
 export type { Relationship } from "./relationship";
 export type { Workspace } from "./workspace";
 export type { Question, QuestionStatus, QuestionType } from "./question";
+export type { ConversationMessage, ConversationRole } from "./conversation";

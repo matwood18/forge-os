@@ -5,7 +5,10 @@ import type { EventIngestInput, EventIngestResult } from "./event-store";
 
 import { InMemoryQuestionStore } from "./question-store";
 
-import { BasicReasoningEngine } from "./reasoning";
+import {
+  BasicReasoningEngine,
+  type ReasoningEngine,
+} from "./reasoning";
 import type { ReasoningResult } from "./reasoning";
 
 import { BasicCuriosityEngine } from "./curiosity";
@@ -19,6 +22,10 @@ import { InMemoryPersonStore } from "./person-store";
 
 export type CaptureResult = EventIngestResult;
 
+export type ForgeKernelDependencies = {
+  reasoningEngine?: ReasoningEngine;
+};
+
 export class ForgeKernel {
   private readonly eventStore = new InMemoryEventStore();
 
@@ -28,12 +35,17 @@ export class ForgeKernel {
 
   private readonly eventIngestor = new BasicEventIngestor(this.eventStore);
 
-  private readonly reasoningEngine = new BasicReasoningEngine();
+  private readonly reasoningEngine: ReasoningEngine;
 
   private readonly curiosityEngine = new BasicCuriosityEngine(this.personStore);
 
   private readonly identityResolutionEngine =
     new BasicIdentityResolutionEngine(this.personStore);
+
+  constructor(dependencies: ForgeKernelDependencies = {}) {
+    this.reasoningEngine =
+      dependencies.reasoningEngine ?? new BasicReasoningEngine();
+  }
 
   async capture(text: string): Promise<CaptureResult> {
     return this.ingest({
@@ -45,6 +57,10 @@ export class ForgeKernel {
     });
   }
 
+  async people() {
+   return this.personStore.list();
+  }
+  
   async ingest(input: EventIngestInput): Promise<EventIngestResult> {
     const result = await this.eventIngestor.ingest(input);
 
@@ -73,12 +89,12 @@ export class ForgeKernel {
   }
 
   async answerIdentityQuestion(
-   question: Question,
-   displayName: string
+    question: Question,
+    displayName: string
   ): Promise<IdentityResolutionEngineResult> {
     const result = await this.identityResolutionEngine.answer({
-     question,
-     displayName,
+      question,
+      displayName,
     });
 
     await this.questionStore.markAnswered(question.id);

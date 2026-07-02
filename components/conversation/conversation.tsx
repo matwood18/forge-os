@@ -5,6 +5,9 @@ import { Sparkles } from "lucide-react";
 
 import type { Question } from "@/lib/domain";
 import QuestionCard from "@/components/conversation/question-card";
+import ConversationLog, {
+  type ConversationLogEntry,
+} from "@/components/conversation/conversation-log";
 
 type CaptureState = {
   status: "idle" | "busy" | "success" | "error";
@@ -15,6 +18,7 @@ export default function Conversation() {
   const [text, setText] = useState("");
   const [state, setState] = useState<CaptureState>({ status: "idle" });
   const [questions, setQuestions] = useState<Question[]>([]);
+  const [log, setLog] = useState<ConversationLogEntry[]>([]);
 
   async function handleRemember() {
     if (!text.trim()) {
@@ -33,6 +37,15 @@ export default function Conversation() {
     });
 
     const result = await response.json();
+
+    setLog((current) => [
+      {
+        id: crypto.randomUUID(),
+        label: "Capture Result",
+        payload: result,
+      },
+      ...current,
+    ]);
 
     if (!response.ok) {
       setState({
@@ -58,6 +71,24 @@ export default function Conversation() {
 
     const result = await response.json();
 
+    if (result.needsFollowUp) {
+     setState({
+        status: "success",
+        message: result.message,
+   });
+
+  return;
+}
+
+    setLog((current) => [
+      {
+        id: crypto.randomUUID(),
+        label: "Answer Result",
+        payload: result,
+      },
+      ...current,
+    ]);
+
     if (!response.ok) {
       setState({
         status: "error",
@@ -72,7 +103,7 @@ export default function Conversation() {
 
     setState({
       status: "success",
-      message: `Got it. I'll remember ${result.displayName}.`,
+      message: `That helps. I’ll keep that context in mind.`,
     });
   }
 
@@ -111,7 +142,9 @@ export default function Conversation() {
           </h2>
 
           <p className="text-sm text-zinc-400">
-            {"Tell Forge about anything important that happened while you were away."}
+            {
+              "Tell Forge about anything important that happened while you were away."
+            }
           </p>
         </div>
       </div>
@@ -139,6 +172,8 @@ export default function Conversation() {
           {state.status === "busy" ? "Thinking..." : "Remember"}
         </button>
       </div>
+
+      <ConversationLog entries={log} />
     </section>
   );
 }

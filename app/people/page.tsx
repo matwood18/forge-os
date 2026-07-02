@@ -1,9 +1,12 @@
-import Link from "next/link"
-import { Search } from "lucide-react"
+import Link from "next/link";
+import { Search } from "lucide-react";
 
-import { people } from "@/lib/people"
+import { getKernel } from "@/lib/kernel/get-kernel";
 
-export default function PeoplePage() {
+export default async function PeoplePage() {
+  const forge = getKernel();
+  const people = await forge.people();
+
   return (
     <div className="max-w-7xl p-10">
       <div className="mb-8">
@@ -28,37 +31,49 @@ export default function PeoplePage() {
           <thead className="bg-zinc-900">
             <tr className="text-left text-sm text-zinc-400">
               <th className="px-6 py-4">Name</th>
-              <th>Role</th>
-              <th>Platform</th>
-              <th>Status</th>
-              <th>Last Interaction</th>
+              <th>First Name</th>
+              <th>Last Name</th>
+              <th>Known Since</th>
             </tr>
           </thead>
 
           <tbody>
             {people.map((person) => (
               <tr
-                key={person.slug}
+                key={person.id}
                 className="border-t border-zinc-800 transition hover:bg-zinc-900/60"
               >
                 <td className="px-6 py-4 font-medium">
                   <Link
-                    href={`/people/${person.slug}`}
+                    href={`/people/${person.id}`}
                     className="text-white transition hover:text-amber-400"
                   >
-                    {person.name}
+                    {person.displayName}
                   </Link>
                 </td>
 
-                <td className="text-zinc-400">{person.role}</td>
-                <td className="text-zinc-400">{person.platform}</td>
-                <td className="text-zinc-400">{person.status}</td>
-                <td className="text-zinc-500">{person.lastInteraction}</td>
+                <td className="text-zinc-400">{person.firstName}</td>
+                <td className="text-zinc-400">{person.lastName || "—"}</td>
+                <td className="text-zinc-500">
+                  {person.createdAt.toLocaleDateString()}
+                </td>
               </tr>
             ))}
+
+            {people.length === 0 && (
+              <tr>
+                <td
+                  colSpan={4}
+                  className="border-t border-zinc-800 px-6 py-10 text-center text-zinc-500"
+                >
+                  No people learned yet. Tell Forge about someone from the home
+                  page.
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
     </div>
-  )
+  );
 }
