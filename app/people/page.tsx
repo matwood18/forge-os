@@ -5,7 +5,9 @@ import { getKernel } from "@/lib/kernel/get-kernel";
 
 export default async function PeoplePage() {
   const forge = getKernel();
-  const people = await forge.people();
+  const entities = await forge.people();
+
+  const people = entities.filter((entity) => entity.type === "PERSON");
 
   return (
     <div className="max-w-7xl p-10">
@@ -13,7 +15,7 @@ export default async function PeoplePage() {
         <h1 className="text-4xl font-bold tracking-tight">People</h1>
 
         <p className="mt-2 text-zinc-400">
-          Every relationship you&apos;ve ever built.
+          People Forge has learned through conversation.
         </p>
       </div>
 
@@ -31,8 +33,7 @@ export default async function PeoplePage() {
           <thead className="bg-zinc-900">
             <tr className="text-left text-sm text-zinc-400">
               <th className="px-6 py-4">Name</th>
-              <th>First Name</th>
-              <th>Last Name</th>
+              <th>Type</th>
               <th>Known Since</th>
             </tr>
           </thead>
@@ -52,8 +53,7 @@ export default async function PeoplePage() {
                   </Link>
                 </td>
 
-                <td className="text-zinc-400">{person.firstName}</td>
-                <td className="text-zinc-400">{person.lastName || "—"}</td>
+                <td className="text-zinc-400">{person.type}</td>
                 <td className="text-zinc-500">
                   {person.createdAt.toLocaleDateString()}
                 </td>
@@ -63,7 +63,7 @@ export default async function PeoplePage() {
             {people.length === 0 && (
               <tr>
                 <td
-                  colSpan={4}
+                  colSpan={3}
                   className="border-t border-zinc-800 px-6 py-10 text-center text-zinc-500"
                 >
                   No people learned yet. Tell Forge about someone from the home
