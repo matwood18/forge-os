@@ -22,7 +22,11 @@ import {
   type IdentityResolutionEngineResult,
 } from "./identity-resolution";
 
-import { MemoryService } from "./memory";
+import {
+  InMemoryMemoryRepository,
+  MemoryEngine,
+  MemoryService,
+} from "./memory";
 import { InMemoryPersonStore } from "./person-store";
 import type { EntityRepository } from "./repositories";
 
@@ -62,6 +66,7 @@ export class ForgeKernel {
   private readonly memory: MemoryService;
   private readonly curiosityEngine: CuriosityEngine;
   private readonly observationRepository?: ObservationRepository;
+  private readonly entityRepository?: EntityRepository;
   private readonly relationshipRepository: RelationshipRepository;
   private readonly relationshipEngine: RelationshipEngine;
 
@@ -70,6 +75,7 @@ export class ForgeKernel {
 
   constructor(dependencies: ForgeKernelDependencies = {}) {
     this.eventBus = dependencies.eventBus ?? new InMemoryEventBus();
+
     this.eventBusSubscriberRegistrar = new EventBusSubscriberRegistrar(
       this.eventBus
     );
@@ -82,15 +88,16 @@ export class ForgeKernel {
       dependencies.reasoningEngine ?? new BasicReasoningEngine();
 
     this.observationRepository = dependencies.observationRepository;
+    this.entityRepository = dependencies.entityRepository;
 
-    this.memory = new MemoryService(
-      dependencies.entityRepository,
-      this.observationRepository
-    );
+    const memoryRepository = new InMemoryMemoryRepository();
+    const memoryEngine = new MemoryEngine(memoryRepository);
+
+    this.memory = new MemoryService(memoryEngine);
 
     this.curiosityEngine = new BasicCuriosityEngine(
       this.personStore,
-      dependencies.entityRepository
+      this.entityRepository
     );
 
     this.relationshipRepository =
@@ -114,14 +121,20 @@ export class ForgeKernel {
   }
 
   async people() {
-    return this.memory.entities();
+    if (!this.entityRepository) {
+      return [];
+    }
+
+    return this.entityRepository.all();
   }
 
   async ingest(input: EventIngestInput): Promise<EventIngestResult> {
     const result = await this.eventIngestor.ingest(input);
     const text = this.getTextFromPayload(input.payload);
 
-    if (!text) return result;
+    if (!text) {
+      return result;
+    }
 
     const reasoning = await this.reason(text);
 
@@ -158,10 +171,12 @@ export class ForgeKernel {
       displayName,
     });
 
-    await this.memory.learnEntity({
-      type: "PERSON",
-      displayName: result.displayName,
-    });
+    if (this.entityRepository) {
+      await this.entityRepository.remember({
+        type: "PERSON",
+        displayName: result.displayName,
+      });
+    }
 
     await this.inferRelationshipsFromObservations();
 

@@ -1,10 +1,10 @@
 import Conversation from "@/components/conversation/conversation";
 import DashboardHeader from "@/components/dashboard/dashboard-header";
 import StatsGrid from "@/components/dashboard/stats-grid";
-import { runRelationshipDemo } from "./relationship-demo";
+import { runKernelRelationshipDemo } from "./kernel-relationship-demo";
 
 export default async function Home() {
-  const relationships = await runRelationshipDemo();
+  const relationships = await runKernelRelationshipDemo();
 
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-8 p-10">
@@ -12,7 +12,7 @@ export default async function Home() {
 
       <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
         <h2 className="text-xl font-semibold text-white">
-          Relationship Engine Demo
+          Kernel Relationship Test
         </h2>
 
         <div className="mt-4 space-y-3">

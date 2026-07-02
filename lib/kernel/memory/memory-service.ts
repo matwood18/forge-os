@@ -1,53 +1,22 @@
-import type { ObservationRepository } from "@/lib/kernel/observation/observation-repository";
-import type { EntityRepository } from "@/lib/kernel/repositories";
-import type { LearnEntityInput, LearnEntityResult } from "./types";
+import type { MemoryEngine } from "./memory-engine";
+import type {
+  MemoryCreateInput,
+  MemoryQuery,
+  MemoryRecord,
+} from "./types";
 
 export class MemoryService {
-  constructor(
-    private readonly entityRepository?: EntityRepository,
-    private readonly observationRepository?: ObservationRepository
-  ) {}
+  constructor(private readonly memoryEngine: MemoryEngine) {}
 
-  async learnEntity(input: LearnEntityInput): Promise<LearnEntityResult | null> {
-    if (!this.entityRepository) {
-      return null;
-    }
-
-    const existing = await this.entityRepository.recallByDisplayName(
-      input.displayName
-    );
-
-    if (existing) {
-      return {
-        id: existing.id,
-        type: existing.type,
-        displayName: existing.displayName,
-      };
-    }
-
-    const entity = await this.entityRepository.remember(input);
-
-    await this.observationRepository?.remember({
-      subjectEntityId: entity.id,
-      predicate: "identified_as",
-      objectEntityId: null,
-      objectValue: entity.displayName,
-      confidence: 1,
-      sourceEventId: null,
-    });
-
-    return {
-      id: entity.id,
-      type: entity.type,
-      displayName: entity.displayName,
-    };
+  remember(memory: MemoryCreateInput): Promise<MemoryRecord> {
+    return this.memoryEngine.remember(memory);
   }
 
-  async entities() {
-    if (!this.entityRepository) {
-      return [];
-    }
+  find(query: MemoryQuery): Promise<MemoryRecord[]> {
+    return this.memoryEngine.find(query);
+  }
 
-    return this.entityRepository.all();
+  all(): Promise<MemoryRecord[]> {
+    return this.memoryEngine.all();
   }
 }

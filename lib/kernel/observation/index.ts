@@ -1,3 +1,7 @@
+export {
+  InMemoryObservationRepository,
+} from "@/lib/kernel/observation/in-memory-observation-repository";
+
 export type {
   ObservationCreateInput,
   ObservationRecord,
