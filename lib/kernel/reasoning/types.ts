@@ -3,6 +3,10 @@ export type ObservationKind =
   | "possible-organization"
   | "possible-location"
   | "activity"
+  | "commitment"
+  | "follow-up"
+  | "relationship"
+  | "business-opportunity"
   | "unknown";
 
 export type Observation = {
