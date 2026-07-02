@@ -5,10 +5,7 @@ import type { EventIngestInput, EventIngestResult } from "./event-store";
 
 import { InMemoryQuestionStore } from "./question-store";
 
-import {
-  BasicReasoningEngine,
-  type ReasoningEngine,
-} from "./reasoning";
+import { BasicReasoningEngine, type ReasoningEngine } from "./reasoning";
 import type { ReasoningResult } from "./reasoning";
 
 import { BasicCuriosityEngine } from "./curiosity";
@@ -20,10 +17,13 @@ import {
 
 import { InMemoryPersonStore } from "./person-store";
 
+import type { EntityRepository } from "./repositories";
+
 export type CaptureResult = EventIngestResult;
 
 export type ForgeKernelDependencies = {
   reasoningEngine?: ReasoningEngine;
+  entityRepository?: EntityRepository;
 };
 
 export class ForgeKernel {
@@ -37,6 +37,8 @@ export class ForgeKernel {
 
   private readonly reasoningEngine: ReasoningEngine;
 
+  private readonly entityRepository?: EntityRepository;
+
   private readonly curiosityEngine = new BasicCuriosityEngine(this.personStore);
 
   private readonly identityResolutionEngine =
@@ -45,6 +47,8 @@ export class ForgeKernel {
   constructor(dependencies: ForgeKernelDependencies = {}) {
     this.reasoningEngine =
       dependencies.reasoningEngine ?? new BasicReasoningEngine();
+
+    this.entityRepository = dependencies.entityRepository;
   }
 
   async capture(text: string): Promise<CaptureResult> {
@@ -58,9 +62,13 @@ export class ForgeKernel {
   }
 
   async people() {
-   return this.personStore.list();
+    if (this.entityRepository) {
+      return this.entityRepository.all();
+    }
+
+    return this.personStore.list();
   }
-  
+
   async ingest(input: EventIngestInput): Promise<EventIngestResult> {
     const result = await this.eventIngestor.ingest(input);
 
@@ -96,6 +104,19 @@ export class ForgeKernel {
       question,
       displayName,
     });
+
+    if (this.entityRepository) {
+      const existing = await this.entityRepository.recallByDisplayName(
+        result.displayName
+      );
+
+      if (!existing) {
+        await this.entityRepository.remember({
+          type: "PERSON",
+          displayName: result.displayName,
+        });
+      }
+    }
 
     await this.questionStore.markAnswered(question.id);
 

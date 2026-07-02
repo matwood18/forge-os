@@ -1,4 +1,6 @@
 import { StructuredOpenAIModel } from "@/lib/infrastructure/ai/openai";
+import { PrismaEntityRepository } from "@/lib/infrastructure/prisma";
+
 import { ForgeKernel } from "./forge-kernel";
 import { AIReasoningEngine, BasicReasoningEngine } from "./reasoning";
 
@@ -11,5 +13,6 @@ export function createKernel() {
 
   return new ForgeKernel({
     reasoningEngine,
+    entityRepository: new PrismaEntityRepository(),
   });
 }
