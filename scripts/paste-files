@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+if [ "$#" -eq 0 ]; then
+  echo "Usage: ./scripts/paste-files <file> [file ...]" >&2
+  exit 1
+fi
+
+for file_path in "$@"; do
+  if [ ! -f "$file_path" ]; then
+    echo "Missing file: $file_path" >&2
+    exit 1
+  fi
+done
+
+for file_path in "$@"; do
+  echo "===== BEGIN $file_path ====="
+  cat "$file_path"
+  echo
+  echo "===== END $file_path ====="
+  echo
+done

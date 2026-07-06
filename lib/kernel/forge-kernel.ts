@@ -1,5 +1,10 @@
 import type { Event, Question } from "@/lib/domain";
 
+import {
+  CognitivePipeline,
+  createDefaultCognitivePipeline,
+} from "./cognitive-pipeline";
+
 import { BasicCuriosityEngine } from "./curiosity";
 import type { CuriosityEngine } from "./curiosity";
 
@@ -89,6 +94,7 @@ export class ForgeKernel {
   private readonly eventIngestor = new BasicEventIngestor(this.eventStore);
 
   private readonly reasoningEngine: ReasoningEngine;
+  private readonly cognitivePipeline: CognitivePipeline;
   private readonly memory: MemoryService;
   private readonly entityService: EntityService;
   private readonly curiosityEngine: CuriosityEngine;
@@ -139,6 +145,18 @@ export class ForgeKernel {
         this.relationshipRepository,
         createDefaultRelationshipRules()
       );
+
+    this.cognitivePipeline = createDefaultCognitivePipeline({
+      environment: {
+        reasoningEngine: this.reasoningEngine,
+        relationshipEngine: this.relationshipEngine,
+        memoryService: this.memory,
+        relationshipMemoryProducer: this.relationshipMemoryProducer,
+        curiosityEngine: this.curiosityEngine,
+        questionStore: this.questionStore,
+        observationRepository: this.observationRepository,
+      },
+    });
   }
 
   async capture(text: string): Promise<CaptureResult> {
@@ -227,7 +245,7 @@ export class ForgeKernel {
       displayName: result.displayName,
     });
 
-    await this.inferRelationshipsFromObservations();
+    await this.cognitivePipeline.run({ text: question.prompt });
 
     await this.questionStore.markAnswered(question.id);
 
@@ -235,14 +253,14 @@ export class ForgeKernel {
   }
 
   async reason(text: string): Promise<ReasoningSession> {
-    return this.reasoningEngine.reason({
-      worldviewId: "kernel-current-worldview",
-      worldview: {
-        generatedAt: new Date(),
-        beliefs: [],
-      },
-      objective: text,
-    });
+    const result = await this.cognitivePipeline.run({ text });
+    const reasoningSession = result.context.artifacts.reasoningSession;
+
+    if (!reasoningSession) {
+      throw new Error("Cognitive pipeline completed without reasoning.");
+    }
+
+    return reasoningSession;
   }
 
   async events(): Promise<Event[]> {
@@ -274,52 +292,21 @@ export class ForgeKernel {
   }
 
   private async runCognition(text: string): Promise<CognitiveRunResult> {
-    const reasoningSession = await this.reason(text);
+    const pipelineResult = await this.cognitivePipeline.run({ text });
+    const { artifacts } = pipelineResult.context;
+    const reasoningSession = artifacts.reasoningSession;
 
-    await this.inferRelationshipsFromObservations();
-
-    const observations = await this.listObservations();
-
-    const curiosity = await this.curiosityEngine.generate({
-      observations,
-    });
-
-    for (const question of curiosity.questions) {
-      await this.questionStore.add(question);
+    if (!reasoningSession) {
+      throw new Error("Cognitive pipeline completed without reasoning.");
     }
 
     return {
       reasoningSession,
-      observations,
-      relationships: await this.relationshipRepository.all(),
-      memories: await this.memory.all(),
-      questions: await this.questionStore.listOpen(),
+      observations: artifacts.observations,
+      relationships: artifacts.relationships,
+      memories: artifacts.memories,
+      questions: artifacts.questions,
     };
-  }
-
-  private async inferRelationshipsFromObservations(): Promise<void> {
-    if (!this.observationRepository) {
-      return;
-    }
-
-    const observations = await this.observationRepository.all();
-    const relationships =
-      await this.relationshipEngine.inferRelationships(observations);
-
-    const memoryAssertions =
-      this.relationshipMemoryProducer.produce(relationships);
-
-    for (const assertion of memoryAssertions) {
-      await this.memory.rememberAssertion(assertion);
-    }
-  }
-
-  private async listObservations(): Promise<ObservationRecord[]> {
-    if (!this.observationRepository) {
-      return [];
-    }
-
-    return this.observationRepository.all();
   }
 
   private getTextFromPayload(payload: unknown): string | null {
