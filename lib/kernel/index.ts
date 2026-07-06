@@ -14,3 +14,5 @@ export * from "./curiosity";
 export * from "./person-store";
 export * from "./cognitive-pipeline";
 export * from "./world-model";
+export * from "./goal";
+export * from "./planning";
