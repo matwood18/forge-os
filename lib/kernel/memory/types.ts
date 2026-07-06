@@ -88,6 +88,12 @@ export type MemoryConfidenceSnapshotCreateInput = Omit<
   "id" | "createdAt"
 >;
 
+export type MemoryAssertion = {
+  belief: MemoryCreateInput;
+
+  evidence: Omit<MemoryEvidenceCreateInput, "memoryId">;
+};
+
 export type MemoryQuery = {
   subjectEntityId?: string;
 

@@ -1,5 +1,6 @@
 import type { MemoryEngine } from "./memory-engine";
 import type {
+  MemoryAssertion,
   MemoryCreateInput,
   MemoryQuery,
   MemoryRecord,
@@ -10,6 +11,10 @@ export class MemoryService {
 
   remember(memory: MemoryCreateInput): Promise<MemoryRecord> {
     return this.memoryEngine.remember(memory);
+  }
+
+  rememberAssertion(assertion: MemoryAssertion): Promise<MemoryRecord> {
+    return this.memoryEngine.rememberAssertion(assertion);
   }
 
   find(query: MemoryQuery): Promise<MemoryRecord[]> {

@@ -1,21 +1,19 @@
 import type { Event, Question } from "@/lib/domain";
 
+import { BasicCuriosityEngine } from "./curiosity";
+import type { CuriosityEngine } from "./curiosity";
+
+import { EntityService } from "./entity";
+
 import {
   EventBusSubscriberRegistrar,
   InMemoryEventBus,
   type EventBus,
   type EventBusSubscriber,
 } from "./event-bus";
+
 import { BasicEventIngestor, InMemoryEventStore } from "./event-store";
 import type { EventIngestInput, EventIngestResult } from "./event-store";
-
-import { InMemoryQuestionStore } from "./question-store";
-
-import { BasicReasoningEngine, type ReasoningEngine } from "./reasoning";
-import type { ReasoningResult } from "./reasoning";
-
-import { BasicCuriosityEngine } from "./curiosity";
-import type { CuriosityEngine } from "./curiosity";
 
 import {
   BasicIdentityResolutionEngine,
@@ -26,11 +24,21 @@ import {
   InMemoryMemoryRepository,
   MemoryEngine,
   MemoryService,
+  RelationshipMemoryProducer,
 } from "./memory";
-import { InMemoryPersonStore } from "./person-store";
-import type { EntityRepository } from "./repositories";
+
+import type { MemoryRecord } from "./memory";
 
 import type { ObservationRepository } from "./observation/observation-repository";
+
+import { InMemoryPersonStore } from "./person-store";
+
+import { InMemoryQuestionStore } from "./question-store";
+
+import { BasicReasoningEngine, type ReasoningEngine } from "./reasoning";
+import type { ReasoningResult } from "./reasoning";
+
+import type { EntityRepository } from "./repositories";
 
 import {
   BasicRelationshipEngine,
@@ -62,13 +70,17 @@ export class ForgeKernel {
   private readonly personStore = new InMemoryPersonStore();
 
   private readonly eventIngestor = new BasicEventIngestor(this.eventStore);
+
   private readonly reasoningEngine: ReasoningEngine;
   private readonly memory: MemoryService;
+  private readonly entityService: EntityService;
   private readonly curiosityEngine: CuriosityEngine;
+
   private readonly observationRepository?: ObservationRepository;
-  private readonly entityRepository?: EntityRepository;
+
   private readonly relationshipRepository: RelationshipRepository;
   private readonly relationshipEngine: RelationshipEngine;
+  private readonly relationshipMemoryProducer = new RelationshipMemoryProducer();
 
   private readonly identityResolutionEngine =
     new BasicIdentityResolutionEngine(this.personStore);
@@ -88,7 +100,8 @@ export class ForgeKernel {
       dependencies.reasoningEngine ?? new BasicReasoningEngine();
 
     this.observationRepository = dependencies.observationRepository;
-    this.entityRepository = dependencies.entityRepository;
+
+    this.entityService = new EntityService(dependencies.entityRepository);
 
     const memoryRepository = new InMemoryMemoryRepository();
     const memoryEngine = new MemoryEngine(memoryRepository);
@@ -97,7 +110,7 @@ export class ForgeKernel {
 
     this.curiosityEngine = new BasicCuriosityEngine(
       this.personStore,
-      this.entityRepository
+      dependencies.entityRepository
     );
 
     this.relationshipRepository =
@@ -121,11 +134,7 @@ export class ForgeKernel {
   }
 
   async people() {
-    if (!this.entityRepository) {
-      return [];
-    }
-
-    return this.entityRepository.all();
+    return this.entityService.all();
   }
 
   async ingest(input: EventIngestInput): Promise<EventIngestResult> {
@@ -171,12 +180,10 @@ export class ForgeKernel {
       displayName,
     });
 
-    if (this.entityRepository) {
-      await this.entityRepository.remember({
-        type: "PERSON",
-        displayName: result.displayName,
-      });
-    }
+    await this.entityService.remember({
+      type: "PERSON",
+      displayName: result.displayName,
+    });
 
     await this.inferRelationshipsFromObservations();
 
@@ -201,14 +208,25 @@ export class ForgeKernel {
     return this.relationshipRepository.all();
   }
 
+  async memories(): Promise<MemoryRecord[]> {
+    return this.memory.all();
+  }
+
   private async inferRelationshipsFromObservations(): Promise<void> {
     if (!this.observationRepository) {
       return;
     }
 
     const observations = await this.observationRepository.all();
+    const relationships =
+      await this.relationshipEngine.inferRelationships(observations);
 
-    await this.relationshipEngine.inferRelationships(observations);
+    const memoryAssertions =
+      this.relationshipMemoryProducer.produce(relationships);
+
+    for (const assertion of memoryAssertions) {
+      await this.memory.rememberAssertion(assertion);
+    }
   }
 
   private getTextFromPayload(payload: unknown): string | null {

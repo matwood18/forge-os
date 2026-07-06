@@ -1,15 +1,19 @@
+import {
+  ExactMemoryIdentityPolicy,
+  type MemoryIdentityPolicy,
+} from "./memory-identity-policy";
+import type { MemoryRepository } from "./memory-repository";
 import type {
   MemoryConfidenceSnapshot,
   MemoryConfidenceSnapshotCreateInput,
   MemoryCreateInput,
   MemoryEvidenceCreateInput,
+  MemoryEvidenceKind,
   MemoryEvidenceRecord,
   MemoryQuery,
   MemoryRecord,
   MemoryStatus,
 } from "./types";
-
-import type { MemoryRepository } from "./memory-repository";
 
 export class InMemoryMemoryRepository implements MemoryRepository {
   private readonly memories = new Map<string, MemoryRecord>();
@@ -20,6 +24,11 @@ export class InMemoryMemoryRepository implements MemoryRepository {
     string,
     MemoryConfidenceSnapshot[]
   >();
+
+  constructor(
+    private readonly identityPolicy: MemoryIdentityPolicy =
+      new ExactMemoryIdentityPolicy()
+  ) {}
 
   async remember(memory: MemoryCreateInput): Promise<MemoryRecord> {
     const now = new Date();
@@ -119,6 +128,16 @@ export class InMemoryMemoryRepository implements MemoryRepository {
   ): Promise<MemoryEvidenceRecord> {
     this.requireMemory(evidence.memoryId);
 
+    const existingEvidence = await this.findEvidence(
+      evidence.memoryId,
+      evidence.evidenceKind,
+      evidence.evidenceId
+    );
+
+    if (existingEvidence) {
+      return existingEvidence;
+    }
+
     const record: MemoryEvidenceRecord = {
       id: crypto.randomUUID(),
       ...evidence,
@@ -126,9 +145,28 @@ export class InMemoryMemoryRepository implements MemoryRepository {
     };
 
     const existing = this.evidence.get(evidence.memoryId) ?? [];
+
     this.evidence.set(evidence.memoryId, [...existing, record]);
 
     return record;
+  }
+
+  async findEvidence(
+    memoryId: string,
+    evidenceKind: MemoryEvidenceKind,
+    evidenceId: string
+  ): Promise<MemoryEvidenceRecord | null> {
+    this.requireMemory(memoryId);
+
+    const evidence = this.evidence.get(memoryId) ?? [];
+
+    return (
+      evidence.find(
+        (record) =>
+          record.evidenceKind === evidenceKind &&
+          record.evidenceId === evidenceId
+      ) ?? null
+    );
   }
 
   async addConfidenceSnapshot(
@@ -143,6 +181,7 @@ export class InMemoryMemoryRepository implements MemoryRepository {
     };
 
     const existing = this.confidenceHistory.get(snapshot.memoryId) ?? [];
+
     this.confidenceHistory.set(snapshot.memoryId, [...existing, record]);
 
     return record;
@@ -150,6 +189,18 @@ export class InMemoryMemoryRepository implements MemoryRepository {
 
   async findById(memoryId: string): Promise<MemoryRecord | null> {
     return this.memories.get(memoryId) ?? null;
+  }
+
+  async findMatchingBelief(
+    memory: MemoryCreateInput
+  ): Promise<MemoryRecord | null> {
+    for (const existing of this.memories.values()) {
+      if (this.identityPolicy.isSameBelief(existing, memory)) {
+        return existing;
+      }
+    }
+
+    return null;
   }
 
   async find(query: MemoryQuery): Promise<MemoryRecord[]> {

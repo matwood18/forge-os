@@ -3,6 +3,7 @@ import type {
   MemoryConfidenceSnapshotCreateInput,
   MemoryCreateInput,
   MemoryEvidenceCreateInput,
+  MemoryEvidenceKind,
   MemoryEvidenceRecord,
   MemoryQuery,
   MemoryRecord,
@@ -12,7 +13,11 @@ import type {
 export interface MemoryRepository {
   remember(memory: MemoryCreateInput): Promise<MemoryRecord>;
 
-  confirm(memoryId: string, confidence: number, reason: string): Promise<MemoryRecord>;
+  confirm(
+    memoryId: string,
+    confidence: number,
+    reason: string
+  ): Promise<MemoryRecord>;
 
   contradict(
     memoryId: string,
@@ -20,9 +25,20 @@ export interface MemoryRepository {
     reason: string
   ): Promise<MemoryRecord>;
 
-  updateStatus(memoryId: string, status: MemoryStatus): Promise<MemoryRecord>;
+  updateStatus(
+    memoryId: string,
+    status: MemoryStatus
+  ): Promise<MemoryRecord>;
 
-  addEvidence(evidence: MemoryEvidenceCreateInput): Promise<MemoryEvidenceRecord>;
+  addEvidence(
+    evidence: MemoryEvidenceCreateInput
+  ): Promise<MemoryEvidenceRecord>;
+
+  findEvidence(
+    memoryId: string,
+    evidenceKind: MemoryEvidenceKind,
+    evidenceId: string
+  ): Promise<MemoryEvidenceRecord | null>;
 
   addConfidenceSnapshot(
     snapshot: MemoryConfidenceSnapshotCreateInput
@@ -30,11 +46,17 @@ export interface MemoryRepository {
 
   findById(memoryId: string): Promise<MemoryRecord | null>;
 
+  findMatchingBelief(
+    memory: MemoryCreateInput
+  ): Promise<MemoryRecord | null>;
+
   find(query: MemoryQuery): Promise<MemoryRecord[]>;
 
   evidenceFor(memoryId: string): Promise<MemoryEvidenceRecord[]>;
 
-  confidenceHistoryFor(memoryId: string): Promise<MemoryConfidenceSnapshot[]>;
+  confidenceHistoryFor(
+    memoryId: string
+  ): Promise<MemoryConfidenceSnapshot[]>;
 
   all(): Promise<MemoryRecord[]>;
 }
