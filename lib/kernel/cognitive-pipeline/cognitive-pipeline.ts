@@ -1,6 +1,6 @@
+import type { CognitiveContextInitializer } from "./context-initializer";
 import type { CognitiveEnvironment } from "./environment";
 import type {
-  CognitiveContext,
   CognitivePass,
   CognitivePipelineInput,
   CognitivePipelineResult,
@@ -9,22 +9,12 @@ import type {
 export class CognitivePipeline {
   constructor(
     private readonly passes: CognitivePass[],
-    private readonly environment: CognitiveEnvironment
+    private readonly environment: CognitiveEnvironment,
+    private readonly contextInitializer: CognitiveContextInitializer
   ) {}
 
   async run(input: CognitivePipelineInput): Promise<CognitivePipelineResult> {
-    const context: CognitiveContext = {
-      input,
-      artifacts: {
-        observations: [],
-        relationships: [],
-        memories: [],
-        questions: [],
-      },
-      metadata: {
-        startedAt: new Date(),
-      },
-    };
+    const context = await this.contextInitializer.initialize(input);
 
     for (const pass of this.passes) {
       await pass.run(context, this.environment);

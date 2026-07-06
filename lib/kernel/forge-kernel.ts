@@ -3,6 +3,7 @@ import type { Event, Question } from "@/lib/domain";
 import {
   CognitivePipeline,
   createDefaultCognitivePipeline,
+  DefaultCognitiveContextInitializer,
 } from "./cognitive-pipeline";
 
 import { BasicCuriosityEngine } from "./curiosity";
@@ -36,7 +37,11 @@ import {
 
 import type { MemoryRecord } from "./memory";
 
-import type { ObservationRecord, ObservationRepository } from "./observation";
+import {
+  InMemoryObservationRepository,
+  type ObservationRecord,
+  type ObservationRepository,
+} from "./observation";
 
 import { InMemoryPersonStore } from "./person-store";
 
@@ -62,6 +67,8 @@ import {
   type RelationshipRecord,
   type RelationshipRepository,
 } from "./relationship";
+
+import { BasicWorldModelBuilder } from "./world-model";
 
 export type CaptureResult = EventIngestResult;
 
@@ -99,7 +106,7 @@ export class ForgeKernel {
   private readonly entityService: EntityService;
   private readonly curiosityEngine: CuriosityEngine;
 
-  private readonly observationRepository?: ObservationRepository;
+  private readonly observationRepository: ObservationRepository;
 
   private readonly relationshipRepository: RelationshipRepository;
   private readonly relationshipEngine: RelationshipEngine;
@@ -122,7 +129,8 @@ export class ForgeKernel {
     this.reasoningEngine =
       dependencies.reasoningEngine ?? this.createDefaultReasoningEngine();
 
-    this.observationRepository = dependencies.observationRepository;
+    this.observationRepository =
+      dependencies.observationRepository ?? new InMemoryObservationRepository();
 
     this.entityService = new EntityService(dependencies.entityRepository);
 
@@ -146,6 +154,17 @@ export class ForgeKernel {
         createDefaultRelationshipRules()
       );
 
+    const worldModelBuilder = new BasicWorldModelBuilder({
+      observationRepository: this.observationRepository,
+      relationshipRepository: this.relationshipRepository,
+      memoryRepository,
+      questionStore: this.questionStore,
+    });
+
+    const contextInitializer = new DefaultCognitiveContextInitializer({
+      worldModelBuilder,
+    });
+
     this.cognitivePipeline = createDefaultCognitivePipeline({
       environment: {
         reasoningEngine: this.reasoningEngine,
@@ -156,6 +175,7 @@ export class ForgeKernel {
         questionStore: this.questionStore,
         observationRepository: this.observationRepository,
       },
+      contextInitializer,
     });
   }
 

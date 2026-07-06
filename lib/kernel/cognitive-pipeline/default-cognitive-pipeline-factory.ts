@@ -1,3 +1,4 @@
+import type { CognitiveContextInitializer } from "./context-initializer";
 import { CognitivePipeline } from "./cognitive-pipeline";
 import type { CognitiveEnvironment } from "./environment";
 import { CuriosityPass } from "./passes/curiosity-pass";
@@ -7,10 +8,12 @@ import { RelationshipPass } from "./passes/relationship-pass";
 
 export type DefaultCognitivePipelineFactoryInput = {
   environment: CognitiveEnvironment;
+  contextInitializer: CognitiveContextInitializer;
 };
 
 export function createDefaultCognitivePipeline({
   environment,
+  contextInitializer,
 }: DefaultCognitivePipelineFactoryInput): CognitivePipeline {
   return new CognitivePipeline(
     [
@@ -19,6 +22,7 @@ export function createDefaultCognitivePipeline({
       new MemoryPass(),
       new CuriosityPass(),
     ],
-    environment
+    environment,
+    contextInitializer
   );
 }

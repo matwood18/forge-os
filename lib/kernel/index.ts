@@ -13,3 +13,4 @@ export * from "./question-store";
 export * from "./curiosity";
 export * from "./person-store";
 export * from "./cognitive-pipeline";
+export * from "./world-model";

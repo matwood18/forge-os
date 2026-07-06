@@ -4,11 +4,16 @@ import type { MemoryRecord } from "../memory";
 import type { ObservationRecord } from "../observation";
 import type { ReasoningSession } from "../reasoning";
 import type { RelationshipRecord } from "../relationship";
+import type { WorldModel } from "../world-model";
 
 import type { CognitiveEnvironment } from "./environment";
 
 export type CognitivePipelineInput = {
   text: string;
+};
+
+export type CognitiveContextState = {
+  worldModel?: WorldModel;
 };
 
 export type CognitiveContextArtifacts = {
@@ -25,6 +30,7 @@ export type CognitiveContextMetadata = {
 
 export type CognitiveContext = {
   input: CognitivePipelineInput;
+  state: CognitiveContextState;
   artifacts: CognitiveContextArtifacts;
   metadata: CognitiveContextMetadata;
 };

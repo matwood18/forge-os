@@ -1,4 +1,5 @@
 export * from "./cognitive-pipeline";
+export * from "./context-initializer";
 export * from "./default-cognitive-pipeline-factory";
 export * from "./environment";
 export * from "./types";
