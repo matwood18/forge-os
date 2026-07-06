@@ -7,6 +7,7 @@ export * from "./events";
 export * from "./semantic-events";
 export * from "./interpretation";
 export * from "./observation";
+export * from "./execution";
 export * from "./reasoning";
 export * from "./question-store";
 export * from "./curiosity";

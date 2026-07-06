@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "forge:bundle": "zip -r forge-os-source.zip . -x 'node_modules/*' -x '.next/*' -x '.git/*' -x '.env' -x '.env.local' -x 'dev.db' -x '*.log'"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",

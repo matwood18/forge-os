@@ -15,6 +15,8 @@ import {
 import { BasicEventIngestor, InMemoryEventStore } from "./event-store";
 import type { EventIngestInput, EventIngestResult } from "./event-store";
 
+import { KernelExecutionRecorder, type KernelExecution } from "./execution";
+
 import {
   BasicIdentityResolutionEngine,
   type IdentityResolutionEngineResult,
@@ -29,14 +31,21 @@ import {
 
 import type { MemoryRecord } from "./memory";
 
-import type { ObservationRepository } from "./observation/observation-repository";
+import type { ObservationRecord, ObservationRepository } from "./observation";
 
 import { InMemoryPersonStore } from "./person-store";
 
 import { InMemoryQuestionStore } from "./question-store";
 
-import { BasicReasoningEngine, type ReasoningEngine } from "./reasoning";
-import type { ReasoningResult } from "./reasoning";
+import {
+  BasicArgumentSynthesizer,
+  BasicReasoningEngine,
+  InMemoryArgumentGeneratorRegistry,
+  InMemoryReasoningSessionRepository,
+  ObjectiveArgumentGenerator,
+  type ReasoningEngine,
+  type ReasoningSession,
+} from "./reasoning";
 
 import type { EntityRepository } from "./repositories";
 
@@ -59,6 +68,14 @@ export type ForgeKernelDependencies = {
   relationshipRepository?: RelationshipRepository;
   eventBus?: EventBus;
   eventBusSubscribers?: EventBusSubscriber[];
+};
+
+type CognitiveRunResult = {
+  reasoningSession: ReasoningSession;
+  observations: ObservationRecord[];
+  relationships: RelationshipRecord[];
+  memories: MemoryRecord[];
+  questions: Question[];
 };
 
 export class ForgeKernel {
@@ -97,7 +114,7 @@ export class ForgeKernel {
     );
 
     this.reasoningEngine =
-      dependencies.reasoningEngine ?? new BasicReasoningEngine();
+      dependencies.reasoningEngine ?? this.createDefaultReasoningEngine();
 
     this.observationRepository = dependencies.observationRepository;
 
@@ -114,8 +131,7 @@ export class ForgeKernel {
     );
 
     this.relationshipRepository =
-      dependencies.relationshipRepository ??
-      new InMemoryRelationshipRepository();
+      dependencies.relationshipRepository ?? new InMemoryRelationshipRepository();
 
     this.relationshipEngine =
       dependencies.relationshipEngine ??
@@ -133,6 +149,42 @@ export class ForgeKernel {
     });
   }
 
+  async execute(text: string): Promise<KernelExecution> {
+    const recorder = new KernelExecutionRecorder();
+
+    recorder.recordInput(text);
+
+    const ingestResult = await this.eventIngestor.ingest({
+      source: "manual",
+      type: "manual.note",
+      payload: { text },
+    });
+
+    recorder.recordEvent(ingestResult.event);
+
+    const cognitiveRun = await this.runCognition(text);
+
+    for (const observation of cognitiveRun.observations) {
+      recorder.recordObservation(observation);
+    }
+
+    for (const relationship of cognitiveRun.relationships) {
+      recorder.recordRelationship(relationship);
+    }
+
+    for (const memory of cognitiveRun.memories) {
+      recorder.recordMemory(memory);
+    }
+
+    recorder.recordReasoning(cognitiveRun.reasoningSession);
+
+    for (const question of cognitiveRun.questions) {
+      recorder.recordQuestion(question);
+    }
+
+    return recorder.complete(text);
+  }
+
   async people() {
     return this.entityService.all();
   }
@@ -145,21 +197,11 @@ export class ForgeKernel {
       return result;
     }
 
-    const reasoning = await this.reason(text);
-
-    await this.inferRelationshipsFromObservations();
-
-    const curiosity = await this.curiosityEngine.generate({
-      observations: reasoning.observations,
-    });
-
-    for (const question of curiosity.questions) {
-      await this.questionStore.add(question);
-    }
+    const cognitiveRun = await this.runCognition(text);
 
     return {
       ...result,
-      questions: await this.questionStore.listOpen(),
+      questions: cognitiveRun.questions,
     };
   }
 
@@ -192,8 +234,15 @@ export class ForgeKernel {
     return result;
   }
 
-  async reason(text: string): Promise<ReasoningResult> {
-    return this.reasoningEngine.reason({ text });
+  async reason(text: string): Promise<ReasoningSession> {
+    return this.reasoningEngine.reason({
+      worldviewId: "kernel-current-worldview",
+      worldview: {
+        generatedAt: new Date(),
+        beliefs: [],
+      },
+      objective: text,
+    });
   }
 
   async events(): Promise<Event[]> {
@@ -212,6 +261,42 @@ export class ForgeKernel {
     return this.memory.all();
   }
 
+  private createDefaultReasoningEngine(): ReasoningEngine {
+    const argumentGeneratorRegistry = new InMemoryArgumentGeneratorRegistry();
+
+    argumentGeneratorRegistry.register(new ObjectiveArgumentGenerator());
+
+    return new BasicReasoningEngine(
+      argumentGeneratorRegistry,
+      new BasicArgumentSynthesizer(),
+      new InMemoryReasoningSessionRepository()
+    );
+  }
+
+  private async runCognition(text: string): Promise<CognitiveRunResult> {
+    const reasoningSession = await this.reason(text);
+
+    await this.inferRelationshipsFromObservations();
+
+    const observations = await this.listObservations();
+
+    const curiosity = await this.curiosityEngine.generate({
+      observations,
+    });
+
+    for (const question of curiosity.questions) {
+      await this.questionStore.add(question);
+    }
+
+    return {
+      reasoningSession,
+      observations,
+      relationships: await this.relationshipRepository.all(),
+      memories: await this.memory.all(),
+      questions: await this.questionStore.listOpen(),
+    };
+  }
+
   private async inferRelationshipsFromObservations(): Promise<void> {
     if (!this.observationRepository) {
       return;
@@ -227,6 +312,14 @@ export class ForgeKernel {
     for (const assertion of memoryAssertions) {
       await this.memory.rememberAssertion(assertion);
     }
+  }
+
+  private async listObservations(): Promise<ObservationRecord[]> {
+    if (!this.observationRepository) {
+      return [];
+    }
+
+    return this.observationRepository.all();
   }
 
   private getTextFromPayload(payload: unknown): string | null {

@@ -1,4 +1,3 @@
-import { StructuredOpenAIModel } from "@/lib/infrastructure/ai/openai";
 import {
   PrismaEntityRepository,
   PrismaObservationRepository,
@@ -6,14 +5,24 @@ import {
 
 import { InMemoryEventBus } from "./event-bus";
 import { ForgeKernel } from "./forge-kernel";
-import { AIReasoningEngine, BasicReasoningEngine } from "./reasoning";
+import {
+  BasicArgumentSynthesizer,
+  BasicReasoningEngine,
+  InMemoryArgumentGeneratorRegistry,
+  InMemoryReasoningSessionRepository,
+  ObjectiveArgumentGenerator,
+} from "./reasoning";
 
 export function createKernel() {
-  const useAI = process.env.FORGE_USE_AI === "true";
+  const argumentGeneratorRegistry = new InMemoryArgumentGeneratorRegistry();
 
-  const reasoningEngine = useAI
-    ? new AIReasoningEngine(new StructuredOpenAIModel())
-    : new BasicReasoningEngine();
+  argumentGeneratorRegistry.register(new ObjectiveArgumentGenerator());
+
+  const reasoningEngine = new BasicReasoningEngine(
+    argumentGeneratorRegistry,
+    new BasicArgumentSynthesizer(),
+    new InMemoryReasoningSessionRepository()
+  );
 
   return new ForgeKernel({
     eventBus: new InMemoryEventBus(),

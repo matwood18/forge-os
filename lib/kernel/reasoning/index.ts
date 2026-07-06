@@ -1,13 +1,33 @@
-export type {
-  Observation,
-  ObservationKind,
-  ReasoningInput,
-  ReasoningResult,
-} from "./types";
+export type { ArgumentGenerator } from "./argument-generator";
+export type { ArgumentGeneratorRegistry } from "./argument-generator-registry";
+export type { ArgumentSynthesizer } from "./argument-synthesizer";
+export type { ReasoningContext } from "./reasoning-context";
+export type { ReasoningSessionRepository } from "./reasoning-session-repository";
 
-export type { ReasoningEngine } from "./reasoning-engine";
-
+export { BasicArgumentSynthesizer } from "./basic-argument-synthesizer";
 export { BasicReasoningEngine } from "./basic-reasoning-engine";
+export { InMemoryArgumentGeneratorRegistry } from "./in-memory-argument-generator-registry";
+export { InMemoryReasoningSessionRepository } from "./in-memory-reasoning-session-repository";
+export { ObjectiveArgumentGenerator } from "./objective-argument-generator";
 
-export { AIReasoningEngine } from "./ai-reasoning-engine";
-export { BasicObservationNormalizer } from "./basic-observation-normalizer";
+export type {
+  Argument,
+  ArgumentId,
+  ArgumentStatus,
+  CandidateArgument,
+  CandidateArgumentId,
+  ReasoningEdge,
+  ReasoningEdgeId,
+  ReasoningEdgeKind,
+  ReasoningEngine,
+  ReasoningEngineInput,
+  ReasoningGraph,
+  ReasoningGraphId,
+  ReasoningNode,
+  ReasoningNodeId,
+  ReasoningNodeKind,
+  ReasoningSession,
+  ReasoningSessionCreateInput,
+  ReasoningSessionId,
+  ReasoningStrength,
+} from "./types";
