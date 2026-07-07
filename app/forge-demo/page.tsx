@@ -1,4 +1,3 @@
-// app/forge-demo/page.tsx
 import {
   DemoDataProvider,
   FULL_LIFECYCLE_DEMO_SCENARIO,
@@ -7,6 +6,7 @@ import { createKernel } from "@/lib/kernel/create-kernel";
 
 import { ActionInspectorView } from "./components/action-inspector";
 import { AuthorizationDecisionInspectorView } from "./components/authorization-decision-inspector";
+import { DecisionChainView } from "./components/decision-chain";
 import { ExecutionTimelineView } from "./components/execution-timeline";
 import { PassExecutionInspectorView } from "./components/pass-execution-inspector";
 import { PipelineStage } from "./components/pipeline-stage";
@@ -46,6 +46,8 @@ export default async function ForgeDemoPage() {
         </header>
 
         <RunSummaryView summary={session.runSummary} />
+
+        <DecisionChainView projection={session.decisionChain} />
 
         <section className="mb-8 rounded-xl border border-slate-800 bg-slate-900/60 p-4">
           <h2 className="text-sm font-semibold text-slate-300">Input</h2>

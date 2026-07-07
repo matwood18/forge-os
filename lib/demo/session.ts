@@ -1,6 +1,6 @@
-// lib/demo/session.ts
 import type { ActionInspector } from "./action";
 import type { AuthorizationDecisionInspector } from "./authorization";
+import type { DecisionChainProjection } from "./decision-chain";
 import type { PassExecutionInspector } from "./pass-execution";
 import type { RecommendationInspector } from "./recommendation";
 import type { ReflectionInspector } from "./reflection";
@@ -19,5 +19,6 @@ export type DemoSession = {
   recommendationInspector: RecommendationInspector;
   authorizationDecisionInspector: AuthorizationDecisionInspector;
   actionInspector: ActionInspector;
+  decisionChain: DecisionChainProjection;
   runSummary: RunSummary;
 };

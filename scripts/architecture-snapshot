@@ -101,6 +101,23 @@ echo "✓ No demo-faked kernel artifacts"
 echo "✓ No action execution"
 echo "✓ No implicit kernel mutation"
 
+print_section "Explainable Decision Chain"
+print_existing \
+  lib/demo/decision-chain/types.ts \
+  lib/demo/decision-chain/decision-chain-builder.ts \
+  lib/demo/decision-chain/index.ts \
+  app/forge-demo/components/decision-chain.tsx
+
+echo "✓ Action-anchored causal projection"
+echo "✓ Reflection → Recommendation → Authorization → Action explanation"
+echo "✓ Current-execution provenance only"
+echo "✓ Incomplete chains skipped rather than fabricated"
+echo "✓ Human-readable decision rationale"
+echo "✓ Demo-owned presentation semantics"
+echo "✓ No repository access"
+echo "✓ No action execution"
+echo "✓ No implicit kernel mutation"
+
 print_section "Reflection"
 print_existing \
   lib/kernel/reflection/types.ts \

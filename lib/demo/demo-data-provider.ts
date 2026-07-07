@@ -1,8 +1,8 @@
-// lib/demo/demo-data-provider.ts
 import type { ForgeKernel } from "@/lib/kernel";
 
 import { ActionInspectorBuilder } from "./action";
 import { AuthorizationDecisionInspectorBuilder } from "./authorization";
+import { DecisionChainBuilder } from "./decision-chain";
 import { KernelDemoPipelineBuilder } from "./kernel-demo-pipeline-builder";
 import { PassExecutionInspectorBuilder } from "./pass-execution";
 import { RecommendationInspectorBuilder } from "./recommendation";
@@ -34,6 +34,7 @@ export class DemoDataProvider {
     private readonly authorizationDecisionInspectorBuilder =
       new AuthorizationDecisionInspectorBuilder(),
     private readonly actionInspectorBuilder = new ActionInspectorBuilder(),
+    private readonly decisionChainBuilder = new DecisionChainBuilder(),
     private readonly runSummaryBuilder = new RunSummaryBuilder()
   ) {}
 
@@ -72,6 +73,17 @@ export class DemoDataProvider {
     const actionInspector =
       this.actionInspectorBuilder.build(execution, actions);
 
+    const decisionChainSource = {
+      id: execution.id,
+      reflectionInspector,
+      recommendationInspector,
+      authorizationDecisionInspector,
+      actionInspector,
+    };
+
+    const decisionChain =
+      this.decisionChainBuilder.build(decisionChainSource);
+
     const sessionWithoutRunSummary: Omit<DemoSession, "runSummary"> = {
       id: execution.id,
       createdAt: execution.startedAt,
@@ -83,6 +95,7 @@ export class DemoDataProvider {
       recommendationInspector,
       authorizationDecisionInspector,
       actionInspector,
+      decisionChain,
     };
 
     const runSummary =

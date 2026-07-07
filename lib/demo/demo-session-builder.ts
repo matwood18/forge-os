@@ -10,9 +10,10 @@ export class DemoSessionBuilder {
 
   build(input = ""): DemoSession {
     const now = new Date();
+    const sessionId = crypto.randomUUID();
 
     const sessionWithoutRunSummary: Omit<DemoSession, "runSummary"> = {
-      id: crypto.randomUUID(),
+      id: sessionId,
       createdAt: now,
       input,
       pipeline: this.pipelineBuilder.build(),
@@ -43,6 +44,10 @@ export class DemoSessionBuilder {
       },
       actionInspector: {
         id: crypto.randomUUID(),
+        items: [],
+      },
+      decisionChain: {
+        id: sessionId,
         items: [],
       },
     };

@@ -1,6 +1,6 @@
-// lib/demo/index.ts
 export { ActionInspectorBuilder } from "./action";
 export { AuthorizationDecisionInspectorBuilder } from "./authorization";
+export { DecisionChainBuilder } from "./decision-chain";
 export { DemoDataProvider } from "./demo-data-provider";
 export { DemoPipelineBuilder } from "./demo-pipeline-builder";
 export { DemoSessionBuilder } from "./demo-session-builder";
@@ -30,6 +30,11 @@ export type {
   AuthorizationDecisionInspector,
   AuthorizationDecisionInspectorItem,
 } from "./authorization";
+
+export type {
+  DecisionChainItem,
+  DecisionChainProjection,
+} from "./decision-chain";
 
 export type {
   DemoArtifact,
