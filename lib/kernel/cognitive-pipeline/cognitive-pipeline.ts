@@ -1,3 +1,4 @@
+// lib/kernel/cognitive-pipeline/cognitive-pipeline.ts
 import type { CognitiveContextInitializer } from "./context-initializer";
 import type { CognitiveEnvironment } from "./environment";
 import type {

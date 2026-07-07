@@ -1,3 +1,4 @@
+// lib/kernel/cognitive-pipeline/index.ts
 export * from "./cognitive-pipeline";
 export * from "./context-initializer";
 export * from "./default-cognitive-pipeline-factory";
@@ -7,3 +8,4 @@ export * from "./passes/reasoning-pass";
 export * from "./passes/relationship-pass";
 export * from "./passes/memory-pass";
 export * from "./passes/curiosity-pass";
+export * from "./passes/planning-pass";

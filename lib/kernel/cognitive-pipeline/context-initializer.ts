@@ -1,3 +1,4 @@
+// lib/kernel/cognitive-pipeline/context-initializer.ts
 import type { WorldModelBuilder } from "../world-model";
 
 import type {
@@ -35,6 +36,7 @@ export class DefaultCognitiveContextInitializer
         relationships: [],
         memories: [],
         questions: [],
+        plans: [],
       },
       metadata: {
         startedAt: new Date(),

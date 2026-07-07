@@ -1,7 +1,8 @@
+// lib/kernel/forge-kernel.ts
 import type { Event, Question } from "@/lib/domain";
 
+import { CognitivePipeline } from "./cognitive-pipeline/cognitive-pipeline";
 import {
-  CognitivePipeline,
   createDefaultCognitivePipeline,
   DefaultCognitiveContextInitializer,
 } from "./cognitive-pipeline";
@@ -24,6 +25,12 @@ import type { EventIngestInput, EventIngestResult } from "./event-store";
 import { KernelExecutionRecorder, type KernelExecution } from "./execution";
 
 import {
+  BasicGoalEngine,
+  InMemoryGoalRepository,
+  type GoalEngine,
+} from "./goal";
+
+import {
   BasicIdentityResolutionEngine,
   type IdentityResolutionEngineResult,
 } from "./identity-resolution";
@@ -44,6 +51,12 @@ import {
 } from "./observation";
 
 import { InMemoryPersonStore } from "./person-store";
+
+import {
+  BasicPlanningEngine,
+  InMemoryPlanRepository,
+  type PlanningEngine,
+} from "./planning";
 
 import { InMemoryQuestionStore } from "./question-store";
 
@@ -78,6 +91,8 @@ export type ForgeKernelDependencies = {
   entityRepository?: EntityRepository;
   relationshipEngine?: RelationshipEngine;
   relationshipRepository?: RelationshipRepository;
+  goalEngine?: GoalEngine;
+  planningEngine?: PlanningEngine;
   eventBus?: EventBus;
   eventBusSubscribers?: EventBusSubscriber[];
 };
@@ -105,6 +120,8 @@ export class ForgeKernel {
   private readonly memory: MemoryService;
   private readonly entityService: EntityService;
   private readonly curiosityEngine: CuriosityEngine;
+  private readonly goalEngine: GoalEngine;
+  private readonly planningEngine: PlanningEngine;
 
   private readonly observationRepository: ObservationRepository;
 
@@ -154,6 +171,14 @@ export class ForgeKernel {
         createDefaultRelationshipRules()
       );
 
+    this.goalEngine =
+      dependencies.goalEngine ??
+      new BasicGoalEngine(new InMemoryGoalRepository());
+
+    this.planningEngine =
+      dependencies.planningEngine ??
+      new BasicPlanningEngine(new InMemoryPlanRepository());
+
     const worldModelBuilder = new BasicWorldModelBuilder({
       observationRepository: this.observationRepository,
       relationshipRepository: this.relationshipRepository,
@@ -173,6 +198,8 @@ export class ForgeKernel {
         relationshipMemoryProducer: this.relationshipMemoryProducer,
         curiosityEngine: this.curiosityEngine,
         questionStore: this.questionStore,
+        goalEngine: this.goalEngine,
+        planningEngine: this.planningEngine,
         observationRepository: this.observationRepository,
       },
       contextInitializer,
