@@ -2,6 +2,14 @@
 import type { Event, Question } from "@/lib/domain";
 
 import {
+  BasicActionMaterializationEngine,
+  InMemoryActionRepository,
+  type ActionMaterializationEngine,
+  type ActionRecord,
+  type ActionRepository,
+} from "./action";
+
+import {
   BasicAuthorizationEngine,
   InMemoryAuthorizationRepository,
   type AuthorizationDecision,
@@ -124,6 +132,8 @@ export type ForgeKernelDependencies = {
   recommendationRepository?: RecommendationRepository;
   authorizationEngine?: AuthorizationEngine;
   authorizationRepository?: AuthorizationRepository;
+  actionMaterializationEngine?: ActionMaterializationEngine;
+  actionRepository?: ActionRepository;
   eventBus?: EventBus;
   eventBusSubscribers?: EventBusSubscriber[];
 };
@@ -160,6 +170,8 @@ export class ForgeKernel {
   private readonly recommendationRepository: RecommendationRepository;
   private readonly authorizationEngine: AuthorizationEngine;
   private readonly authorizationRepository: AuthorizationRepository;
+  private readonly actionMaterializationEngine: ActionMaterializationEngine;
+  private readonly actionRepository: ActionRepository;
 
   private readonly observationRepository: ObservationRepository;
 
@@ -242,6 +254,13 @@ export class ForgeKernel {
       dependencies.authorizationEngine ??
       new BasicAuthorizationEngine(this.authorizationRepository);
 
+    this.actionRepository =
+      dependencies.actionRepository ?? new InMemoryActionRepository();
+
+    this.actionMaterializationEngine =
+      dependencies.actionMaterializationEngine ??
+      new BasicActionMaterializationEngine(this.actionRepository);
+
     const worldModelBuilder = new BasicWorldModelBuilder({
       observationRepository: this.observationRepository,
       relationshipRepository: this.relationshipRepository,
@@ -323,9 +342,15 @@ export class ForgeKernel {
       reflections: reflectionResult.reflections,
     });
 
-    await this.authorizationEngine.evaluate({
+    const authorizationResult = await this.authorizationEngine.evaluate({
       executionId: execution.id,
       recommendations: recommendationResult.recommendations,
+    });
+
+    await this.actionMaterializationEngine.materialize({
+      executionId: execution.id,
+      recommendations: recommendationResult.recommendations,
+      authorizationDecisions: authorizationResult.decisions,
     });
 
     return execution;
@@ -417,6 +442,10 @@ export class ForgeKernel {
 
   async authorizationDecisions(): Promise<AuthorizationDecision[]> {
     return this.authorizationRepository.all();
+  }
+
+  async actions(): Promise<ActionRecord[]> {
+    return this.actionRepository.all();
   }
 
   private createDefaultReasoningEngine(): ReasoningEngine {

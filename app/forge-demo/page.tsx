@@ -2,6 +2,7 @@
 import { DemoDataProvider } from "@/lib/demo";
 import { createKernel } from "@/lib/kernel/create-kernel";
 
+import { ActionInspectorView } from "./components/action-inspector";
 import { AuthorizationDecisionInspectorView } from "./components/authorization-decision-inspector";
 import { ExecutionTimelineView } from "./components/execution-timeline";
 import { PassExecutionInspectorView } from "./components/pass-execution-inspector";
@@ -55,6 +56,8 @@ export default async function ForgeDemoPage() {
         <AuthorizationDecisionInspectorView
           inspector={session.authorizationDecisionInspector}
         />
+
+        <ActionInspectorView inspector={session.actionInspector} />
 
         <div className="space-y-4">
           {session.pipeline.stages.map((stage) => (

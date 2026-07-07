@@ -62,11 +62,14 @@ print_existing \
   lib/demo/recommendation/recommendation-inspector-builder.ts \
   lib/demo/authorization/types.ts \
   lib/demo/authorization/authorization-decision-inspector-builder.ts \
+  lib/demo/action/types.ts \
+  lib/demo/action/action-inspector-builder.ts \
   app/forge-demo/components/execution-timeline.tsx \
   app/forge-demo/components/pass-execution-inspector.tsx \
   app/forge-demo/components/reflection-inspector.tsx \
   app/forge-demo/components/recommendation-inspector.tsx \
-  app/forge-demo/components/authorization-decision-inspector.tsx
+  app/forge-demo/components/authorization-decision-inspector.tsx \
+  app/forge-demo/components/action-inspector.tsx
 
 echo "✓ Timeline"
 echo "✓ Pipeline"
@@ -74,6 +77,7 @@ echo "✓ Pass Execution Inspector"
 echo "✓ Reflection Inspector"
 echo "✓ Recommendation Inspector"
 echo "✓ Authorization Decision Inspector"
+echo "✓ Action Inspector"
 
 print_section "Reflection"
 print_existing \
@@ -122,6 +126,28 @@ echo "✓ AuthorizationRepository"
 echo "✓ AuthorizationEngine"
 echo "✓ Deterministic policy evaluation"
 echo "✓ Authorization decisions projected into demo"
+echo "✓ No action execution"
+echo "✓ No implicit kernel mutation"
+
+print_section "Action"
+print_existing \
+  lib/kernel/action/types.ts \
+  lib/kernel/action/action-repository.ts \
+  lib/kernel/action/in-memory-action-repository.ts \
+  lib/kernel/action/action-materialization-engine.ts \
+  lib/kernel/action/basic-action-materialization-engine.ts \
+  lib/kernel/action/index.ts \
+  lib/demo/action/types.ts \
+  lib/demo/action/action-inspector-builder.ts \
+  lib/demo/action/index.ts \
+  app/forge-demo/components/action-inspector.tsx
+
+echo "✓ Authorization-derived action materialization"
+echo "✓ ActionRepository"
+echo "✓ ActionMaterializationEngine"
+echo "✓ Deterministic materialization rules"
+echo "✓ Action records projected into demo"
+echo "✓ Durable intended work only"
 echo "✓ No action execution"
 echo "✓ No implicit kernel mutation"
 

@@ -1,4 +1,5 @@
 // lib/demo/index.ts
+export { ActionInspectorBuilder } from "./action";
 export { AuthorizationDecisionInspectorBuilder } from "./authorization";
 export { DemoDataProvider } from "./demo-data-provider";
 export { DemoPipelineBuilder } from "./demo-pipeline-builder";
@@ -11,6 +12,11 @@ export { ReflectionInspectorBuilder } from "./reflection";
 export { ExecutionTimelineBuilder } from "./timeline";
 
 export type { DemoSession } from "./session";
+
+export type {
+  ActionInspector,
+  ActionInspectorItem,
+} from "./action";
 
 export type {
   AuthorizationDecisionInspector,

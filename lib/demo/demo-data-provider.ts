@@ -1,6 +1,7 @@
 // lib/demo/demo-data-provider.ts
 import type { ForgeKernel } from "@/lib/kernel";
 
+import { ActionInspectorBuilder } from "./action";
 import { AuthorizationDecisionInspectorBuilder } from "./authorization";
 import { KernelDemoPipelineBuilder } from "./kernel-demo-pipeline-builder";
 import { PassExecutionInspectorBuilder } from "./pass-execution";
@@ -29,7 +30,8 @@ export class DemoDataProvider {
     private readonly recommendationInspectorBuilder =
       new RecommendationInspectorBuilder(),
     private readonly authorizationDecisionInspectorBuilder =
-      new AuthorizationDecisionInspectorBuilder()
+      new AuthorizationDecisionInspectorBuilder(),
+    private readonly actionInspectorBuilder = new ActionInspectorBuilder()
   ) {}
 
   async load(input = DEFAULT_DEMO_INPUT): Promise<DemoSession> {
@@ -38,6 +40,7 @@ export class DemoDataProvider {
     const recommendations = await this.kernel.recommendations();
     const authorizationDecisions =
       await this.kernel.authorizationDecisions();
+    const actions = await this.kernel.actions();
 
     const pipeline = this.pipelineBuilder.build(execution);
     const timeline = this.timelineBuilder.build(execution);
@@ -55,6 +58,8 @@ export class DemoDataProvider {
         execution,
         authorizationDecisions
       );
+    const actionInspector =
+      this.actionInspectorBuilder.build(execution, actions);
 
     return {
       id: execution.id,
@@ -66,6 +71,7 @@ export class DemoDataProvider {
       reflectionInspector,
       recommendationInspector,
       authorizationDecisionInspector,
+      actionInspector,
     };
   }
 }
