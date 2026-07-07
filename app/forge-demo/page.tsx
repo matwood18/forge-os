@@ -5,6 +5,7 @@ import { createKernel } from "@/lib/kernel/create-kernel";
 import { ExecutionTimelineView } from "./components/execution-timeline";
 import { PassExecutionInspectorView } from "./components/pass-execution-inspector";
 import { PipelineStage } from "./components/pipeline-stage";
+import { ReflectionInspectorView } from "./components/reflection-inspector";
 
 export default async function ForgeDemoPage() {
   const kernel = createKernel();
@@ -42,6 +43,8 @@ export default async function ForgeDemoPage() {
         <PassExecutionInspectorView
           inspector={session.passExecutionInspector}
         />
+
+        <ReflectionInspectorView inspector={session.reflectionInspector} />
 
         <div className="space-y-4">
           {session.pipeline.stages.map((stage) => (

@@ -62,6 +62,14 @@ import {
 import { InMemoryQuestionStore } from "./question-store";
 
 import {
+  BasicReflectionEngine,
+  InMemoryReflectionRepository,
+  type ReflectionEngine,
+  type ReflectionRecord,
+  type ReflectionRepository,
+} from "./reflection";
+
+import {
   BasicArgumentSynthesizer,
   BasicReasoningEngine,
   InMemoryArgumentGeneratorRegistry,
@@ -94,6 +102,8 @@ export type ForgeKernelDependencies = {
   relationshipRepository?: RelationshipRepository;
   goalEngine?: GoalEngine;
   planningEngine?: PlanningEngine;
+  reflectionEngine?: ReflectionEngine;
+  reflectionRepository?: ReflectionRepository;
   eventBus?: EventBus;
   eventBusSubscribers?: EventBusSubscriber[];
 };
@@ -124,6 +134,8 @@ export class ForgeKernel {
   private readonly curiosityEngine: CuriosityEngine;
   private readonly goalEngine: GoalEngine;
   private readonly planningEngine: PlanningEngine;
+  private readonly reflectionEngine: ReflectionEngine;
+  private readonly reflectionRepository: ReflectionRepository;
 
   private readonly observationRepository: ObservationRepository;
 
@@ -164,7 +176,8 @@ export class ForgeKernel {
     );
 
     this.relationshipRepository =
-      dependencies.relationshipRepository ?? new InMemoryRelationshipRepository();
+      dependencies.relationshipRepository ??
+      new InMemoryRelationshipRepository();
 
     this.relationshipEngine =
       dependencies.relationshipEngine ??
@@ -180,6 +193,14 @@ export class ForgeKernel {
     this.planningEngine =
       dependencies.planningEngine ??
       new BasicPlanningEngine(new InMemoryPlanRepository());
+
+    this.reflectionRepository =
+      dependencies.reflectionRepository ??
+      new InMemoryReflectionRepository();
+
+    this.reflectionEngine =
+      dependencies.reflectionEngine ??
+      new BasicReflectionEngine(this.reflectionRepository);
 
     const worldModelBuilder = new BasicWorldModelBuilder({
       observationRepository: this.observationRepository,
@@ -251,7 +272,11 @@ export class ForgeKernel {
       recorder.recordQuestion(question);
     }
 
-    return recorder.complete(text);
+    const execution = recorder.complete(text);
+
+    await this.reflectionEngine.reflect({ execution });
+
+    return execution;
   }
 
   async people() {
@@ -328,6 +353,10 @@ export class ForgeKernel {
 
   async memories(): Promise<MemoryRecord[]> {
     return this.memory.all();
+  }
+
+  async reflections(): Promise<ReflectionRecord[]> {
+    return this.reflectionRepository.all();
   }
 
   private createDefaultReasoningEngine(): ReasoningEngine {

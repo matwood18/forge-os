@@ -27,6 +27,10 @@ export class DemoSessionBuilder {
         completedAt: now,
         items: [],
       },
+      reflectionInspector: {
+        id: crypto.randomUUID(),
+        items: [],
+      },
     };
   }
 }
