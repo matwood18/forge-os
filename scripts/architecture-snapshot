@@ -56,13 +56,30 @@ print_existing \
   lib/demo/timeline/execution-timeline-builder.ts \
   lib/demo/pass-execution/types.ts \
   lib/demo/pass-execution/pass-execution-inspector-builder.ts \
+  lib/demo/reflection/types.ts \
+  lib/demo/reflection/reflection-inspector-builder.ts \
   app/forge-demo/components/execution-timeline.tsx \
-  app/forge-demo/components/pass-execution-inspector.tsx
+  app/forge-demo/components/pass-execution-inspector.tsx \
+  app/forge-demo/components/reflection-inspector.tsx
 
 echo "✓ Timeline"
 echo "✓ Pipeline"
 echo "✓ Pass Execution Inspector"
-echo "○ Reflection"
+echo "✓ Reflection Inspector"
+
+print_section "Reflection"
+print_existing \
+  lib/kernel/reflection/types.ts \
+  lib/kernel/reflection/reflection-engine.ts \
+  lib/kernel/reflection/basic-reflection-engine.ts \
+  lib/kernel/reflection/reflection-repository.ts \
+  lib/kernel/reflection/in-memory-reflection-repository.ts \
+  lib/kernel/reflection/index.ts
+
+echo "✓ Execution-derived reflection"
+echo "✓ ReflectionRepository"
+echo "✓ ReflectionEngine"
+echo "✓ Reflection records projected into demo"
 
 print_section "Repositories"
 find lib/kernel -name "*repository.ts" -o -name "in-memory-*-repository.ts" | sort
