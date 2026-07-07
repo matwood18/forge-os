@@ -3,6 +3,7 @@ import { DemoDataProvider } from "@/lib/demo";
 import { createKernel } from "@/lib/kernel/create-kernel";
 
 import { ExecutionTimelineView } from "./components/execution-timeline";
+import { PassExecutionInspectorView } from "./components/pass-execution-inspector";
 import { PipelineStage } from "./components/pipeline-stage";
 
 export default async function ForgeDemoPage() {
@@ -37,6 +38,10 @@ export default async function ForgeDemoPage() {
         </section>
 
         <ExecutionTimelineView timeline={session.timeline} />
+
+        <PassExecutionInspectorView
+          inspector={session.passExecutionInspector}
+        />
 
         <div className="space-y-4">
           {session.pipeline.stages.map((stage) => (

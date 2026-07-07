@@ -36,6 +36,34 @@ print_existing \
   lib/kernel/cognitive-pipeline/passes/curiosity-pass.ts \
   lib/kernel/cognitive-pipeline/passes/planning-pass.ts
 
+print_section "Instrumentation"
+print_existing \
+  lib/kernel/cognitive-pipeline/execution/pass-execution.ts \
+  lib/kernel/cognitive-pipeline/execution/pass-execution-recorder.ts \
+  lib/kernel/execution/types.ts \
+  lib/kernel/execution/execution-recorder.ts
+
+echo "✓ PassExecutionRecorder"
+echo "✓ CognitivePassExecution"
+echo "✓ KernelExecution.passExecutions"
+echo "✓ Per-pass artifact deltas"
+echo "✓ Duration metrics"
+echo "✓ Failure capture"
+
+print_section "Inspection"
+print_existing \
+  lib/demo/timeline/types.ts \
+  lib/demo/timeline/execution-timeline-builder.ts \
+  lib/demo/pass-execution/types.ts \
+  lib/demo/pass-execution/pass-execution-inspector-builder.ts \
+  app/forge-demo/components/execution-timeline.tsx \
+  app/forge-demo/components/pass-execution-inspector.tsx
+
+echo "✓ Timeline"
+echo "✓ Pipeline"
+echo "✓ Pass Execution Inspector"
+echo "○ Reflection"
+
 print_section "Repositories"
 find lib/kernel -name "*repository.ts" -o -name "in-memory-*-repository.ts" | sort
 

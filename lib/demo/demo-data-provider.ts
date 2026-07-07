@@ -2,6 +2,7 @@
 import type { ForgeKernel } from "@/lib/kernel";
 
 import { KernelDemoPipelineBuilder } from "./kernel-demo-pipeline-builder";
+import { PassExecutionInspectorBuilder } from "./pass-execution";
 import type { DemoSession } from "./session";
 import { ExecutionTimelineBuilder } from "./timeline";
 
@@ -17,13 +18,17 @@ export class DemoDataProvider {
   constructor(
     private readonly kernel: ForgeKernel,
     private readonly pipelineBuilder = new KernelDemoPipelineBuilder(),
-    private readonly timelineBuilder = new ExecutionTimelineBuilder()
+    private readonly timelineBuilder = new ExecutionTimelineBuilder(),
+    private readonly passExecutionInspectorBuilder =
+      new PassExecutionInspectorBuilder()
   ) {}
 
   async load(input = DEFAULT_DEMO_INPUT): Promise<DemoSession> {
     const execution = await this.kernel.execute(input);
     const pipeline = this.pipelineBuilder.build(execution);
     const timeline = this.timelineBuilder.build(execution);
+    const passExecutionInspector =
+      this.passExecutionInspectorBuilder.build(execution);
 
     return {
       id: execution.id,
@@ -31,6 +36,7 @@ export class DemoDataProvider {
       input: execution.input,
       pipeline,
       timeline,
+      passExecutionInspector,
     };
   }
 }

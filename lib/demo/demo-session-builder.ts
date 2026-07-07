@@ -21,6 +21,12 @@ export class DemoSessionBuilder {
         completedAt: now,
         items: [],
       },
+      passExecutionInspector: {
+        id: crypto.randomUUID(),
+        startedAt: now,
+        completedAt: now,
+        items: [],
+      },
     };
   }
 }

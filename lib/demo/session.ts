@@ -1,4 +1,5 @@
 // lib/demo/session.ts
+import type { PassExecutionInspector } from "./pass-execution";
 import type { ExecutionTimeline } from "./timeline";
 import type { DemoPipeline } from "./types";
 
@@ -12,4 +13,6 @@ export type DemoSession = {
   pipeline: DemoPipeline;
 
   timeline: ExecutionTimeline;
+
+  passExecutionInspector: PassExecutionInspector;
 };

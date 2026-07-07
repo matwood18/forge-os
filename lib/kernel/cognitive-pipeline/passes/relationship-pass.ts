@@ -1,3 +1,4 @@
+// lib/kernel/cognitive-pipeline/passes/relationship-pass.ts
 import type { CognitiveEnvironment } from "../environment";
 import type { CognitiveContext, CognitivePass } from "../types";
 
@@ -8,17 +9,16 @@ export class RelationshipPass implements CognitivePass {
     context: CognitiveContext,
     environment: CognitiveEnvironment
   ): Promise<void> {
-    if (!environment.observationRepository) {
-      context.artifacts.observations = [];
+    const observations = context.artifacts.observations;
+
+    if (observations.length === 0) {
       context.artifacts.relationships = [];
       return;
     }
 
-    const observations = await environment.observationRepository.all();
     const relationships =
       await environment.relationshipEngine.inferRelationships(observations);
 
-    context.artifacts.observations = observations;
     context.artifacts.relationships = relationships;
   }
 }

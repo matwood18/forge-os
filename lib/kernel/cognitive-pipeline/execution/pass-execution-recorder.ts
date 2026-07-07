@@ -3,8 +3,10 @@ import type { CognitiveEnvironment } from "../environment";
 import type { CognitiveContext, CognitivePass } from "../types";
 
 import {
+  diffCognitiveArtifactSummaries,
   summarizeCognitiveArtifacts,
   type CognitivePassExecution,
+  type CognitivePassExecutionArtifactSummary,
 } from "./pass-execution";
 
 export class PassExecutionRecorder {
@@ -14,13 +16,14 @@ export class PassExecutionRecorder {
     environment: CognitiveEnvironment
   ): Promise<void> {
     const startedAt = new Date();
+    const beforeArtifacts = summarizeCognitiveArtifacts(context.artifacts);
 
     try {
       await pass.run(context, environment);
 
-      this.recordCompletedPass(pass, context, startedAt);
+      this.recordCompletedPass(pass, context, startedAt, beforeArtifacts);
     } catch (error) {
-      this.recordFailedPass(pass, context, startedAt, error);
+      this.recordFailedPass(pass, context, startedAt, beforeArtifacts, error);
 
       throw error;
     }
@@ -29,9 +32,11 @@ export class PassExecutionRecorder {
   private recordCompletedPass(
     pass: CognitivePass,
     context: CognitiveContext,
-    startedAt: Date
+    startedAt: Date,
+    beforeArtifacts: CognitivePassExecutionArtifactSummary
   ): void {
     const completedAt = new Date();
+    const afterArtifacts = summarizeCognitiveArtifacts(context.artifacts);
 
     context.metadata.passExecutions.push({
       id: crypto.randomUUID(),
@@ -39,7 +44,10 @@ export class PassExecutionRecorder {
       startedAt,
       completedAt,
       status: "completed",
-      artifacts: summarizeCognitiveArtifacts(context.artifacts),
+      artifacts: diffCognitiveArtifactSummaries(
+        beforeArtifacts,
+        afterArtifacts
+      ),
       metrics: {
         durationMs: completedAt.getTime() - startedAt.getTime(),
       },
@@ -50,9 +58,11 @@ export class PassExecutionRecorder {
     pass: CognitivePass,
     context: CognitiveContext,
     startedAt: Date,
+    beforeArtifacts: CognitivePassExecutionArtifactSummary,
     error: unknown
   ): void {
     const completedAt = new Date();
+    const afterArtifacts = summarizeCognitiveArtifacts(context.artifacts);
 
     const execution: CognitivePassExecution = {
       id: crypto.randomUUID(),
@@ -60,7 +70,10 @@ export class PassExecutionRecorder {
       startedAt,
       completedAt,
       status: "failed",
-      artifacts: summarizeCognitiveArtifacts(context.artifacts),
+      artifacts: diffCognitiveArtifactSummaries(
+        beforeArtifacts,
+        afterArtifacts
+      ),
       metrics: {
         durationMs: completedAt.getTime() - startedAt.getTime(),
       },

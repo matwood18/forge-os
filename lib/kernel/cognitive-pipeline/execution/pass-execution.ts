@@ -39,3 +39,20 @@ export function summarizeCognitiveArtifacts(
     plans: artifacts.plans.length,
   };
 }
+
+export function diffCognitiveArtifactSummaries(
+  before: CognitivePassExecutionArtifactSummary,
+  after: CognitivePassExecutionArtifactSummary
+): CognitivePassExecutionArtifactSummary {
+  return {
+    reasoningSessions: Math.max(
+      after.reasoningSessions - before.reasoningSessions,
+      0
+    ),
+    observations: Math.max(after.observations - before.observations, 0),
+    relationships: Math.max(after.relationships - before.relationships, 0),
+    memories: Math.max(after.memories - before.memories, 0),
+    questions: Math.max(after.questions - before.questions, 0),
+    plans: Math.max(after.plans - before.plans, 0),
+  };
+}
