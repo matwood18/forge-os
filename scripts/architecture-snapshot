@@ -1,0 +1,76 @@
+# scripts/architecture-snapshot
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+print_section() {
+  echo
+  echo "$1"
+  echo "----------------------------------------"
+}
+
+print_existing() {
+  for path in "$@"; do
+    if [ -e "$path" ]; then
+      echo "✓ $path"
+    else
+      echo "✗ $path"
+    fi
+  done
+}
+
+echo "Forge OS Architecture Snapshot"
+echo "========================================"
+
+print_section "Commit"
+git rev-parse --short HEAD 2>/dev/null || echo "unknown"
+
+print_section "Git Status"
+git status --short
+
+print_section "Core Cognitive Pipeline"
+print_existing \
+  lib/kernel/cognitive-pipeline/passes/reasoning-pass.ts \
+  lib/kernel/cognitive-pipeline/passes/relationship-pass.ts \
+  lib/kernel/cognitive-pipeline/passes/memory-pass.ts \
+  lib/kernel/cognitive-pipeline/passes/curiosity-pass.ts \
+  lib/kernel/cognitive-pipeline/passes/planning-pass.ts
+
+print_section "Repositories"
+find lib/kernel -name "*repository.ts" -o -name "in-memory-*-repository.ts" | sort
+
+print_section "Engines"
+find lib/kernel -name "*engine.ts" | sort
+
+print_section "World Model"
+print_existing \
+  lib/kernel/world-model/basic-world-model-builder.ts \
+  lib/kernel/world-model/world-model-builder.ts \
+  lib/kernel/world-model/reasoning-adapter.ts \
+  lib/kernel/world-model/types.ts
+
+print_section "Agency"
+print_existing \
+  lib/kernel/goal/goal-engine.ts \
+  lib/kernel/goal/goal-repository.ts \
+  lib/kernel/goal/basic-goal-engine.ts \
+  lib/kernel/planning/planning-engine.ts \
+  lib/kernel/planning/plan-repository.ts \
+  lib/kernel/planning/basic-planning-engine.ts
+
+print_section "Demo / Timeline"
+print_existing \
+  lib/demo/timeline/types.ts \
+  lib/demo/timeline/execution-timeline-builder.ts \
+  app/forge-demo/components/execution-timeline.tsx \
+  app/forge-demo/components/pipeline-stage.tsx \
+  app/forge-demo/page.tsx
+
+print_section "Kernel Contexts"
+find lib/kernel -mindepth 1 -maxdepth 1 -type d | sort
+
+print_section "Demo Files"
+find lib/demo app/forge-demo -maxdepth 4 -type f | sort
+
+print_section "Package Scripts"
+node -e "const p=require('./package.json'); for (const [k,v] of Object.entries(p.scripts ?? {})) console.log(k + ' = ' + v)"
