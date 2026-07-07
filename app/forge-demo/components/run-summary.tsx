@@ -25,6 +25,60 @@ export function RunSummaryView({ summary }: RunSummaryViewProps) {
           {summary.summary}
         </p>
 
+        {summary.decisionOutcome ? (
+          <div className="mt-5 rounded-xl border border-slate-700 bg-slate-950/50 p-5">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+              Primary Decision Outcome
+            </p>
+
+            <p className="mt-3 text-sm leading-6 text-slate-300">
+              {summary.decisionOutcome.explanation}
+            </p>
+
+            <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+              <div>
+                <p className="text-xs uppercase tracking-wide text-slate-600">
+                  Noticed
+                </p>
+
+                <p className="mt-1 text-sm text-slate-400">
+                  {summary.decisionOutcome.noticed.join("; ")}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-xs uppercase tracking-wide text-slate-600">
+                  Recommended
+                </p>
+
+                <p className="mt-1 text-sm text-slate-400">
+                  {summary.decisionOutcome.recommended}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-xs uppercase tracking-wide text-slate-600">
+                  Authorization
+                </p>
+
+                <p className="mt-1 text-sm capitalize text-slate-400">
+                  {summary.decisionOutcome.authorizationOutcome}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-xs uppercase tracking-wide text-slate-600">
+                  Materialized
+                </p>
+
+                <p className="mt-1 text-sm text-slate-400">
+                  {summary.decisionOutcome.materialized}
+                </p>
+              </div>
+            </div>
+          </div>
+        ) : null}
+
         <div className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-xs text-slate-500">
           <span>{summary.durationMs} ms total duration</span>
           <span>

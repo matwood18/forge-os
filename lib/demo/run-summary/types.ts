@@ -15,6 +15,15 @@ export type RunSummaryChainItem = {
   status: RunSummaryChainItemStatus;
 };
 
+export type RunSummaryDecisionOutcome = {
+  decisionChainId: string;
+  noticed: string[];
+  recommended: string;
+  authorizationOutcome: string;
+  materialized: string;
+  explanation: string;
+};
+
 export type RunSummary = {
   id: string;
   input: string;
@@ -28,5 +37,6 @@ export type RunSummary = {
   actionCount: number;
   headline: string;
   summary: string;
+  decisionOutcome?: RunSummaryDecisionOutcome;
   chainItems: RunSummaryChainItem[];
 };

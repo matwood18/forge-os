@@ -1,8 +1,10 @@
 // lib/demo/run-summary/run-summary-builder.ts
+import type { DecisionChainItem } from "../decision-chain";
 import type { DemoSession } from "../session";
 import type {
   RunSummary,
   RunSummaryChainItem,
+  RunSummaryDecisionOutcome,
 } from "./types";
 
 type RunSummarySource = Omit<DemoSession, "runSummary">;
@@ -66,6 +68,8 @@ export class RunSummaryBuilder {
       },
     ];
 
+    const primaryDecisionChain = session.decisionChain.items[0];
+
     return {
       id: session.id,
       input: session.input,
@@ -93,7 +97,23 @@ export class RunSummaryBuilder {
         authorizationDecisionCount,
         actionCount,
       }),
+      decisionOutcome: primaryDecisionChain
+        ? this.buildDecisionOutcome(primaryDecisionChain)
+        : undefined,
       chainItems,
+    };
+  }
+
+  private buildDecisionOutcome(
+    chain: DecisionChainItem
+  ): RunSummaryDecisionOutcome {
+    return {
+      decisionChainId: chain.id,
+      noticed: chain.reflections.map((reflection) => reflection.title),
+      recommended: chain.recommendation.title,
+      authorizationOutcome: chain.authorizationDecision.outcome,
+      materialized: chain.action.title,
+      explanation: chain.explanation,
     };
   }
 
@@ -130,11 +150,39 @@ export class RunSummaryBuilder {
     actionCount: number;
   }): string {
     return [
-      `${input.passCount} cognitive passes completed.`,
-      `${input.reflectionCount} reflections were produced.`,
-      `${input.recommendationCount} recommendations were proposed.`,
-      `${input.authorizationDecisionCount} authorization decisions were recorded.`,
-      `${input.actionCount} actions were materialized as durable intended work.`,
+      this.buildCountSentence(
+        input.passCount,
+        "cognitive pass completed",
+        "cognitive passes completed"
+      ),
+      this.buildCountSentence(
+        input.reflectionCount,
+        "reflection was produced",
+        "reflections were produced"
+      ),
+      this.buildCountSentence(
+        input.recommendationCount,
+        "recommendation was proposed",
+        "recommendations were proposed"
+      ),
+      this.buildCountSentence(
+        input.authorizationDecisionCount,
+        "authorization decision was recorded",
+        "authorization decisions were recorded"
+      ),
+      this.buildCountSentence(
+        input.actionCount,
+        "action was materialized as durable intended work",
+        "actions were materialized as durable intended work"
+      ),
     ].join(" ");
+  }
+
+  private buildCountSentence(
+    count: number,
+    singular: string,
+    plural: string
+  ): string {
+    return `${count} ${count === 1 ? singular : plural}.`;
   }
 }
