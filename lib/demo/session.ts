@@ -4,6 +4,7 @@ import type { AuthorizationDecisionInspector } from "./authorization";
 import type { PassExecutionInspector } from "./pass-execution";
 import type { RecommendationInspector } from "./recommendation";
 import type { ReflectionInspector } from "./reflection";
+import type { RunSummary } from "./run-summary";
 import type { ExecutionTimeline } from "./timeline";
 import type { DemoPipeline } from "./types";
 
@@ -18,4 +19,5 @@ export type DemoSession = {
   recommendationInspector: RecommendationInspector;
   authorizationDecisionInspector: AuthorizationDecisionInspector;
   actionInspector: ActionInspector;
+  runSummary: RunSummary;
 };

@@ -1,15 +1,17 @@
 // lib/demo/demo-session-builder.ts
 import { DemoPipelineBuilder } from "./demo-pipeline-builder";
+import { RunSummaryBuilder } from "./run-summary";
 
 import type { DemoSession } from "./session";
 
 export class DemoSessionBuilder {
   private readonly pipelineBuilder = new DemoPipelineBuilder();
+  private readonly runSummaryBuilder = new RunSummaryBuilder();
 
   build(input = ""): DemoSession {
     const now = new Date();
 
-    return {
+    const sessionWithoutRunSummary: Omit<DemoSession, "runSummary"> = {
       id: crypto.randomUUID(),
       createdAt: now,
       input,
@@ -43,6 +45,11 @@ export class DemoSessionBuilder {
         id: crypto.randomUUID(),
         items: [],
       },
+    };
+
+    return {
+      ...sessionWithoutRunSummary,
+      runSummary: this.runSummaryBuilder.build(sessionWithoutRunSummary),
     };
   }
 }

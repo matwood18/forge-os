@@ -1,5 +1,6 @@
 // lib/kernel/reflection/basic-reflection-engine.ts
 import type { CognitivePassExecution } from "../cognitive-pipeline";
+import type { KernelExecutionStep } from "../execution";
 
 import type { ReflectionRepository } from "./reflection-repository";
 import type { ReflectionEngine } from "./reflection-engine";
@@ -11,9 +12,7 @@ import type {
 } from "./types";
 
 export class BasicReflectionEngine implements ReflectionEngine {
-  constructor(
-    private readonly repository: ReflectionRepository
-  ) {}
+  constructor(private readonly repository: ReflectionRepository) {}
 
   async reflect(input: ReflectionInput): Promise<ReflectionResult> {
     const candidates = this.analyze(input);
@@ -35,6 +34,7 @@ export class BasicReflectionEngine implements ReflectionEngine {
       this.createExecutionSummary(input),
       ...this.createMissingPassExecutionReflections(input),
       ...this.createSparseExecutionReflections(input),
+      ...this.createEmptyReasoningReflections(input),
       ...execution.passExecutions.flatMap((passExecution) =>
         this.createPassExecutionReflections(
           execution.id,
@@ -123,6 +123,28 @@ export class BasicReflectionEngine implements ReflectionEngine {
     ];
   }
 
+  private createEmptyReasoningReflections(
+    input: ReflectionInput
+  ): ReflectionCreateInput[] {
+    const { execution } = input;
+
+    return execution.steps
+      .filter((step) => step.type === "reasoning.completed")
+      .filter((step) => this.isEmptyReasoningStep(step))
+      .map((step) => ({
+        executionId: execution.id,
+        kind: "artifact_quality",
+        severity: "warning",
+        title: "Reasoning completed without arguments",
+        summary:
+          "The reasoning pass completed, but it did not produce any arguments or questions.",
+        target: {
+          type: "step",
+          id: step.id,
+        },
+      }));
+  }
+
   private createPassExecutionReflections(
     executionId: string,
     passExecution: CognitivePassExecution
@@ -163,6 +185,24 @@ export class BasicReflectionEngine implements ReflectionEngine {
     }
 
     return [];
+  }
+
+  private isEmptyReasoningStep(
+    step: KernelExecutionStep
+  ): boolean {
+    if (step.type !== "reasoning.completed") {
+      return false;
+    }
+
+    if (
+      typeof step.artifact !== "object" ||
+      step.artifact === null ||
+      !("arguments" in step.artifact)
+    ) {
+      return false;
+    }
+
+    return step.artifact.arguments.length === 0;
   }
 
   private countProducedArtifacts(

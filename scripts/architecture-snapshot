@@ -79,6 +79,28 @@ echo "✓ Recommendation Inspector"
 echo "✓ Authorization Decision Inspector"
 echo "✓ Action Inspector"
 
+print_section "Demonstrable Forge"
+print_existing \
+  lib/demo/run-summary/types.ts \
+  lib/demo/run-summary/run-summary-builder.ts \
+  lib/demo/run-summary/index.ts \
+  lib/demo/scenario/types.ts \
+  lib/demo/scenario/scenarios.ts \
+  lib/demo/scenario/index.ts \
+  app/forge-demo/components/run-summary.tsx \
+  app/forge-demo/page.tsx
+
+echo "✓ Product-facing run summary projection"
+echo "✓ Demo scenario contracts"
+echo "✓ Named full-lifecycle demo scenario"
+echo "✓ Named cognitive-output demo scenario"
+echo "✓ Full lifecycle demo path"
+echo "✓ Input → Execution → Reflection → Recommendation → Authorization → Action"
+echo "✓ Inspectors preserved as proof layer"
+echo "✓ No demo-faked kernel artifacts"
+echo "✓ No action execution"
+echo "✓ No implicit kernel mutation"
+
 print_section "Reflection"
 print_existing \
   lib/kernel/reflection/types.ts \
@@ -89,6 +111,8 @@ print_existing \
   lib/kernel/reflection/index.ts
 
 echo "✓ Execution-derived reflection"
+echo "✓ Meaningful cognitive output reflection"
+echo "✓ Empty reasoning detected as artifact quality warning"
 echo "✓ ReflectionRepository"
 echo "✓ ReflectionEngine"
 echo "✓ Reflection records projected into demo"

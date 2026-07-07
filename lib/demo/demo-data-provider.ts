@@ -7,6 +7,8 @@ import { KernelDemoPipelineBuilder } from "./kernel-demo-pipeline-builder";
 import { PassExecutionInspectorBuilder } from "./pass-execution";
 import { RecommendationInspectorBuilder } from "./recommendation";
 import { ReflectionInspectorBuilder } from "./reflection";
+import { RunSummaryBuilder } from "./run-summary";
+import type { DemoScenario } from "./scenario";
 import type { DemoSession } from "./session";
 import { ExecutionTimelineBuilder } from "./timeline";
 
@@ -31,10 +33,19 @@ export class DemoDataProvider {
       new RecommendationInspectorBuilder(),
     private readonly authorizationDecisionInspectorBuilder =
       new AuthorizationDecisionInspectorBuilder(),
-    private readonly actionInspectorBuilder = new ActionInspectorBuilder()
+    private readonly actionInspectorBuilder = new ActionInspectorBuilder(),
+    private readonly runSummaryBuilder = new RunSummaryBuilder()
   ) {}
 
   async load(input = DEFAULT_DEMO_INPUT): Promise<DemoSession> {
+    return this.loadInput(input);
+  }
+
+  async loadScenario(scenario: DemoScenario): Promise<DemoSession> {
+    return this.loadInput(scenario.input);
+  }
+
+  private async loadInput(input: string): Promise<DemoSession> {
     const execution = await this.kernel.execute(input);
     const reflections = await this.kernel.reflections();
     const recommendations = await this.kernel.recommendations();
@@ -61,7 +72,7 @@ export class DemoDataProvider {
     const actionInspector =
       this.actionInspectorBuilder.build(execution, actions);
 
-    return {
+    const sessionWithoutRunSummary: Omit<DemoSession, "runSummary"> = {
       id: execution.id,
       createdAt: execution.startedAt,
       input: execution.input,
@@ -72,6 +83,14 @@ export class DemoDataProvider {
       recommendationInspector,
       authorizationDecisionInspector,
       actionInspector,
+    };
+
+    const runSummary =
+      this.runSummaryBuilder.build(sessionWithoutRunSummary);
+
+    return {
+      ...sessionWithoutRunSummary,
+      runSummary,
     };
   }
 }

@@ -1,5 +1,8 @@
 // app/forge-demo/page.tsx
-import { DemoDataProvider } from "@/lib/demo";
+import {
+  DemoDataProvider,
+  FULL_LIFECYCLE_DEMO_SCENARIO,
+} from "@/lib/demo";
 import { createKernel } from "@/lib/kernel/create-kernel";
 
 import { ActionInspectorView } from "./components/action-inspector";
@@ -9,10 +12,13 @@ import { PassExecutionInspectorView } from "./components/pass-execution-inspecto
 import { PipelineStage } from "./components/pipeline-stage";
 import { RecommendationInspectorView } from "./components/recommendation-inspector";
 import { ReflectionInspectorView } from "./components/reflection-inspector";
+import { RunSummaryView } from "./components/run-summary";
 
 export default async function ForgeDemoPage() {
   const kernel = createKernel();
-  const session = await new DemoDataProvider(kernel).load();
+  const session = await new DemoDataProvider(kernel).loadScenario(
+    FULL_LIFECYCLE_DEMO_SCENARIO
+  );
 
   return (
     <main className="min-h-screen bg-slate-950 px-6 py-10 text-slate-100">
@@ -26,12 +32,20 @@ export default async function ForgeDemoPage() {
             Cognitive Demo
           </h1>
 
-          <p className="mt-3 text-sm text-slate-400">Session {session.id}</p>
+          <p className="mt-3 text-sm text-slate-400">
+            {FULL_LIFECYCLE_DEMO_SCENARIO.title}
+          </p>
 
-          <p className="mt-1 text-sm text-slate-500">
-            {session.createdAt.toLocaleString()}
+          <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-500">
+            {FULL_LIFECYCLE_DEMO_SCENARIO.description}
+          </p>
+
+          <p className="mt-3 text-xs text-slate-600">
+            Session {session.id} · {session.createdAt.toLocaleString()}
           </p>
         </header>
+
+        <RunSummaryView summary={session.runSummary} />
 
         <section className="mb-8 rounded-xl border border-slate-800 bg-slate-900/60 p-4">
           <h2 className="text-sm font-semibold text-slate-300">Input</h2>

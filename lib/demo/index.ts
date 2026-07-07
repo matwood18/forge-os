@@ -9,6 +9,14 @@ export { KernelDemoPipelineBuilder } from "./kernel-demo-pipeline-builder";
 export { PassExecutionInspectorBuilder } from "./pass-execution";
 export { RecommendationInspectorBuilder } from "./recommendation";
 export { ReflectionInspectorBuilder } from "./reflection";
+export { RunSummaryBuilder } from "./run-summary";
+
+export {
+  COGNITIVE_OUTPUT_DEMO_SCENARIO,
+  DEMO_SCENARIOS,
+  FULL_LIFECYCLE_DEMO_SCENARIO,
+} from "./scenario";
+
 export { ExecutionTimelineBuilder } from "./timeline";
 
 export type { DemoSession } from "./session";
@@ -32,6 +40,11 @@ export type {
 } from "./types";
 
 export type {
+  DemoScenario,
+  DemoScenarioId,
+} from "./scenario";
+
+export type {
   PassExecutionInspector,
   PassExecutionInspectorItem,
 } from "./pass-execution";
@@ -45,6 +58,12 @@ export type {
   ReflectionInspector,
   ReflectionInspectorItem,
 } from "./reflection";
+
+export type {
+  RunSummary,
+  RunSummaryChainItem,
+  RunSummaryChainItemStatus,
+} from "./run-summary";
 
 export type {
   ExecutionTimeline,
