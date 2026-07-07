@@ -35,6 +35,10 @@ export class DemoSessionBuilder {
         id: crypto.randomUUID(),
         items: [],
       },
+      authorizationDecisionInspector: {
+        id: crypto.randomUUID(),
+        items: [],
+      },
     };
   }
 }

@@ -1,6 +1,14 @@
 // lib/kernel/forge-kernel.ts
 import type { Event, Question } from "@/lib/domain";
 
+import {
+  BasicAuthorizationEngine,
+  InMemoryAuthorizationRepository,
+  type AuthorizationDecision,
+  type AuthorizationEngine,
+  type AuthorizationRepository,
+} from "./authorization";
+
 import { CognitivePipeline } from "./cognitive-pipeline/cognitive-pipeline";
 import {
   createDefaultCognitivePipeline,
@@ -114,6 +122,8 @@ export type ForgeKernelDependencies = {
   reflectionRepository?: ReflectionRepository;
   recommendationEngine?: RecommendationEngine;
   recommendationRepository?: RecommendationRepository;
+  authorizationEngine?: AuthorizationEngine;
+  authorizationRepository?: AuthorizationRepository;
   eventBus?: EventBus;
   eventBusSubscribers?: EventBusSubscriber[];
 };
@@ -148,6 +158,8 @@ export class ForgeKernel {
   private readonly reflectionRepository: ReflectionRepository;
   private readonly recommendationEngine: RecommendationEngine;
   private readonly recommendationRepository: RecommendationRepository;
+  private readonly authorizationEngine: AuthorizationEngine;
+  private readonly authorizationRepository: AuthorizationRepository;
 
   private readonly observationRepository: ObservationRepository;
 
@@ -221,6 +233,14 @@ export class ForgeKernel {
     this.recommendationEngine =
       dependencies.recommendationEngine ??
       new BasicRecommendationEngine(this.recommendationRepository);
+
+    this.authorizationRepository =
+      dependencies.authorizationRepository ??
+      new InMemoryAuthorizationRepository();
+
+    this.authorizationEngine =
+      dependencies.authorizationEngine ??
+      new BasicAuthorizationEngine(this.authorizationRepository);
 
     const worldModelBuilder = new BasicWorldModelBuilder({
       observationRepository: this.observationRepository,
@@ -298,9 +318,14 @@ export class ForgeKernel {
       execution,
     });
 
-    await this.recommendationEngine.recommend({
+    const recommendationResult = await this.recommendationEngine.recommend({
       executionId: execution.id,
       reflections: reflectionResult.reflections,
+    });
+
+    await this.authorizationEngine.evaluate({
+      executionId: execution.id,
+      recommendations: recommendationResult.recommendations,
     });
 
     return execution;
@@ -388,6 +413,10 @@ export class ForgeKernel {
 
   async recommendations(): Promise<RecommendationRecord[]> {
     return this.recommendationRepository.all();
+  }
+
+  async authorizationDecisions(): Promise<AuthorizationDecision[]> {
+    return this.authorizationRepository.all();
   }
 
   private createDefaultReasoningEngine(): ReasoningEngine {

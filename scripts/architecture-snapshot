@@ -60,16 +60,20 @@ print_existing \
   lib/demo/reflection/reflection-inspector-builder.ts \
   lib/demo/recommendation/types.ts \
   lib/demo/recommendation/recommendation-inspector-builder.ts \
+  lib/demo/authorization/types.ts \
+  lib/demo/authorization/authorization-decision-inspector-builder.ts \
   app/forge-demo/components/execution-timeline.tsx \
   app/forge-demo/components/pass-execution-inspector.tsx \
   app/forge-demo/components/reflection-inspector.tsx \
-  app/forge-demo/components/recommendation-inspector.tsx
+  app/forge-demo/components/recommendation-inspector.tsx \
+  app/forge-demo/components/authorization-decision-inspector.tsx
 
 echo "✓ Timeline"
 echo "✓ Pipeline"
 echo "✓ Pass Execution Inspector"
 echo "✓ Reflection Inspector"
 echo "✓ Recommendation Inspector"
+echo "✓ Authorization Decision Inspector"
 
 print_section "Reflection"
 print_existing \
@@ -99,6 +103,27 @@ echo "✓ RecommendationRepository"
 echo "✓ RecommendationEngine"
 echo "✓ Recommendation records projected into demo"
 echo "✓ No automatic action execution"
+
+print_section "Authorization"
+print_existing \
+  lib/kernel/authorization/types.ts \
+  lib/kernel/authorization/authorization-engine.ts \
+  lib/kernel/authorization/basic-authorization-engine.ts \
+  lib/kernel/authorization/authorization-repository.ts \
+  lib/kernel/authorization/in-memory-authorization-repository.ts \
+  lib/kernel/authorization/index.ts \
+  lib/demo/authorization/types.ts \
+  lib/demo/authorization/authorization-decision-inspector-builder.ts \
+  lib/demo/authorization/index.ts \
+  app/forge-demo/components/authorization-decision-inspector.tsx
+
+echo "✓ Recommendation-derived authorization decisions"
+echo "✓ AuthorizationRepository"
+echo "✓ AuthorizationEngine"
+echo "✓ Deterministic policy evaluation"
+echo "✓ Authorization decisions projected into demo"
+echo "✓ No action execution"
+echo "✓ No implicit kernel mutation"
 
 print_section "Repositories"
 find lib/kernel -name "*repository.ts" -o -name "in-memory-*-repository.ts" | sort
