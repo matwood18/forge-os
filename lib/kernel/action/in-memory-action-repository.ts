@@ -1,6 +1,10 @@
 // lib/kernel/action/in-memory-action-repository.ts
 import type { ActionRepository } from "./action-repository";
-import type { ActionCreateInput, ActionRecord } from "./types";
+import type {
+  ActionCreateInput,
+  ActionRecord,
+  ActionStatus,
+} from "./types";
 
 export class InMemoryActionRepository implements ActionRepository {
   private readonly actions: ActionRecord[] = [];
@@ -18,6 +22,32 @@ export class InMemoryActionRepository implements ActionRepository {
     this.actions.push(record);
 
     return this.copy(record);
+  }
+
+  async byId(actionId: string): Promise<ActionRecord | null> {
+    const action = this.actions.find((record) => record.id === actionId);
+
+    if (!action) {
+      return null;
+    }
+
+    return this.copy(action);
+  }
+
+  async updateStatus(
+    actionId: string,
+    status: ActionStatus
+  ): Promise<ActionRecord | null> {
+    const action = this.actions.find((record) => record.id === actionId);
+
+    if (!action) {
+      return null;
+    }
+
+    action.status = status;
+    action.updatedAt = new Date();
+
+    return this.copy(action);
   }
 
   async forExecution(executionId: string): Promise<ActionRecord[]> {
