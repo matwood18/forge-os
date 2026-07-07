@@ -4,6 +4,8 @@ import type {
   PassExecutionInspectorItem,
 } from "@/lib/demo/pass-execution";
 
+import { formatDemoTime } from "./demo-date";
+
 type PassExecutionInspectorProps = {
   inspector: PassExecutionInspector;
 };
@@ -78,8 +80,8 @@ export function PassExecutionInspectorView({
                   </h3>
 
                   <p className="mt-1 text-xs text-slate-500">
-                    {item.startedAt.toLocaleTimeString()} →{" "}
-                    {item.completedAt.toLocaleTimeString()}
+                    {formatDemoTime(item.startedAt)} →{" "}
+                    {formatDemoTime(item.completedAt)}
                   </p>
                 </div>
 

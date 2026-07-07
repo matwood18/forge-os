@@ -4,6 +4,8 @@ import type {
   AuthorizationDecisionInspectorItem,
 } from "@/lib/demo/authorization";
 
+import { formatDemoTime } from "./demo-date";
+
 type AuthorizationDecisionInspectorProps = {
   inspector: AuthorizationDecisionInspector;
 };
@@ -70,7 +72,7 @@ export function AuthorizationDecisionInspectorView({
 
                   <p className="mt-1 text-xs text-slate-500">
                     Authority: {formatValue(item.authority)} ·{" "}
-                    {item.createdAt.toLocaleTimeString()}
+                    {formatDemoTime(item.createdAt)}
                   </p>
                 </div>
 

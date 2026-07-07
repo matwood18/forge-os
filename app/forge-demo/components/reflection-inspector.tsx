@@ -4,6 +4,8 @@ import type {
   ReflectionInspectorItem,
 } from "@/lib/demo/reflection";
 
+import { formatDemoTime } from "./demo-date";
+
 type ReflectionInspectorProps = {
   inspector: ReflectionInspector;
 };
@@ -64,7 +66,7 @@ export function ReflectionInspectorView({
                   </h3>
 
                   <p className="mt-1 text-xs text-slate-500">
-                    {formatKind(item.kind)} · {item.createdAt.toLocaleTimeString()}
+                    {formatKind(item.kind)} · {formatDemoTime(item.createdAt)}
                   </p>
                 </div>
 

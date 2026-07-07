@@ -4,6 +4,8 @@ import type {
   ActionInspectorItem,
 } from "@/lib/demo/action";
 
+import { formatDemoTime } from "./demo-date";
+
 type ActionInspectorProps = {
   inspector: ActionInspector;
 };
@@ -64,8 +66,7 @@ export function ActionInspectorView({
                   </h3>
 
                   <p className="mt-1 text-xs text-slate-500">
-                    {formatValue(item.kind)} ·{" "}
-                    {item.createdAt.toLocaleTimeString()}
+                    {formatValue(item.kind)} · {formatDemoTime(item.createdAt)}
                   </p>
                 </div>
 

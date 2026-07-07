@@ -37,6 +37,11 @@ export type {
 } from "./decision-chain";
 
 export type {
+  InteractiveDemoInputValidationResult,
+  InteractiveDemoRunResult,
+} from "./interactive";
+
+export type {
   DemoArtifact,
   DemoArtifactMetadataValue,
   DemoPipeline,

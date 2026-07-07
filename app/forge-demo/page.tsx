@@ -2,23 +2,50 @@ import {
   DemoDataProvider,
   FULL_LIFECYCLE_DEMO_SCENARIO,
 } from "@/lib/demo";
+import { validateInteractiveDemoInput } from "@/lib/demo/interactive";
 import { createKernel } from "@/lib/kernel/create-kernel";
 
 import { ActionInspectorView } from "./components/action-inspector";
 import { AuthorizationDecisionInspectorView } from "./components/authorization-decision-inspector";
 import { DecisionChainView } from "./components/decision-chain";
+import { formatDemoDateTime } from "./components/demo-date";
 import { ExecutionTimelineView } from "./components/execution-timeline";
+import { InteractiveDemoForm } from "./components/interactive-demo-form";
 import { PassExecutionInspectorView } from "./components/pass-execution-inspector";
 import { PipelineStage } from "./components/pipeline-stage";
 import { RecommendationInspectorView } from "./components/recommendation-inspector";
 import { ReflectionInspectorView } from "./components/reflection-inspector";
 import { RunSummaryView } from "./components/run-summary";
 
-export default async function ForgeDemoPage() {
+type ForgeDemoPageProps = {
+  searchParams?: Promise<{
+    input?: string | string[];
+  }>;
+};
+
+export default async function ForgeDemoPage({
+  searchParams,
+}: ForgeDemoPageProps) {
+  const resolvedSearchParams = await searchParams;
+  const rawInput = Array.isArray(resolvedSearchParams?.input)
+    ? resolvedSearchParams?.input[0]
+    : resolvedSearchParams?.input;
+
+  const validation =
+    rawInput === undefined
+      ? null
+      : validateInteractiveDemoInput(rawInput);
+
   const kernel = createKernel();
-  const session = await new DemoDataProvider(kernel).loadScenario(
-    FULL_LIFECYCLE_DEMO_SCENARIO
-  );
+  const dataProvider = new DemoDataProvider(kernel);
+
+  const session =
+    validation?.ok === true
+      ? await dataProvider.load(validation.input)
+      : await dataProvider.loadScenario(FULL_LIFECYCLE_DEMO_SCENARIO);
+
+  const formInput = validation?.ok === true ? validation.input : rawInput ?? session.input;
+  const formError = validation?.ok === false ? validation.message : undefined;
 
   return (
     <main className="min-h-screen bg-slate-950 px-6 py-10 text-slate-100">
@@ -33,17 +60,26 @@ export default async function ForgeDemoPage() {
           </h1>
 
           <p className="mt-3 text-sm text-slate-400">
-            {FULL_LIFECYCLE_DEMO_SCENARIO.title}
+            {validation?.ok === true
+              ? "Interactive Input"
+              : FULL_LIFECYCLE_DEMO_SCENARIO.title}
           </p>
 
           <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-500">
-            {FULL_LIFECYCLE_DEMO_SCENARIO.description}
+            {validation?.ok === true
+              ? "Forge processed your input through the real kernel execution path."
+              : FULL_LIFECYCLE_DEMO_SCENARIO.description}
           </p>
 
           <p className="mt-3 text-xs text-slate-600">
-            Session {session.id} · {session.createdAt.toLocaleString()}
+            Session {session.id} · {formatDemoDateTime(session.createdAt)}
           </p>
         </header>
+
+        <InteractiveDemoForm
+          initialInput={formInput}
+          errorMessage={formError}
+        />
 
         <RunSummaryView summary={session.runSummary} />
 

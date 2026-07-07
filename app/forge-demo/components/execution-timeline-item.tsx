@@ -1,6 +1,8 @@
 // app/forge-demo/components/execution-timeline-item.tsx
 import type { ExecutionTimelineItem } from "@/lib/demo";
 
+import { formatDemoTime } from "./demo-date";
+
 type ExecutionTimelineItemViewProps = {
   item: ExecutionTimelineItem;
 };
@@ -35,7 +37,7 @@ export function ExecutionTimelineItemView({
         </div>
 
         <time className="text-xs text-slate-600">
-          {item.occurredAt.toLocaleTimeString()}
+          {formatDemoTime(item.occurredAt)}
         </time>
       </div>
 
