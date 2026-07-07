@@ -62,6 +62,14 @@ import {
 import { InMemoryQuestionStore } from "./question-store";
 
 import {
+  BasicRecommendationEngine,
+  InMemoryRecommendationRepository,
+  type RecommendationEngine,
+  type RecommendationRecord,
+  type RecommendationRepository,
+} from "./recommendation";
+
+import {
   BasicReflectionEngine,
   InMemoryReflectionRepository,
   type ReflectionEngine,
@@ -104,6 +112,8 @@ export type ForgeKernelDependencies = {
   planningEngine?: PlanningEngine;
   reflectionEngine?: ReflectionEngine;
   reflectionRepository?: ReflectionRepository;
+  recommendationEngine?: RecommendationEngine;
+  recommendationRepository?: RecommendationRepository;
   eventBus?: EventBus;
   eventBusSubscribers?: EventBusSubscriber[];
 };
@@ -136,6 +146,8 @@ export class ForgeKernel {
   private readonly planningEngine: PlanningEngine;
   private readonly reflectionEngine: ReflectionEngine;
   private readonly reflectionRepository: ReflectionRepository;
+  private readonly recommendationEngine: RecommendationEngine;
+  private readonly recommendationRepository: RecommendationRepository;
 
   private readonly observationRepository: ObservationRepository;
 
@@ -201,6 +213,14 @@ export class ForgeKernel {
     this.reflectionEngine =
       dependencies.reflectionEngine ??
       new BasicReflectionEngine(this.reflectionRepository);
+
+    this.recommendationRepository =
+      dependencies.recommendationRepository ??
+      new InMemoryRecommendationRepository();
+
+    this.recommendationEngine =
+      dependencies.recommendationEngine ??
+      new BasicRecommendationEngine(this.recommendationRepository);
 
     const worldModelBuilder = new BasicWorldModelBuilder({
       observationRepository: this.observationRepository,
@@ -274,7 +294,14 @@ export class ForgeKernel {
 
     const execution = recorder.complete(text);
 
-    await this.reflectionEngine.reflect({ execution });
+    const reflectionResult = await this.reflectionEngine.reflect({
+      execution,
+    });
+
+    await this.recommendationEngine.recommend({
+      executionId: execution.id,
+      reflections: reflectionResult.reflections,
+    });
 
     return execution;
   }
@@ -357,6 +384,10 @@ export class ForgeKernel {
 
   async reflections(): Promise<ReflectionRecord[]> {
     return this.reflectionRepository.all();
+  }
+
+  async recommendations(): Promise<RecommendationRecord[]> {
+    return this.recommendationRepository.all();
   }
 
   private createDefaultReasoningEngine(): ReasoningEngine {

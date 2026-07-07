@@ -5,6 +5,7 @@ import { createKernel } from "@/lib/kernel/create-kernel";
 import { ExecutionTimelineView } from "./components/execution-timeline";
 import { PassExecutionInspectorView } from "./components/pass-execution-inspector";
 import { PipelineStage } from "./components/pipeline-stage";
+import { RecommendationInspectorView } from "./components/recommendation-inspector";
 import { ReflectionInspectorView } from "./components/reflection-inspector";
 
 export default async function ForgeDemoPage() {
@@ -45,6 +46,10 @@ export default async function ForgeDemoPage() {
         />
 
         <ReflectionInspectorView inspector={session.reflectionInspector} />
+
+        <RecommendationInspectorView
+          inspector={session.recommendationInspector}
+        />
 
         <div className="space-y-4">
           {session.pipeline.stages.map((stage) => (

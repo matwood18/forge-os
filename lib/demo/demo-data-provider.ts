@@ -3,6 +3,7 @@ import type { ForgeKernel } from "@/lib/kernel";
 
 import { KernelDemoPipelineBuilder } from "./kernel-demo-pipeline-builder";
 import { PassExecutionInspectorBuilder } from "./pass-execution";
+import { RecommendationInspectorBuilder } from "./recommendation";
 import { ReflectionInspectorBuilder } from "./reflection";
 import type { DemoSession } from "./session";
 import { ExecutionTimelineBuilder } from "./timeline";
@@ -23,12 +24,15 @@ export class DemoDataProvider {
     private readonly passExecutionInspectorBuilder =
       new PassExecutionInspectorBuilder(),
     private readonly reflectionInspectorBuilder =
-      new ReflectionInspectorBuilder()
+      new ReflectionInspectorBuilder(),
+    private readonly recommendationInspectorBuilder =
+      new RecommendationInspectorBuilder()
   ) {}
 
   async load(input = DEFAULT_DEMO_INPUT): Promise<DemoSession> {
     const execution = await this.kernel.execute(input);
     const reflections = await this.kernel.reflections();
+    const recommendations = await this.kernel.recommendations();
 
     const pipeline = this.pipelineBuilder.build(execution);
     const timeline = this.timelineBuilder.build(execution);
@@ -36,6 +40,11 @@ export class DemoDataProvider {
       this.passExecutionInspectorBuilder.build(execution);
     const reflectionInspector =
       this.reflectionInspectorBuilder.build(execution, reflections);
+    const recommendationInspector =
+      this.recommendationInspectorBuilder.build(
+        execution,
+        recommendations
+      );
 
     return {
       id: execution.id,
@@ -45,6 +54,7 @@ export class DemoDataProvider {
       timeline,
       passExecutionInspector,
       reflectionInspector,
+      recommendationInspector,
     };
   }
 }

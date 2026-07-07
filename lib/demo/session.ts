@@ -1,5 +1,6 @@
 // lib/demo/session.ts
 import type { PassExecutionInspector } from "./pass-execution";
+import type { RecommendationInspector } from "./recommendation";
 import type { ReflectionInspector } from "./reflection";
 import type { ExecutionTimeline } from "./timeline";
 import type { DemoPipeline } from "./types";
@@ -18,4 +19,6 @@ export type DemoSession = {
   passExecutionInspector: PassExecutionInspector;
 
   reflectionInspector: ReflectionInspector;
+
+  recommendationInspector: RecommendationInspector;
 };

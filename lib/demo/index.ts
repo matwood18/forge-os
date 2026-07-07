@@ -5,6 +5,7 @@ export { DemoSessionBuilder } from "./demo-session-builder";
 export { KernelDemoPipelineBuilder } from "./kernel-demo-pipeline-builder";
 
 export { PassExecutionInspectorBuilder } from "./pass-execution";
+export { RecommendationInspectorBuilder } from "./recommendation";
 export { ReflectionInspectorBuilder } from "./reflection";
 export { ExecutionTimelineBuilder } from "./timeline";
 
@@ -22,6 +23,11 @@ export type {
   PassExecutionInspector,
   PassExecutionInspectorItem,
 } from "./pass-execution";
+
+export type {
+  RecommendationInspector,
+  RecommendationInspectorItem,
+} from "./recommendation";
 
 export type {
   ReflectionInspector,

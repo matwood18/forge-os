@@ -58,14 +58,18 @@ print_existing \
   lib/demo/pass-execution/pass-execution-inspector-builder.ts \
   lib/demo/reflection/types.ts \
   lib/demo/reflection/reflection-inspector-builder.ts \
+  lib/demo/recommendation/types.ts \
+  lib/demo/recommendation/recommendation-inspector-builder.ts \
   app/forge-demo/components/execution-timeline.tsx \
   app/forge-demo/components/pass-execution-inspector.tsx \
-  app/forge-demo/components/reflection-inspector.tsx
+  app/forge-demo/components/reflection-inspector.tsx \
+  app/forge-demo/components/recommendation-inspector.tsx
 
 echo "✓ Timeline"
 echo "✓ Pipeline"
 echo "✓ Pass Execution Inspector"
 echo "✓ Reflection Inspector"
+echo "✓ Recommendation Inspector"
 
 print_section "Reflection"
 print_existing \
@@ -80,6 +84,21 @@ echo "✓ Execution-derived reflection"
 echo "✓ ReflectionRepository"
 echo "✓ ReflectionEngine"
 echo "✓ Reflection records projected into demo"
+
+print_section "Recommendation"
+print_existing \
+  lib/kernel/recommendation/types.ts \
+  lib/kernel/recommendation/recommendation-engine.ts \
+  lib/kernel/recommendation/basic-recommendation-engine.ts \
+  lib/kernel/recommendation/recommendation-repository.ts \
+  lib/kernel/recommendation/in-memory-recommendation-repository.ts \
+  lib/kernel/recommendation/index.ts
+
+echo "✓ Reflection-derived recommendations"
+echo "✓ RecommendationRepository"
+echo "✓ RecommendationEngine"
+echo "✓ Recommendation records projected into demo"
+echo "✓ No automatic action execution"
 
 print_section "Repositories"
 find lib/kernel -name "*repository.ts" -o -name "in-memory-*-repository.ts" | sort

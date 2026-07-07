@@ -31,6 +31,10 @@ export class DemoSessionBuilder {
         id: crypto.randomUUID(),
         items: [],
       },
+      recommendationInspector: {
+        id: crypto.randomUUID(),
+        items: [],
+      },
     };
   }
 }
