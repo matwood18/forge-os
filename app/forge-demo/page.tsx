@@ -1,6 +1,8 @@
+// app/forge-demo/page.tsx
 import { DemoDataProvider } from "@/lib/demo";
 import { createKernel } from "@/lib/kernel/create-kernel";
 
+import { ExecutionTimelineView } from "./components/execution-timeline";
 import { PipelineStage } from "./components/pipeline-stage";
 
 export default async function ForgeDemoPage() {
@@ -33,6 +35,8 @@ export default async function ForgeDemoPage() {
             {session.input || "No input provided."}
           </p>
         </section>
+
+        <ExecutionTimelineView timeline={session.timeline} />
 
         <div className="space-y-4">
           {session.pipeline.stages.map((stage) => (

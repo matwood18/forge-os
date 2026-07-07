@@ -1,7 +1,9 @@
+// lib/demo/demo-data-provider.ts
 import type { ForgeKernel } from "@/lib/kernel";
 
 import { KernelDemoPipelineBuilder } from "./kernel-demo-pipeline-builder";
 import type { DemoSession } from "./session";
+import { ExecutionTimelineBuilder } from "./timeline";
 
 const DEFAULT_DEMO_INPUT = "Jess helped redesign the memory engine.";
 
@@ -14,18 +16,21 @@ const DEFAULT_DEMO_INPUT = "Jess helped redesign the memory engine.";
 export class DemoDataProvider {
   constructor(
     private readonly kernel: ForgeKernel,
-    private readonly pipelineBuilder = new KernelDemoPipelineBuilder()
+    private readonly pipelineBuilder = new KernelDemoPipelineBuilder(),
+    private readonly timelineBuilder = new ExecutionTimelineBuilder()
   ) {}
 
   async load(input = DEFAULT_DEMO_INPUT): Promise<DemoSession> {
     const execution = await this.kernel.execute(input);
     const pipeline = this.pipelineBuilder.build(execution);
+    const timeline = this.timelineBuilder.build(execution);
 
     return {
       id: execution.id,
       createdAt: execution.startedAt,
       input: execution.input,
       pipeline,
+      timeline,
     };
   }
 }
