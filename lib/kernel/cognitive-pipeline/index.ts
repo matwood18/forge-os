@@ -3,7 +3,9 @@ export * from "./cognitive-pipeline";
 export * from "./context-initializer";
 export * from "./default-cognitive-pipeline-factory";
 export * from "./environment";
+export * from "./execution";
 export * from "./types";
+
 export * from "./passes/reasoning-pass";
 export * from "./passes/relationship-pass";
 export * from "./passes/memory-pass";

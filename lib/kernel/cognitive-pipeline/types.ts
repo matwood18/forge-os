@@ -8,6 +8,7 @@ import type { ReasoningSession } from "../reasoning";
 import type { RelationshipRecord } from "../relationship";
 import type { WorldModel } from "../world-model";
 
+import type { CognitivePassExecution } from "./execution/pass-execution";
 import type { CognitiveEnvironment } from "./environment";
 
 export type CognitivePipelineInput = {
@@ -29,6 +30,7 @@ export type CognitiveContextArtifacts = {
 
 export type CognitiveContextMetadata = {
   startedAt: Date;
+  passExecutions: CognitivePassExecution[];
 };
 
 export type CognitiveContext = {

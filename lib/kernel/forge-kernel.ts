@@ -5,6 +5,7 @@ import { CognitivePipeline } from "./cognitive-pipeline/cognitive-pipeline";
 import {
   createDefaultCognitivePipeline,
   DefaultCognitiveContextInitializer,
+  type CognitivePassExecution,
 } from "./cognitive-pipeline";
 
 import { BasicCuriosityEngine } from "./curiosity";
@@ -103,6 +104,7 @@ type CognitiveRunResult = {
   relationships: RelationshipRecord[];
   memories: MemoryRecord[];
   questions: Question[];
+  passExecutions: CognitivePassExecution[];
 };
 
 export class ForgeKernel {
@@ -229,6 +231,8 @@ export class ForgeKernel {
 
     const cognitiveRun = await this.runCognition(text);
 
+    recorder.recordPassExecutions(cognitiveRun.passExecutions);
+
     for (const observation of cognitiveRun.observations) {
       recorder.recordObservation(observation);
     }
@@ -340,7 +344,7 @@ export class ForgeKernel {
 
   private async runCognition(text: string): Promise<CognitiveRunResult> {
     const pipelineResult = await this.cognitivePipeline.run({ text });
-    const { artifacts } = pipelineResult.context;
+    const { artifacts, metadata } = pipelineResult.context;
     const reasoningSession = artifacts.reasoningSession;
 
     if (!reasoningSession) {
@@ -353,6 +357,7 @@ export class ForgeKernel {
       relationships: artifacts.relationships,
       memories: artifacts.memories,
       questions: artifacts.questions,
+      passExecutions: metadata.passExecutions,
     };
   }
 

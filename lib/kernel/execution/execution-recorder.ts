@@ -1,5 +1,7 @@
+// lib/kernel/execution/execution-recorder.ts
 import type { Event, Question } from "@/lib/domain";
 
+import type { CognitivePassExecution } from "../cognitive-pipeline";
 import type { MemoryRecord } from "../memory";
 import type { ObservationRecord } from "../observation";
 import type { ReasoningSession } from "../reasoning";
@@ -16,6 +18,7 @@ export class KernelExecutionRecorder {
   private readonly id = crypto.randomUUID();
   private readonly startedAt = new Date();
   private readonly steps: KernelExecutionStep[] = [];
+  private passExecutions: CognitivePassExecution[] = [];
 
   recordInput(input: string): void {
     this.record("input.received", "Input received", input);
@@ -57,6 +60,10 @@ export class KernelExecutionRecorder {
     this.record("question.created", "Question created", question);
   }
 
+  recordPassExecutions(passExecutions: CognitivePassExecution[]): void {
+    this.passExecutions = [...passExecutions];
+  }
+
   complete(input: string): KernelExecution {
     return {
       id: this.id,
@@ -64,6 +71,7 @@ export class KernelExecutionRecorder {
       startedAt: this.startedAt,
       completedAt: new Date(),
       steps: [...this.steps],
+      passExecutions: [...this.passExecutions],
     };
   }
 

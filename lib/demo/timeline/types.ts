@@ -11,6 +11,12 @@ export type ExecutionTimelineItemKind =
   | "question"
   | "unknown";
 
+export type ExecutionTimelineMetadataValue =
+  | string
+  | number
+  | boolean
+  | null;
+
 export type ExecutionTimelineItem = {
   id: string;
   sequence: number;
@@ -19,6 +25,7 @@ export type ExecutionTimelineItem = {
   title: string;
   summary: string;
   occurredAt: Date;
+  metadata: Record<string, ExecutionTimelineMetadataValue>;
 };
 
 export type ExecutionTimeline = {

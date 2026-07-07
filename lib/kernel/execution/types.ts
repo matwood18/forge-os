@@ -1,5 +1,7 @@
+// lib/kernel/execution/types.ts
 import type { Event, Question } from "@/lib/domain";
 
+import type { CognitivePassExecution } from "../cognitive-pipeline";
 import type { MemoryRecord } from "../memory";
 import type { ObservationRecord } from "../observation";
 import type { ReasoningSession } from "../reasoning";
@@ -38,4 +40,5 @@ export type KernelExecution = {
   startedAt: Date;
   completedAt: Date;
   steps: KernelExecutionStep[];
+  passExecutions: CognitivePassExecution[];
 };

@@ -1,6 +1,7 @@
 // lib/kernel/cognitive-pipeline/cognitive-pipeline.ts
 import type { CognitiveContextInitializer } from "./context-initializer";
 import type { CognitiveEnvironment } from "./environment";
+import { PassExecutionRecorder } from "./execution";
 import type {
   CognitivePass,
   CognitivePipelineInput,
@@ -8,6 +9,8 @@ import type {
 } from "./types";
 
 export class CognitivePipeline {
+  private readonly passExecutionRecorder = new PassExecutionRecorder();
+
   constructor(
     private readonly passes: CognitivePass[],
     private readonly environment: CognitiveEnvironment,
@@ -18,7 +21,11 @@ export class CognitivePipeline {
     const context = await this.contextInitializer.initialize(input);
 
     for (const pass of this.passes) {
-      await pass.run(context, this.environment);
+      await this.passExecutionRecorder.runPass(
+        pass,
+        context,
+        this.environment
+      );
     }
 
     if (!context.artifacts.reasoningSession) {

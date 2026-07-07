@@ -1,10 +1,7 @@
 // lib/kernel/cognitive-pipeline/context-initializer.ts
 import type { WorldModelBuilder } from "../world-model";
 
-import type {
-  CognitiveContext,
-  CognitivePipelineInput,
-} from "./types";
+import type { CognitiveContext, CognitivePipelineInput } from "./types";
 
 export interface CognitiveContextInitializer {
   initialize(input: CognitivePipelineInput): Promise<CognitiveContext>;
@@ -21,9 +18,7 @@ export class DefaultCognitiveContextInitializer
     private readonly dependencies: DefaultCognitiveContextInitializerDependencies
   ) {}
 
-  async initialize(
-    input: CognitivePipelineInput
-  ): Promise<CognitiveContext> {
+  async initialize(input: CognitivePipelineInput): Promise<CognitiveContext> {
     const worldModel = await this.dependencies.worldModelBuilder.build();
 
     return {
@@ -40,6 +35,7 @@ export class DefaultCognitiveContextInitializer
       },
       metadata: {
         startedAt: new Date(),
+        passExecutions: [],
       },
     };
   }

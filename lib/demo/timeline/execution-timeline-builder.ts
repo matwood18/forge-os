@@ -8,6 +8,7 @@ import type {
   ExecutionTimeline,
   ExecutionTimelineItem,
   ExecutionTimelineItemKind,
+  ExecutionTimelineMetadataValue,
 } from "./types";
 
 export class ExecutionTimelineBuilder {
@@ -30,6 +31,7 @@ export class ExecutionTimelineBuilder {
       title: step.label,
       summary: this.summarize(step),
       occurredAt: step.occurredAt,
+      metadata: this.getMetadata(step),
     };
   }
 
@@ -84,5 +86,36 @@ export class ExecutionTimelineBuilder {
     }
 
     return "No summary available.";
+  }
+
+  private getMetadata(
+    step: KernelExecutionStep
+  ): Record<string, ExecutionTimelineMetadataValue> {
+    const artifact = step.artifact;
+
+    if (typeof artifact === "string") {
+      return {
+        length: artifact.length,
+      };
+    }
+
+    return Object.entries(artifact).reduce<
+      Record<string, ExecutionTimelineMetadataValue>
+    >((metadata, [key, value]) => {
+      if (
+        typeof value === "string" ||
+        typeof value === "number" ||
+        typeof value === "boolean" ||
+        value === null
+      ) {
+        metadata[key] = value;
+      }
+
+      if (value instanceof Date) {
+        metadata[key] = value.toISOString();
+      }
+
+      return metadata;
+    }, {});
   }
 }
