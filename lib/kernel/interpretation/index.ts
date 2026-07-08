@@ -27,3 +27,10 @@ export {
   BasicSemanticObservationProjectionPolicy,
   BasicSemanticObservationProjector,
 } from "@/lib/kernel/interpretation/observation-projection";
+
+export type {
+  InterpretationProvider,
+  InterpretationProviderResult,
+} from "@/lib/kernel/interpretation/provider";
+
+export { BasicInterpretationProvider } from "@/lib/kernel/interpretation/provider";
