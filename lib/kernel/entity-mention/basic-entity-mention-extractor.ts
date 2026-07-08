@@ -43,6 +43,16 @@ const TASK_TRIGGER_TERMS = new Set([
   "submitting",
 ]);
 
+const EMOTION_TERMS = new Set([
+  "angry",
+  "annoyed",
+  "frustrated",
+  "mad",
+  "sad",
+  "upset",
+  "worried",
+]);
+
 type TokenMatch = {
   text: string;
   startOffset: number;
@@ -156,6 +166,10 @@ export class BasicEntityMentionExtractor implements EntityMentionExtractor {
       return "pronoun";
     }
 
+    if (EMOTION_TERMS.has(normalizedText)) {
+      return "emotion_expression";
+    }
+
     if (this.looksLikePersonName(originalText)) {
       return "person_name";
     }
@@ -243,6 +257,9 @@ export class BasicEntityMentionExtractor implements EntityMentionExtractor {
       case "pronoun":
         return "related_party";
 
+      case "emotion_expression":
+        return "state";
+
       default:
         return "unknown";
     }
@@ -258,6 +275,9 @@ export class BasicEntityMentionExtractor implements EntityMentionExtractor {
 
       case "person_name":
         return 0.65;
+
+      case "emotion_expression":
+        return 0.6;
 
       default:
         return 0.5;

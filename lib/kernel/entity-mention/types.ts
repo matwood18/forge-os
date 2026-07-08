@@ -7,6 +7,7 @@ export type EntityMentionKind =
   | "pronoun"
   | "organization"
   | "task_or_obligation"
+  | "emotion_expression"
   | "unknown";
 
 export type MentionedEntityRole =
@@ -15,6 +16,7 @@ export type MentionedEntityRole =
   | "actor"
   | "recipient"
   | "related_party"
+  | "state"
   | "unknown";
 
 export type EntityMentionResolutionHint = {
