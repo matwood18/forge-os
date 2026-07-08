@@ -1,10 +1,11 @@
 // lib/showcase/showcase-projection-builder.ts
+import type { EntityMentionExtractionRecord } from "@/lib/kernel/entity-mention";
 import type {
   KernelExecution,
   KernelExecutionStep,
   KernelExecutionStepType,
 } from "@/lib/kernel/execution";
-import type { EntityMentionExtractionRecord } from "@/lib/kernel/entity-mention";
+import type { SemanticClaim } from "@/lib/kernel/semantic-claim";
 
 import type {
   ShowcaseProjection,
@@ -29,10 +30,16 @@ function isEntityMentionExtractionStep(
   return step.type === "entity_mention.extracted";
 }
 
-function buildMentionItems(
-  execution: KernelExecution,
-  kind: "person_name" | "task_or_obligation",
-  summary: string
+function isSemanticClaimStep(
+  step: KernelExecutionStep
+): step is KernelExecutionStep & {
+  artifact: SemanticClaim;
+} {
+  return step.type === "semantic_claim.generated";
+}
+
+function buildPersonItems(
+  execution: KernelExecution
 ): ShowcaseUnderstandingItem[] {
   const itemsByNormalizedText = new Map<string, ShowcaseUnderstandingItem>();
 
@@ -42,7 +49,7 @@ function buildMentionItems(
     }
 
     for (const mention of step.artifact.mentions) {
-      if (mention.kind !== kind) {
+      if (mention.kind !== "person_name") {
         continue;
       }
 
@@ -54,7 +61,7 @@ function buildMentionItems(
         itemsByNormalizedText.set(key, {
           id: mention.id,
           label,
-          summary,
+          summary: "Person mention extracted by the kernel.",
           confidence: mention.confidence,
         });
       }
@@ -64,31 +71,59 @@ function buildMentionItems(
   return [...itemsByNormalizedText.values()];
 }
 
+function buildObligationItems(
+  execution: KernelExecution
+): ShowcaseUnderstandingItem[] {
+  const itemsByObject = new Map<string, ShowcaseUnderstandingItem>();
+
+  for (const step of execution.steps) {
+    if (!isSemanticClaimStep(step)) {
+      continue;
+    }
+
+    const claim = step.artifact;
+
+    if (
+      claim.subject !== "current_operator" ||
+      claim.predicate !== "has_possible_obligation"
+    ) {
+      continue;
+    }
+
+    const label = claim.object;
+    const key = label.toLowerCase();
+    const existing = itemsByObject.get(key);
+
+    if (!existing || claim.confidence > (existing.confidence ?? 0)) {
+      itemsByObject.set(key, {
+        id: claim.id,
+        label,
+        summary: "Possible obligation asserted by the kernel semantic layer.",
+        confidence: claim.confidence,
+      });
+    }
+  }
+
+  return [...itemsByObject.values()];
+}
+
 function buildUnderstanding(execution: KernelExecution): ShowcaseUnderstanding {
   return {
     people: {
       title: "People",
       summary:
         "People mentioned in the input, projected from kernel entity mention extraction.",
-      items: buildMentionItems(
-        execution,
-        "person_name",
-        "Person mention extracted by the kernel."
-      ),
+      items: buildPersonItems(execution),
       emptyState:
         "No person mentions were exposed through entity mention extraction.",
     },
     obligations: {
       title: "Obligations",
       summary:
-        "Tasks or obligations identified in the input by kernel entity mention extraction.",
-      items: buildMentionItems(
-        execution,
-        "task_or_obligation",
-        "Possible task or obligation extracted by the kernel."
-      ),
+        "Possible obligations projected from kernel-owned semantic claims.",
+      items: buildObligationItems(execution),
       emptyState:
-        "No task or obligation mentions were exposed through entity mention extraction.",
+        "No possible obligation claims were exposed through semantic claim generation.",
     },
   };
 }
@@ -102,6 +137,7 @@ export function buildShowcaseProjection(
   );
   const hasGrounding = hasSteps(execution, "grounding.completed");
   const entityMentionCount = countSteps(execution, "entity_mention.extracted");
+  const semanticClaimCount = countSteps(execution, "semantic_claim.generated");
   const observationCount = countSteps(execution, "observation.available");
   const relationshipCount = countSteps(execution, "relationship.inferred");
   const memoryCount = countSteps(execution, "memory.available");
@@ -133,12 +169,12 @@ export function buildShowcaseProjection(
           ? "Meaning was interpreted by the semantic layer."
           : "No semantic interpretation was recorded.",
         `${entityMentionCount} entity mention extraction step(s) recorded.`,
-        "The UI is showing a projection of real kernel output.",
+        `${semanticClaimCount} semantic claim(s) generated.`,
       ],
       log: `${countSteps(
         execution,
         "semantic_interpretation.completed"
-      )} semantic interpretation step(s), ${entityMentionCount} entity mention extraction step(s).`,
+      )} semantic interpretation step(s), ${entityMentionCount} entity mention extraction step(s), ${semanticClaimCount} semantic claim step(s).`,
     },
     {
       title: "Grounding Knowledge",
