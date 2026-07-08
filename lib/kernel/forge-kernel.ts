@@ -22,6 +22,7 @@ import {
   createDefaultCognitivePipeline,
   DefaultCognitiveContextInitializer,
   type CognitivePassExecution,
+  type CognitivePipelineInput,
 } from "./cognitive-pipeline";
 
 import { BasicCuriosityEngine } from "./curiosity";
@@ -335,7 +336,10 @@ export class ForgeKernel {
 
     recorder.recordInterpretation(interpretationResult.record);
 
-    const cognitiveRun = await this.runCognition(text);
+    const cognitiveRun = await this.runCognition({
+      text,
+      interpretation: interpretationResult.record,
+    });
 
     recorder.recordPassExecutions(cognitiveRun.passExecutions);
 
@@ -390,13 +394,18 @@ export class ForgeKernel {
     const result = await this.eventIngestor.ingest(input);
     const text = this.getTextFromPayload(input.payload);
 
-    await this.interpretationEngine.interpret(result.event);
+    const interpretationResult = await this.interpretationEngine.interpret(
+      result.event
+    );
 
     if (!text) {
       return result;
     }
 
-    const cognitiveRun = await this.runCognition(text);
+    const cognitiveRun = await this.runCognition({
+      text,
+      interpretation: interpretationResult.record,
+    });
 
     return {
       ...result,
@@ -492,8 +501,10 @@ export class ForgeKernel {
     );
   }
 
-  private async runCognition(text: string): Promise<CognitiveRunResult> {
-    const pipelineResult = await this.cognitivePipeline.run({ text });
+  private async runCognition(
+    input: CognitivePipelineInput
+  ): Promise<CognitiveRunResult> {
+    const pipelineResult = await this.cognitivePipeline.run(input);
     const { artifacts, metadata } = pipelineResult.context;
     const reasoningSession = artifacts.reasoningSession;
 

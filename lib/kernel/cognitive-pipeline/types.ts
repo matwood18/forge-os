@@ -1,6 +1,7 @@
 // lib/kernel/cognitive-pipeline/types.ts
 import type { Question } from "@/lib/domain";
 
+import type { InterpretationRecord } from "../interpretation";
 import type { MemoryRecord } from "../memory";
 import type { ObservationRecord } from "../observation";
 import type { Plan } from "../planning";
@@ -13,6 +14,7 @@ import type { CognitiveEnvironment } from "./environment";
 
 export type CognitivePipelineInput = {
   text: string;
+  interpretation?: InterpretationRecord;
 };
 
 export type CognitiveContextState = {
