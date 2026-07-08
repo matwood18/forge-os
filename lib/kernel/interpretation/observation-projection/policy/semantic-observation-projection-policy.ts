@@ -1,27 +1,15 @@
 // lib/kernel/interpretation/observation-projection/policy/semantic-observation-projection-policy.ts
-import type {
-  ObservationCreateInput,
-} from "@/lib/kernel/observation";
-import type {
-  InterpretationRecord,
-  SemanticSignal,
-} from "@/lib/kernel/interpretation";
+import type { GroundingDecision, GroundingRecord } from "@/lib/kernel/grounding";
 
 export type SemanticObservationProjectionPolicyInput = {
-  interpretation: InterpretationRecord;
-  signal: SemanticSignal;
+  grounding: GroundingRecord;
+  decision: GroundingDecision;
 };
 
-export type SemanticObservationProjectionPolicyDecision =
-  | {
-      eligible: true;
-      observation: ObservationCreateInput;
-      rationale: string;
-    }
-  | {
-      eligible: false;
-      rationale: string;
-    };
+export type SemanticObservationProjectionPolicyDecision = {
+  eligible: boolean;
+  rationale: string;
+};
 
 export interface SemanticObservationProjectionPolicy {
   decide(

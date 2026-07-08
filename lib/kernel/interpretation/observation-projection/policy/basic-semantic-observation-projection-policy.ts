@@ -1,9 +1,5 @@
 // lib/kernel/interpretation/observation-projection/policy/basic-semantic-observation-projection-policy.ts
 import type {
-  ObservationCreateInput,
-} from "@/lib/kernel/observation";
-
-import type {
   SemanticObservationProjectionPolicy,
   SemanticObservationProjectionPolicyDecision,
   SemanticObservationProjectionPolicyInput,
@@ -24,56 +20,40 @@ export class BasicSemanticObservationProjectionPolicy
   decide(
     input: SemanticObservationProjectionPolicyInput
   ): SemanticObservationProjectionPolicyDecision {
-    if (!PROJECTABLE_SIGNAL_KINDS.has(input.signal.kind)) {
+    if (input.decision.status !== "grounded") {
       return {
         eligible: false,
-        rationale: `Signal kind ${input.signal.kind} is not projection eligible.`,
+        rationale: `Grounding decision status ${input.decision.status} is not projection eligible.`,
       };
     }
 
-    const objectValue = this.getObjectValue(input);
-
-    if (!objectValue) {
+    if (!PROJECTABLE_SIGNAL_KINDS.has(input.decision.signal.kind)) {
       return {
         eligible: false,
-        rationale: "Signal has no usable object value.",
+        rationale: `Signal kind ${input.decision.signal.kind} is not projection eligible.`,
+      };
+    }
+
+    if (!this.hasObjectValue(input)) {
+      return {
+        eligible: false,
+        rationale: "Grounded signal has no usable object value.",
       };
     }
 
     return {
       eligible: true,
-      rationale: `Signal kind ${input.signal.kind} projected as semantic observation.`,
-      observation: this.createObservation(input, objectValue),
+      rationale: `Grounded signal kind ${input.decision.signal.kind} is projection eligible.`,
     };
   }
 
-  private createObservation(
-    input: SemanticObservationProjectionPolicyInput,
-    objectValue: string
-  ): ObservationCreateInput {
-    return {
-      subjectEntityId: "self",
-      predicate: this.getPredicate(input),
-      objectEntityId: null,
-      objectValue,
-      confidence: input.signal.confidence,
-      sourceEventId: input.interpretation.sourceEvent.id,
-    };
-  }
-
-  private getPredicate(
+  private hasObjectValue(
     input: SemanticObservationProjectionPolicyInput
-  ): string {
-    return `semantic.${input.signal.kind}`;
-  }
-
-  private getObjectValue(
-    input: SemanticObservationProjectionPolicyInput
-  ): string | null {
-    if (typeof input.signal.payload.text === "string") {
-      return input.signal.payload.text;
+  ): boolean {
+    if (typeof input.decision.signal.payload.text === "string") {
+      return input.decision.signal.payload.text.trim().length > 0;
     }
 
-    return input.signal.summary;
+    return input.decision.signal.summary.trim().length > 0;
   }
 }
