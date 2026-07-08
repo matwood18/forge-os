@@ -155,6 +155,14 @@ import {
   type SemanticClaimRelationRepository,
 } from "./semantic-claim-relation";
 
+import {
+  BasicSourceDocumentIngestor,
+  InMemorySourceDocumentRepository,
+  type SourceDocument,
+  type SourceDocumentIngestor,
+  type SourceDocumentRepository,
+} from "./source-document";
+
 import { BasicWorldModelBuilder } from "./world-model";
 
 export type CaptureResult = EventIngestResult;
@@ -177,6 +185,8 @@ export type ForgeKernelDependencies = {
   semanticClaimRepository?: SemanticClaimRepository;
   semanticClaimRelationEngine?: SemanticClaimRelationEngine;
   semanticClaimRelationRepository?: SemanticClaimRelationRepository;
+  sourceDocumentIngestor?: SourceDocumentIngestor;
+  sourceDocumentRepository?: SourceDocumentRepository;
   semanticObservationProjector?: SemanticObservationProjector;
   reflectionEngine?: ReflectionEngine;
   reflectionRepository?: ReflectionRepository;
@@ -226,6 +236,8 @@ export class ForgeKernel {
   private readonly semanticClaimRepository: SemanticClaimRepository;
   private readonly semanticClaimRelationEngine: SemanticClaimRelationEngine;
   private readonly semanticClaimRelationRepository: SemanticClaimRelationRepository;
+  private readonly sourceDocumentIngestor: SourceDocumentIngestor;
+  private readonly sourceDocumentRepository: SourceDocumentRepository;
   private readonly semanticObservationProjector: SemanticObservationProjector;
   private readonly reflectionEngine: ReflectionEngine;
   private readonly reflectionRepository: ReflectionRepository;
@@ -331,6 +343,14 @@ export class ForgeKernel {
       new BasicSemanticClaimRelationEngine(
         this.semanticClaimRelationRepository
       );
+
+    this.sourceDocumentRepository =
+      dependencies.sourceDocumentRepository ??
+      new InMemorySourceDocumentRepository();
+
+    this.sourceDocumentIngestor =
+      dependencies.sourceDocumentIngestor ??
+      new BasicSourceDocumentIngestor(this.sourceDocumentRepository);
 
     this.semanticObservationProjector =
       dependencies.semanticObservationProjector ??
@@ -515,6 +535,16 @@ export class ForgeKernel {
     return this.entityService.all();
   }
 
+  async ingestSourceDocument(
+    document: SourceDocument
+  ): Promise<EventIngestResult> {
+    const sourceDocumentResult = await this.sourceDocumentIngestor.ingest({
+      document,
+    });
+
+    return this.ingest(sourceDocumentResult.eventInput);
+  }
+
   async ingest(input: EventIngestInput): Promise<EventIngestResult> {
     const result = await this.eventIngestor.ingest(input);
     const text = this.getTextFromPayload(input.payload);
@@ -596,6 +626,10 @@ export class ForgeKernel {
     return this.eventStore.list();
   }
 
+  async sourceDocuments(): Promise<SourceDocument[]> {
+    return this.sourceDocumentRepository.list();
+  }
+
   async questions(): Promise<Question[]> {
     return this.questionStore.listOpen();
   }
@@ -670,13 +704,22 @@ export class ForgeKernel {
   }
 
   private getTextFromPayload(payload: unknown): string | null {
-    if (
-      typeof payload === "object" &&
-      payload !== null &&
-      "text" in payload &&
-      typeof payload.text === "string"
-    ) {
+    if (typeof payload !== "object" || payload === null) {
+      return null;
+    }
+
+    if ("text" in payload && typeof payload.text === "string") {
       return payload.text;
+    }
+
+    if (
+      "content" in payload &&
+      typeof payload.content === "object" &&
+      payload.content !== null &&
+      "text" in payload.content &&
+      typeof payload.content.text === "string"
+    ) {
+      return payload.content.text;
     }
 
     return null;
