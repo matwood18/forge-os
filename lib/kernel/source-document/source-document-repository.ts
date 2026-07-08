@@ -5,4 +5,8 @@ export interface SourceDocumentRepository {
   save(document: SourceDocument): Promise<SourceDocument>;
   list(): Promise<SourceDocument[]>;
   find(id: string): Promise<SourceDocument | null>;
+  findByExternalIdentity(input: {
+    sourceSystem: string;
+    externalId: string;
+  }): Promise<SourceDocument | null>;
 }

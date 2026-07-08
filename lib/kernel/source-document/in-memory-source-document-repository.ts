@@ -20,4 +20,17 @@ export class InMemorySourceDocumentRepository
   async find(id: string): Promise<SourceDocument | null> {
     return this.documents.find((document) => document.id === id) ?? null;
   }
+
+  async findByExternalIdentity(input: {
+    sourceSystem: string;
+    externalId: string;
+  }): Promise<SourceDocument | null> {
+    return (
+      this.documents.find(
+        (document) =>
+          document.externalIdentity.sourceSystem === input.sourceSystem &&
+          document.externalIdentity.externalId === input.externalId
+      ) ?? null
+    );
+  }
 }

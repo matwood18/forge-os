@@ -13,7 +13,13 @@ export class BasicSourceDocumentIngestor implements SourceDocumentIngestor {
   async ingest(
     input: SourceDocumentIngestorInput
   ): Promise<SourceDocumentIngestorResult> {
-    const document = await this.repository.save(input.document);
+    const existingDocument = await this.repository.findByExternalIdentity({
+      sourceSystem: input.document.externalIdentity.sourceSystem,
+      externalId: input.document.externalIdentity.externalId,
+    });
+
+    const document =
+      existingDocument ?? (await this.repository.save(input.document));
 
     return {
       document,
