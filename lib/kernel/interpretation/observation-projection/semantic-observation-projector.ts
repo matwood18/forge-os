@@ -2,6 +2,9 @@
 import type { ObservationRecord } from "@/lib/kernel/observation";
 
 import type { InterpretationRecord } from "../interpretation-record";
+import type {
+  SemanticObservationProjectionPolicyDecision,
+} from "./policy";
 
 export type SemanticObservationProjectionInput = {
   interpretation: InterpretationRecord;
@@ -9,6 +12,7 @@ export type SemanticObservationProjectionInput = {
 
 export type SemanticObservationProjectionResult = {
   observations: ObservationRecord[];
+  decisions: SemanticObservationProjectionPolicyDecision[];
 };
 
 export interface SemanticObservationProjector {

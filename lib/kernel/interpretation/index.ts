@@ -14,10 +14,16 @@ export type { InterpretationRepository } from "@/lib/kernel/interpretation/inter
 
 export type {
   SemanticObservationProjectionInput,
+  SemanticObservationProjectionPolicy,
+  SemanticObservationProjectionPolicyDecision,
+  SemanticObservationProjectionPolicyInput,
   SemanticObservationProjectionResult,
   SemanticObservationProjector,
 } from "@/lib/kernel/interpretation/observation-projection";
 
 export { BasicInterpretationEngine } from "@/lib/kernel/interpretation/basic-interpretation-engine";
 export { InMemoryInterpretationRepository } from "@/lib/kernel/interpretation/in-memory-interpretation-repository";
-export { BasicSemanticObservationProjector } from "@/lib/kernel/interpretation/observation-projection";
+export {
+  BasicSemanticObservationProjectionPolicy,
+  BasicSemanticObservationProjector,
+} from "@/lib/kernel/interpretation/observation-projection";

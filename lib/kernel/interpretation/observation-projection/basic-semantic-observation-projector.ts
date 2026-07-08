@@ -1,10 +1,12 @@
 // lib/kernel/interpretation/observation-projection/basic-semantic-observation-projector.ts
 import type {
-  ObservationCreateInput,
   ObservationRepository,
 } from "@/lib/kernel/observation";
-import type { SemanticSignal } from "@/lib/kernel/interpretation";
 
+import {
+  BasicSemanticObservationProjectionPolicy,
+  type SemanticObservationProjectionPolicy,
+} from "./policy";
 import type {
   SemanticObservationProjectionInput,
   SemanticObservationProjectionResult,
@@ -14,51 +16,38 @@ import type {
 export class BasicSemanticObservationProjector
   implements SemanticObservationProjector
 {
-  constructor(private readonly observationRepository: ObservationRepository) {}
+  constructor(
+    private readonly observationRepository: ObservationRepository,
+    private readonly policy: SemanticObservationProjectionPolicy =
+      new BasicSemanticObservationProjectionPolicy()
+  ) {}
 
   async project(
     input: SemanticObservationProjectionInput
   ): Promise<SemanticObservationProjectionResult> {
     const observations = [];
+    const decisions = [];
 
     for (const signal of input.interpretation.signals) {
-      const observation = this.toObservation(input, signal);
+      const decision = this.policy.decide({
+        interpretation: input.interpretation,
+        signal,
+      });
 
-      if (!observation) {
+      decisions.push(decision);
+
+      if (!decision.eligible) {
         continue;
       }
 
-      observations.push(await this.observationRepository.remember(observation));
-    }
-
-    return { observations };
-  }
-
-  private toObservation(
-    input: SemanticObservationProjectionInput,
-    signal: SemanticSignal
-  ): ObservationCreateInput | null {
-    const objectValue = this.getObjectValue(signal);
-
-    if (!objectValue) {
-      return null;
+      observations.push(
+        await this.observationRepository.remember(decision.observation)
+      );
     }
 
     return {
-      subjectEntityId: "self",
-      predicate: `semantic_${signal.kind}`,
-      objectEntityId: null,
-      objectValue,
-      confidence: signal.confidence,
-      sourceEventId: input.interpretation.sourceEvent.id,
+      observations,
+      decisions,
     };
-  }
-
-  private getObjectValue(signal: SemanticSignal): string | null {
-    if (typeof signal.payload.text === "string") {
-      return signal.payload.text;
-    }
-
-    return signal.summary;
   }
 }
