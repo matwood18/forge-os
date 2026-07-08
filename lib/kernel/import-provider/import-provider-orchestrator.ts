@@ -11,11 +11,16 @@ export type ImportProviderPageProcessor = (
   documents: SourceDocument[]
 ) => Promise<void>;
 
+export type ImportProviderCheckpointRecorder = (
+  cursor: ImportCursor | null
+) => Promise<void>;
+
 export type ImportProviderOrchestratorInput = {
   sourceSystem: string;
   initialCursor: ImportCursor | null;
   batchPlan: ImportProviderBatchPlan;
   processPage: ImportProviderPageProcessor;
+  recordCheckpoint?: ImportProviderCheckpointRecorder;
 };
 
 export type ImportProviderOrchestratorResult = {
@@ -83,6 +88,10 @@ export class BasicImportProviderOrchestrator
       }
 
       this.assertCursorContract(cursor, page.nextCursor, page.hasMore);
+
+      if (input.recordCheckpoint) {
+        await input.recordCheckpoint(page.nextCursor);
+      }
 
       cursor = page.nextCursor;
     } while (cursor);
