@@ -56,6 +56,13 @@ import {
 } from "./grounding";
 
 import {
+  BasicEntityMentionExtractor,
+  InMemoryEntityMentionRepository,
+  type EntityMentionExtractor,
+  type EntityMentionRepository,
+} from "./entity-mention";
+
+import {
   BasicIdentityResolutionEngine,
   type IdentityResolutionEngineResult,
 } from "./identity-resolution";
@@ -146,6 +153,8 @@ export type ForgeKernelDependencies = {
   planningEngine?: PlanningEngine;
   interpretationEngine?: InterpretationEngine;
   interpretationRepository?: InterpretationRepository;
+  entityMentionExtractor?: EntityMentionExtractor;
+  entityMentionRepository?: EntityMentionRepository;
   groundingEngine?: GroundingEngine;
   groundingRepository?: GroundingRepository;
   semanticObservationProjector?: SemanticObservationProjector;
@@ -189,6 +198,8 @@ export class ForgeKernel {
   private readonly planningEngine: PlanningEngine;
   private readonly interpretationEngine: InterpretationEngine;
   private readonly interpretationRepository: InterpretationRepository;
+  private readonly entityMentionExtractor: EntityMentionExtractor;
+  private readonly entityMentionRepository: EntityMentionRepository;
   private readonly groundingEngine: GroundingEngine;
   private readonly groundingRepository: GroundingRepository;
   private readonly semanticObservationProjector: SemanticObservationProjector;
@@ -263,6 +274,14 @@ export class ForgeKernel {
     this.interpretationEngine =
       dependencies.interpretationEngine ??
       new BasicInterpretationEngine(this.interpretationRepository);
+
+    this.entityMentionRepository =
+      dependencies.entityMentionRepository ??
+      new InMemoryEntityMentionRepository();
+
+    this.entityMentionExtractor =
+      dependencies.entityMentionExtractor ??
+      new BasicEntityMentionExtractor();
 
     this.groundingRepository =
       dependencies.groundingRepository ?? new InMemoryGroundingRepository();
@@ -359,6 +378,12 @@ export class ForgeKernel {
 
     recorder.recordInterpretation(interpretationResult.record);
 
+    const entityMentionResult = await this.entityMentionExtractor.extract({
+      interpretation: interpretationResult.record,
+    });
+
+    await this.entityMentionRepository.remember(entityMentionResult.record);
+
     const groundingResult = await this.groundingEngine.ground({
       interpretation: interpretationResult.record,
     });
@@ -435,6 +460,12 @@ export class ForgeKernel {
     const interpretationResult = await this.interpretationEngine.interpret(
       result.event
     );
+
+    const entityMentionResult = await this.entityMentionExtractor.extract({
+      interpretation: interpretationResult.record,
+    });
+
+    await this.entityMentionRepository.remember(entityMentionResult.record);
 
     const groundingResult = await this.groundingEngine.ground({
       interpretation: interpretationResult.record,

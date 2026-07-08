@@ -1,5 +1,7 @@
 // lib/kernel/entity-mention/basic-entity-mention-extractor.ts
 
+import type { Event } from "@/lib/domain";
+
 import type { EntityMentionExtractor } from "./entity-mention-extractor";
 import type {
   EntityMention,
@@ -70,10 +72,7 @@ export class BasicEntityMentionExtractor implements EntityMentionExtractor {
     };
   }
 
-  private readSourceInput(sourceEvent: {
-    payload: unknown;
-    source: string;
-  }): string {
+  private readSourceInput(sourceEvent: Event): string {
     if (typeof sourceEvent.payload === "string") {
       return sourceEvent.payload;
     }
@@ -81,10 +80,25 @@ export class BasicEntityMentionExtractor implements EntityMentionExtractor {
     if (
       typeof sourceEvent.payload === "object" &&
       sourceEvent.payload !== null &&
-      "input" in sourceEvent.payload &&
-      typeof sourceEvent.payload.input === "string"
+      "text" in sourceEvent.payload
     ) {
-      return sourceEvent.payload.input;
+      const text = sourceEvent.payload.text;
+
+      if (typeof text === "string") {
+        return text;
+      }
+    }
+
+    if (
+      typeof sourceEvent.payload === "object" &&
+      sourceEvent.payload !== null &&
+      "input" in sourceEvent.payload
+    ) {
+      const input = sourceEvent.payload.input;
+
+      if (typeof input === "string") {
+        return input;
+      }
     }
 
     return sourceEvent.source;
