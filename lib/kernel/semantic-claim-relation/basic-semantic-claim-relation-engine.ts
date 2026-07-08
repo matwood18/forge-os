@@ -65,6 +65,14 @@ export class BasicSemanticClaimRelationEngine
         input.toClaim.confidence,
         0.45
       ),
+      evidence: [
+        {
+          kind: "shared_claim_set",
+          sourceIds: [input.fromClaim.id, input.toClaim.id],
+          rationale:
+            "Both claims were generated from the same semantic claim engine input.",
+        },
+      ],
       provenance: {
         sourceType: "semantic_claim_set",
         sourceId: input.fromClaim.provenance.sourceId,

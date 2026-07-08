@@ -11,12 +11,21 @@ export type SemanticClaimRelationProvenance = {
   sourceId: string;
 };
 
+export type SemanticClaimRelationEvidenceKind = "shared_claim_set";
+
+export type SemanticClaimRelationEvidence = {
+  kind: SemanticClaimRelationEvidenceKind;
+  sourceIds: string[];
+  rationale: string;
+};
+
 export type SemanticClaimRelation = {
   id: string;
   fromClaimId: string;
   toClaimId: string;
   kind: SemanticClaimRelationKind;
   confidence: number;
+  evidence: SemanticClaimRelationEvidence[];
   provenance: SemanticClaimRelationProvenance;
   createdAt: Date;
 };

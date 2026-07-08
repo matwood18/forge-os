@@ -3,6 +3,8 @@ export type {
   SemanticClaimRelation,
   SemanticClaimRelationEngineInput,
   SemanticClaimRelationEngineResult,
+  SemanticClaimRelationEvidence,
+  SemanticClaimRelationEvidenceKind,
   SemanticClaimRelationKind,
   SemanticClaimRelationProvenance,
 } from "./types";
