@@ -15,7 +15,8 @@
     "proof:import-provider": "tsx scripts/proofs/import-provider-contract-proof.ts",
     "proof:import-provider-orchestrator": "tsx scripts/proofs/import-provider-orchestrator-proof.ts",
     "proof:import-session-resumable": "tsx scripts/proofs/import-session-resumable-proof.ts",
-    "proof:import-checkpoint": "tsx scripts/proofs/import-checkpoint-proof.ts"
+    "proof:import-checkpoint": "tsx scripts/proofs/import-checkpoint-proof.ts",
+    "proof:import-provider-execution": "tsx scripts/proofs/import-provider-execution-proof.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",

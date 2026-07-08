@@ -78,6 +78,21 @@ import {
 } from "./interpretation";
 
 import {
+  InMemoryImportCheckpointRepository,
+  type ImportCheckpoint,
+  type ImportCheckpointIdentity,
+  type ImportCheckpointRepository,
+} from "./import-checkpoint";
+
+import {
+  BasicImportProviderOrchestrator,
+  DeterministicSourceDocumentMapper,
+  type ImportProviderAdapter,
+  type ImportProviderBatchPlan,
+  type ImportProviderOrchestratorResult,
+} from "./import-provider";
+
+import {
   BasicImportSessionEngine,
   InMemoryImportSessionRepository,
   type ImportSession,
@@ -193,6 +208,23 @@ export type SourceDocumentImportResult = {
   batch: SourceDocumentProcessingBatchResult;
 };
 
+export type ImportProviderExecutionInput = {
+  sessionId: string;
+  externalIdentity: ImportSessionExternalIdentity;
+  checkpointId: string;
+  checkpointIdentity: ImportCheckpointIdentity;
+  adapter: ImportProviderAdapter;
+  batchPlan: ImportProviderBatchPlan;
+  createdAt?: Date;
+  completedAt?: Date;
+};
+
+export type ImportProviderExecutionResult = {
+  session: ImportSession;
+  checkpoint: ImportCheckpoint;
+  orchestration: ImportProviderOrchestratorResult;
+};
+
 export type ForgeKernelDependencies = {
   reasoningEngine?: ReasoningEngine;
   observationRepository?: ObservationRepository;
@@ -216,6 +248,7 @@ export type ForgeKernelDependencies = {
   sourceDocumentRepository?: SourceDocumentRepository;
   importSessionEngine?: ImportSessionEngine;
   importSessionRepository?: ImportSessionRepository;
+  importCheckpointRepository?: ImportCheckpointRepository;
   semanticObservationProjector?: SemanticObservationProjector;
   reflectionEngine?: ReflectionEngine;
   reflectionRepository?: ReflectionRepository;
@@ -281,6 +314,7 @@ export class ForgeKernel {
   private readonly sourceDocumentRepository: SourceDocumentRepository;
   private readonly importSessionEngine: ImportSessionEngine;
   private readonly importSessionRepository: ImportSessionRepository;
+  private readonly importCheckpointRepository: ImportCheckpointRepository;
   private readonly semanticObservationProjector: SemanticObservationProjector;
   private readonly reflectionEngine: ReflectionEngine;
   private readonly reflectionRepository: ReflectionRepository;
@@ -406,6 +440,10 @@ export class ForgeKernel {
     this.importSessionEngine =
       dependencies.importSessionEngine ??
       new BasicImportSessionEngine(this.importSessionRepository);
+
+    this.importCheckpointRepository =
+      dependencies.importCheckpointRepository ??
+      new InMemoryImportCheckpointRepository();
 
     this.semanticObservationProjector =
       dependencies.semanticObservationProjector ??
@@ -664,6 +702,116 @@ export class ForgeKernel {
       session: completedSession,
       batch,
     };
+  }
+
+  async importFromProvider(
+    input: ImportProviderExecutionInput
+  ): Promise<ImportProviderExecutionResult> {
+    const existingCheckpoint =
+      await this.importCheckpointRepository.findByIdentity(
+        input.checkpointIdentity
+      );
+
+    const session = await this.importSessionEngine.create({
+      id: input.sessionId,
+      externalIdentity: input.externalIdentity,
+      discovered: 0,
+      createdAt: input.createdAt,
+    });
+
+    if (
+      session.status === "completed" ||
+      session.status === "completed_with_failures"
+    ) {
+      if (!existingCheckpoint?.completed) {
+        throw new Error(
+          "Completed import session requires a completed checkpoint."
+        );
+      }
+
+      return {
+        session,
+        checkpoint: existingCheckpoint,
+        orchestration: {
+          pagesDiscovered: 0,
+          recordsDiscovered: 0,
+          documentsMapped: 0,
+          finalCursor: existingCheckpoint.cursor,
+        },
+      };
+    }
+
+    await this.importSessionEngine.start(session.id);
+
+    const orchestrator = new BasicImportProviderOrchestrator(
+      input.adapter,
+      new DeterministicSourceDocumentMapper()
+    );
+
+    try {
+      const orchestration = await orchestrator.run({
+        sourceSystem: input.externalIdentity.sourceSystem,
+        initialCursor: existingCheckpoint?.cursor ?? null,
+        batchPlan: input.batchPlan,
+        processPage: async (documents) => {
+          await this.importSessionEngine.recordDiscovery({
+            sessionId: session.id,
+            discovered: documents.length,
+          });
+
+          const batch = await this.ingestSourceDocuments(documents);
+
+          const succeeded = batch.results.filter(
+            (item) => item.status === "fulfilled"
+          ).length;
+
+          const failed = batch.results.filter(
+            (item) => item.status === "rejected"
+          ).length;
+
+          await this.importSessionEngine.recordProgress({
+            sessionId: session.id,
+            processed: batch.results.length,
+            succeeded,
+            failed,
+          });
+        },
+        recordCheckpoint: async (cursor) => {
+          await this.importCheckpointRepository.save({
+            id: existingCheckpoint?.id ?? input.checkpointId,
+            identity: input.checkpointIdentity,
+            cursor,
+            completed: cursor === null,
+          });
+        },
+      });
+
+      const completedSession = await this.importSessionEngine.complete({
+        sessionId: session.id,
+        completedAt: input.completedAt,
+      });
+
+      const completedCheckpoint =
+        await this.importCheckpointRepository.findByIdentity(
+          input.checkpointIdentity
+        );
+
+      if (!completedCheckpoint) {
+        throw new Error("Provider import completed without a checkpoint.");
+      }
+
+      return {
+        session: completedSession,
+        checkpoint: completedCheckpoint,
+        orchestration,
+      };
+    } catch (error) {
+      await this.importSessionEngine.fail({
+        sessionId: session.id,
+      });
+
+      throw error;
+    }
   }
 
   async ingest(input: EventIngestInput): Promise<EventIngestResult> {
