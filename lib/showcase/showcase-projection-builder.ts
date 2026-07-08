@@ -1,13 +1,16 @@
 // lib/showcase/showcase-projection-builder.ts
 import type {
   KernelExecution,
+  KernelExecutionStep,
   KernelExecutionStepType,
 } from "@/lib/kernel/execution";
+import type { EntityMentionExtractionRecord } from "@/lib/kernel/entity-mention";
 
 import type {
   ShowcaseProjection,
   ShowcaseStage,
   ShowcaseUnderstanding,
+  ShowcaseUnderstandingItem,
 } from "./types";
 
 function countSteps(execution: KernelExecution, type: KernelExecutionStepType) {
@@ -18,15 +21,59 @@ function hasSteps(execution: KernelExecution, type: KernelExecutionStepType) {
   return countSteps(execution, type) > 0;
 }
 
-function buildUnderstanding(): ShowcaseUnderstanding {
+function isEntityMentionExtractionStep(
+  step: KernelExecutionStep
+): step is KernelExecutionStep & {
+  artifact: EntityMentionExtractionRecord;
+} {
+  return step.type === "entity_mention.extracted";
+}
+
+function buildPeopleItems(
+  execution: KernelExecution
+): ShowcaseUnderstandingItem[] {
+  const peopleByName = new Map<string, ShowcaseUnderstandingItem>();
+
+  for (const step of execution.steps) {
+    if (!isEntityMentionExtractionStep(step)) {
+      continue;
+    }
+
+    for (const mention of step.artifact.mentions) {
+      if (mention.kind !== "person_name") {
+        continue;
+      }
+
+      const label = mention.normalizedText || mention.text;
+      const key = label.toLowerCase();
+
+      const existing = peopleByName.get(key);
+
+      if (!existing || (mention.confidence ?? 0) > (existing.confidence ?? 0)) {
+        peopleByName.set(key, {
+          id: mention.id,
+          label,
+          summary: "Person mention extracted by the kernel.",
+          confidence: mention.confidence,
+        });
+      }
+    }
+  }
+
+  return [...peopleByName.values()];
+}
+
+function buildUnderstanding(execution: KernelExecution): ShowcaseUnderstanding {
+  const peopleItems = buildPeopleItems(execution);
+
   return {
     people: {
       title: "People",
       summary:
-        "People will appear here when the showcase boundary receives defensible entity mention artifacts from the kernel execution.",
-      items: [],
+        "People mentioned in the input, projected from kernel entity mention extraction.",
+      items: peopleItems,
       emptyState:
-        "No person mentions are exposed through the current showcase execution contract.",
+        "No person mentions were exposed through entity mention extraction.",
     },
   };
 }
@@ -39,6 +86,7 @@ export function buildShowcaseProjection(
     "semantic_interpretation.completed"
   );
   const hasGrounding = hasSteps(execution, "grounding.completed");
+  const entityMentionCount = countSteps(execution, "entity_mention.extracted");
   const observationCount = countSteps(execution, "observation.available");
   const relationshipCount = countSteps(execution, "relationship.inferred");
   const memoryCount = countSteps(execution, "memory.available");
@@ -69,13 +117,13 @@ export function buildShowcaseProjection(
         hasInterpretation
           ? "Meaning was interpreted by the semantic layer."
           : "No semantic interpretation was recorded.",
-        "The input is now ready for structured knowledge processing.",
+        `${entityMentionCount} entity mention extraction step(s) recorded.`,
         "The UI is showing a projection of real kernel output.",
       ],
       log: `${countSteps(
         execution,
         "semantic_interpretation.completed"
-      )} semantic interpretation step(s) recorded.`,
+      )} semantic interpretation step(s), ${entityMentionCount} entity mention extraction step(s).`,
     },
     {
       title: "Grounding Knowledge",
@@ -154,6 +202,6 @@ export function buildShowcaseProjection(
     completedAt: execution.completedAt.toISOString(),
     totalSteps: execution.steps.length,
     stages,
-    understanding: buildUnderstanding(),
+    understanding: buildUnderstanding(execution),
   };
 }
