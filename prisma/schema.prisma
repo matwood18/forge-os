@@ -120,3 +120,23 @@ model ImportLease {
   @@index([expiresAt])
   @@index([releasedAt])
 }
+
+
+model ImportCancellation {
+  id String @id
+
+  sourceSystem     String
+  externalImportId String
+
+  requestedAt DateTime
+  cancelledAt DateTime?
+
+  reason String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([sourceSystem, externalImportId])
+  @@index([sourceSystem])
+  @@index([externalImportId])
+}
