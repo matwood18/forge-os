@@ -130,21 +130,23 @@ export function InteractiveForgeShowcase() {
         };
 
         if (!response.ok || !result.projection) {
-          throw new Error(result.error ?? "Forge could not complete this execution.");
+          throw new Error(
+            result.error ?? "Forge could not complete this execution."
+          );
         }
 
         setProjection(result.projection);
         setActiveStageIndex(0);
         setIsRunning(true);
-      }  catch (error) {
-            console.error(error);
+      } catch (error) {
+        console.error(error);
 
-            setError(
-            error instanceof Error
-                ? error.message
-                : "Forge could not complete this execution."
-            );
-        }
+        setError(
+          error instanceof Error
+            ? error.message
+            : "Forge could not complete this execution."
+        );
+      }
     });
   }
 
@@ -172,6 +174,8 @@ export function InteractiveForgeShowcase() {
     return "ready";
   }
 
+  const peopleUnderstanding = projection?.understanding.people;
+
   return (
     <main className="min-h-screen bg-slate-950 px-6 py-10 text-slate-100">
       <div className="mx-auto max-w-7xl">
@@ -181,13 +185,13 @@ export function InteractiveForgeShowcase() {
           </p>
 
           <h1 className="mt-4 max-w-5xl text-5xl font-bold tracking-tight md:text-6xl">
-            Watch Forge think through messy life input.
+            Watch Forge understand messy life input.
           </h1>
 
           <p className="mt-5 max-w-3xl text-lg leading-8 text-slate-400">
             This is the product-feel layer: a living cognitive experience that
-            now plays back real Forge kernel execution instead of local simulated
-            stages.
+            runs the real Forge kernel, then projects the result into honest
+            product understanding.
           </p>
         </header>
 
@@ -351,30 +355,68 @@ export function InteractiveForgeShowcase() {
 
           <aside className="rounded-3xl border border-slate-800 bg-slate-900 p-6">
             <p className="text-sm font-semibold uppercase tracking-[0.25em] text-slate-500">
-              Execution graph
+              Understanding
             </p>
 
-            <div className="mt-6 rounded-3xl border border-dashed border-slate-700 bg-slate-950/80 p-6">
-              <div className="flex min-h-80 flex-col items-center justify-center text-center">
-                <div className="relative h-40 w-40">
-                  <div className="absolute left-1/2 top-4 h-4 w-4 -translate-x-1/2 rounded-full bg-cyan-400 shadow-lg shadow-cyan-400/30" />
-                  <div className="absolute bottom-8 left-8 h-4 w-4 rounded-full bg-emerald-400/70" />
-                  <div className="absolute bottom-8 right-8 h-4 w-4 rounded-full bg-slate-600" />
-                  <div className="absolute left-1/2 top-8 h-24 w-px -translate-x-1/2 rotate-[-32deg] bg-slate-700" />
-                  <div className="absolute left-1/2 top-8 h-24 w-px -translate-x-1/2 rotate-[32deg] bg-slate-700" />
+            <div className="mt-6 rounded-3xl border border-slate-800 bg-slate-950/80 p-5">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-lg font-semibold text-slate-100">
+                    {peopleUnderstanding?.title ?? "People"}
+                  </p>
+
+                  <p className="mt-2 text-sm leading-6 text-slate-500">
+                    {peopleUnderstanding?.summary ??
+                      "Run Forge to see what people the current execution safely exposes."}
+                  </p>
                 </div>
 
-                <p className="text-lg font-semibold text-slate-200">
-                  {projection
-                    ? `${projection.totalSteps} kernel steps`
-                    : "No execution yet"}
-                </p>
-
-                <p className="mt-3 max-w-xs text-sm leading-6 text-slate-500">
-                  This panel is now backed by real execution output. The visual
-                  graph can grow as kernel artifacts become richer.
-                </p>
+                <span className="rounded-full border border-cyan-400/30 bg-cyan-400/10 px-3 py-1 text-xs font-semibold text-cyan-200">
+                  first panel
+                </span>
               </div>
+
+              <div className="mt-5 space-y-3">
+                {peopleUnderstanding && peopleUnderstanding.items.length > 0 ? (
+                  peopleUnderstanding.items.map((item) => (
+                    <div
+                      key={item.id}
+                      className="rounded-2xl border border-slate-800 bg-slate-900 px-4 py-3"
+                    >
+                      <p className="font-semibold text-slate-100">
+                        {item.label}
+                      </p>
+
+                      <p className="mt-1 text-sm leading-6 text-slate-400">
+                        {item.summary}
+                      </p>
+
+                      {typeof item.confidence === "number" ? (
+                        <p className="mt-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                          Confidence {Math.round(item.confidence * 100)}%
+                        </p>
+                      ) : null}
+                    </div>
+                  ))
+                ) : (
+                  <div className="rounded-2xl border border-dashed border-slate-700 bg-slate-950 px-4 py-5 text-sm leading-6 text-slate-500">
+                    {peopleUnderstanding?.emptyState ??
+                      "No understanding projection has been produced yet."}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="mt-4 rounded-2xl border border-slate-800 bg-black/20 p-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">
+                Boundary
+              </p>
+
+              <p className="mt-3 text-sm leading-6 text-slate-400">
+                This panel renders only the showcase projection. It does not
+                inspect kernel internals, parse raw input, or invent cognitive
+                facts.
+              </p>
             </div>
           </aside>
         </section>
@@ -386,9 +428,10 @@ export function InteractiveForgeShowcase() {
 
           <p className="mt-3 max-w-4xl leading-7 text-slate-300">
             This showcase now runs the real Forge kernel through a server
-            boundary, then plays the result back as a product experience. It
-            still avoids Prisma, durable persistence, and unauthorized external
-            action.
+            boundary, then projects both execution playback and early structured
+            understanding into the product experience. Empty understanding
+            sections are intentional when the kernel execution contract does not
+            expose enough artifact data yet.
           </p>
         </section>
       </div>

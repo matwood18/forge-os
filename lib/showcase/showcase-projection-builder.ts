@@ -4,7 +4,11 @@ import type {
   KernelExecutionStepType,
 } from "@/lib/kernel/execution";
 
-import type { ShowcaseProjection, ShowcaseStage } from "./types";
+import type {
+  ShowcaseProjection,
+  ShowcaseStage,
+  ShowcaseUnderstanding,
+} from "./types";
 
 function countSteps(execution: KernelExecution, type: KernelExecutionStepType) {
   return execution.steps.filter((step) => step.type === type).length;
@@ -12,6 +16,19 @@ function countSteps(execution: KernelExecution, type: KernelExecutionStepType) {
 
 function hasSteps(execution: KernelExecution, type: KernelExecutionStepType) {
   return countSteps(execution, type) > 0;
+}
+
+function buildUnderstanding(): ShowcaseUnderstanding {
+  return {
+    people: {
+      title: "People",
+      summary:
+        "People will appear here when the showcase boundary receives defensible entity mention artifacts from the kernel execution.",
+      items: [],
+      emptyState:
+        "No person mentions are exposed through the current showcase execution contract.",
+    },
+  };
 }
 
 export function buildShowcaseProjection(
@@ -137,5 +154,6 @@ export function buildShowcaseProjection(
     completedAt: execution.completedAt.toISOString(),
     totalSteps: execution.steps.length,
     stages,
+    understanding: buildUnderstanding(),
   };
 }

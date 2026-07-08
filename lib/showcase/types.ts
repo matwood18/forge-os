@@ -8,6 +8,24 @@ export type ShowcaseStage = {
   log: string;
 };
 
+export type ShowcaseUnderstandingItem = {
+  id: string;
+  label: string;
+  summary: string;
+  confidence?: number;
+};
+
+export type ShowcaseUnderstandingSection = {
+  title: string;
+  summary: string;
+  items: ShowcaseUnderstandingItem[];
+  emptyState: string;
+};
+
+export type ShowcaseUnderstanding = {
+  people: ShowcaseUnderstandingSection;
+};
+
 export type ShowcaseProjection = {
   executionId: string;
   input: string;
@@ -15,4 +33,5 @@ export type ShowcaseProjection = {
   completedAt: string;
   totalSteps: number;
   stages: ShowcaseStage[];
+  understanding: ShowcaseUnderstanding;
 };
