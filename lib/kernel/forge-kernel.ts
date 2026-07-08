@@ -78,6 +78,15 @@ import {
 } from "./interpretation";
 
 import {
+  BasicImportSessionEngine,
+  InMemoryImportSessionRepository,
+  type ImportSession,
+  type ImportSessionEngine,
+  type ImportSessionExternalIdentity,
+  type ImportSessionRepository,
+} from "./import-session";
+
+import {
   InMemoryMemoryRepository,
   MemoryEngine,
   MemoryService,
@@ -171,6 +180,19 @@ import { BasicWorldModelBuilder } from "./world-model";
 
 export type CaptureResult = EventIngestResult;
 
+export type SourceDocumentImportInput = {
+  sessionId: string;
+  externalIdentity: ImportSessionExternalIdentity;
+  documents: SourceDocument[];
+  createdAt?: Date;
+  completedAt?: Date;
+};
+
+export type SourceDocumentImportResult = {
+  session: ImportSession;
+  batch: SourceDocumentProcessingBatchResult;
+};
+
 export type ForgeKernelDependencies = {
   reasoningEngine?: ReasoningEngine;
   observationRepository?: ObservationRepository;
@@ -192,6 +214,8 @@ export type ForgeKernelDependencies = {
   sourceDocumentIngestor?: SourceDocumentIngestor;
   sourceDocumentBatchIngestor?: SourceDocumentBatchIngestor;
   sourceDocumentRepository?: SourceDocumentRepository;
+  importSessionEngine?: ImportSessionEngine;
+  importSessionRepository?: ImportSessionRepository;
   semanticObservationProjector?: SemanticObservationProjector;
   reflectionEngine?: ReflectionEngine;
   reflectionRepository?: ReflectionRepository;
@@ -255,6 +279,8 @@ export class ForgeKernel {
   private readonly sourceDocumentIngestor: SourceDocumentIngestor;
   private readonly sourceDocumentBatchIngestor: SourceDocumentBatchIngestor;
   private readonly sourceDocumentRepository: SourceDocumentRepository;
+  private readonly importSessionEngine: ImportSessionEngine;
+  private readonly importSessionRepository: ImportSessionRepository;
   private readonly semanticObservationProjector: SemanticObservationProjector;
   private readonly reflectionEngine: ReflectionEngine;
   private readonly reflectionRepository: ReflectionRepository;
@@ -372,6 +398,14 @@ export class ForgeKernel {
     this.sourceDocumentBatchIngestor =
       dependencies.sourceDocumentBatchIngestor ??
       new BasicSourceDocumentBatchIngestor(this.sourceDocumentIngestor);
+
+    this.importSessionRepository =
+      dependencies.importSessionRepository ??
+      new InMemoryImportSessionRepository();
+
+    this.importSessionEngine =
+      dependencies.importSessionEngine ??
+      new BasicImportSessionEngine(this.importSessionRepository);
 
     this.semanticObservationProjector =
       dependencies.semanticObservationProjector ??
@@ -582,6 +616,46 @@ export class ForgeKernel {
     return { results };
   }
 
+  async importSourceDocuments(
+    input: SourceDocumentImportInput
+  ): Promise<SourceDocumentImportResult> {
+    const session = await this.importSessionEngine.create({
+      id: input.sessionId,
+      externalIdentity: input.externalIdentity,
+      discovered: input.documents.length,
+      createdAt: input.createdAt,
+    });
+
+    await this.importSessionEngine.start(session.id);
+
+    const batch = await this.ingestSourceDocuments(input.documents);
+
+    const succeeded = batch.results.filter(
+      (item) => item.status === "fulfilled"
+    ).length;
+
+    const failed = batch.results.filter(
+      (item) => item.status === "rejected"
+    ).length;
+
+    await this.importSessionEngine.recordProgress({
+      sessionId: session.id,
+      processed: batch.results.length,
+      succeeded,
+      failed,
+    });
+
+    const completedSession = await this.importSessionEngine.complete({
+      sessionId: session.id,
+      completedAt: input.completedAt,
+    });
+
+    return {
+      session: completedSession,
+      batch,
+    };
+  }
+
   async ingest(input: EventIngestInput): Promise<EventIngestResult> {
     const result = await this.eventIngestor.ingest(input);
     const text = this.getTextFromPayload(input.payload);
@@ -691,6 +765,10 @@ export class ForgeKernel {
 
   async sourceDocuments(): Promise<SourceDocument[]> {
     return this.sourceDocumentRepository.list();
+  }
+
+  async importSessions(): Promise<ImportSession[]> {
+    return this.importSessionRepository.list();
   }
 
   async questions(): Promise<Question[]> {
