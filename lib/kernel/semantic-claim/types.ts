@@ -1,4 +1,5 @@
 // lib/kernel/semantic-claim/types.ts
+import type { EntityMentionExtractionRecord } from "@/lib/kernel/entity-mention";
 
 export type SemanticClaimProvenance = {
   sourceType: string;
@@ -13,4 +14,12 @@ export type SemanticClaim = {
   confidence: number;
   provenance: SemanticClaimProvenance;
   createdAt: Date;
+};
+
+export type SemanticClaimEngineInput = {
+  entityMentionExtraction: EntityMentionExtractionRecord;
+};
+
+export type SemanticClaimEngineResult = {
+  claims: SemanticClaim[];
 };
