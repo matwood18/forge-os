@@ -200,6 +200,17 @@ export type ForgeKernelDependencies = {
   eventBusSubscribers?: EventBusSubscriber[];
 };
 
+type SemanticUnderstandingResult = {
+  interpretation: InterpretationRecord;
+  entityMentionExtraction: Awaited<
+    ReturnType<EntityMentionExtractor["extract"]>
+  >["record"];
+  semanticClaims: SemanticClaim[];
+  semanticClaimRelations: SemanticClaimRelation[];
+  grounding: Awaited<ReturnType<GroundingEngine["ground"]>>["record"];
+  observations: ObservationRecord[];
+};
+
 type CognitiveRunResult = {
   reasoningSession: ReasoningSession;
   observations: ObservationRecord[];
@@ -434,57 +445,33 @@ export class ForgeKernel {
 
     recorder.recordEvent(ingestResult.event);
 
-    const interpretationResult = await this.interpretationEngine.interpret(
+    const semanticUnderstanding = await this.runSemanticUnderstanding(
       ingestResult.event
     );
 
-    recorder.recordInterpretation(interpretationResult.record);
+    recorder.recordInterpretation(semanticUnderstanding.interpretation);
+    recorder.recordEntityMentionExtraction(
+      semanticUnderstanding.entityMentionExtraction
+    );
 
-    const entityMentionResult = await this.entityMentionExtractor.extract({
-      interpretation: interpretationResult.record,
-    });
-
-    await this.entityMentionRepository.remember(entityMentionResult.record);
-
-    recorder.recordEntityMentionExtraction(entityMentionResult.record);
-
-    const semanticClaimResult = await this.semanticClaimEngine.generateClaims({
-      entityMentionExtraction: entityMentionResult.record,
-    });
-
-    for (const claim of semanticClaimResult.claims) {
+    for (const claim of semanticUnderstanding.semanticClaims) {
       recorder.recordSemanticClaim(claim);
     }
 
-    const semanticClaimRelationResult =
-      await this.semanticClaimRelationEngine.relateClaims({
-        claims: semanticClaimResult.claims,
-        entityMentionExtraction: entityMentionResult.record,
-      });
-
-    for (const relation of semanticClaimRelationResult.relations) {
+    for (const relation of semanticUnderstanding.semanticClaimRelations) {
       recorder.recordSemanticClaimRelation(relation);
     }
 
-    const groundingResult = await this.groundingEngine.ground({
-      interpretation: interpretationResult.record,
-    });
-
-    recorder.recordGrounding(groundingResult.record);
-
-    const projectedObservationResult =
-      await this.semanticObservationProjector.project({
-        grounding: groundingResult.record,
-      });
+    recorder.recordGrounding(semanticUnderstanding.grounding);
 
     const cognitiveRun = await this.runCognition({
       text,
-      interpretation: interpretationResult.record,
+      interpretation: semanticUnderstanding.interpretation,
     });
 
     recorder.recordPassExecutions(cognitiveRun.passExecutions);
 
-    for (const observation of projectedObservationResult.observations) {
+    for (const observation of semanticUnderstanding.observations) {
       recorder.recordObservation(observation);
     }
 
@@ -549,23 +536,9 @@ export class ForgeKernel {
     const result = await this.eventIngestor.ingest(input);
     const text = this.getTextFromPayload(input.payload);
 
-    const interpretationResult = await this.interpretationEngine.interpret(
+    const semanticUnderstanding = await this.runSemanticUnderstanding(
       result.event
     );
-
-    const entityMentionResult = await this.entityMentionExtractor.extract({
-      interpretation: interpretationResult.record,
-    });
-
-    await this.entityMentionRepository.remember(entityMentionResult.record);
-
-    const groundingResult = await this.groundingEngine.ground({
-      interpretation: interpretationResult.record,
-    });
-
-    await this.semanticObservationProjector.project({
-      grounding: groundingResult.record,
-    });
 
     if (!text) {
       return result;
@@ -573,7 +546,7 @@ export class ForgeKernel {
 
     const cognitiveRun = await this.runCognition({
       text,
-      interpretation: interpretationResult.record,
+      interpretation: semanticUnderstanding.interpretation,
     });
 
     return {
@@ -680,6 +653,48 @@ export class ForgeKernel {
       new BasicArgumentSynthesizer(),
       new InMemoryReasoningSessionRepository()
     );
+  }
+
+  private async runSemanticUnderstanding(
+    event: Event
+  ): Promise<SemanticUnderstandingResult> {
+    const interpretationResult = await this.interpretationEngine.interpret(
+      event
+    );
+
+    const entityMentionResult = await this.entityMentionExtractor.extract({
+      interpretation: interpretationResult.record,
+    });
+
+    await this.entityMentionRepository.remember(entityMentionResult.record);
+
+    const semanticClaimResult = await this.semanticClaimEngine.generateClaims({
+      entityMentionExtraction: entityMentionResult.record,
+    });
+
+    const semanticClaimRelationResult =
+      await this.semanticClaimRelationEngine.relateClaims({
+        claims: semanticClaimResult.claims,
+        entityMentionExtraction: entityMentionResult.record,
+      });
+
+    const groundingResult = await this.groundingEngine.ground({
+      interpretation: interpretationResult.record,
+    });
+
+    const projectedObservationResult =
+      await this.semanticObservationProjector.project({
+        grounding: groundingResult.record,
+      });
+
+    return {
+      interpretation: interpretationResult.record,
+      entityMentionExtraction: entityMentionResult.record,
+      semanticClaims: semanticClaimResult.claims,
+      semanticClaimRelations: semanticClaimRelationResult.relations,
+      grounding: groundingResult.record,
+      observations: projectedObservationResult.observations,
+    };
   }
 
   private async runCognition(
