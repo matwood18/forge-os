@@ -6,6 +6,7 @@ import type {
   KernelExecutionStepType,
 } from "@/lib/kernel/execution";
 import type { SemanticClaim } from "@/lib/kernel/semantic-claim";
+import type { SemanticClaimRelation } from "@/lib/kernel/semantic-claim-relation";
 
 import type {
   ShowcaseProjection,
@@ -36,6 +37,40 @@ function isSemanticClaimStep(
   artifact: SemanticClaim;
 } {
   return step.type === "semantic_claim.generated";
+}
+
+function isSemanticClaimRelationStep(
+  step: KernelExecutionStep
+): step is KernelExecutionStep & {
+  artifact: SemanticClaimRelation;
+} {
+  return step.type === "semantic_claim_relation.generated";
+}
+
+function semanticClaimsById(
+  execution: KernelExecution
+): Map<string, SemanticClaim> {
+  const claims = new Map<string, SemanticClaim>();
+
+  for (const step of execution.steps) {
+    if (isSemanticClaimStep(step)) {
+      claims.set(step.artifact.id, step.artifact);
+    }
+  }
+
+  return claims;
+}
+
+function describeClaim(claim: SemanticClaim): string {
+  if (claim.predicate === "expresses_possible_emotion") {
+    return `${claim.subject}: ${claim.object}`;
+  }
+
+  if (claim.predicate === "has_possible_obligation") {
+    return claim.object;
+  }
+
+  return `${claim.subject} ${claim.predicate} ${claim.object}`;
 }
 
 function buildPersonItems(
@@ -123,7 +158,7 @@ function buildEmotionItems(
       continue;
     }
 
-    const label = `${claim.subject}: ${claim.object}`;
+    const label = describeClaim(claim);
     const key = `${claim.subject.toLowerCase()}:${claim.object.toLowerCase()}`;
     const existing = itemsByClaim.get(key);
 
@@ -139,6 +174,48 @@ function buildEmotionItems(
   }
 
   return [...itemsByClaim.values()];
+}
+
+function buildPossibleRelationItems(
+  execution: KernelExecution
+): ShowcaseUnderstandingItem[] {
+  const claimsById = semanticClaimsById(execution);
+  const itemsByRelation = new Map<string, ShowcaseUnderstandingItem>();
+
+  for (const step of execution.steps) {
+    if (!isSemanticClaimRelationStep(step)) {
+      continue;
+    }
+
+    const relation = step.artifact;
+
+    if (relation.kind !== "may_be_related_to") {
+      continue;
+    }
+
+    const fromClaim = claimsById.get(relation.fromClaimId);
+    const toClaim = claimsById.get(relation.toClaimId);
+
+    if (!fromClaim || !toClaim) {
+      continue;
+    }
+
+    const label = `${describeClaim(fromClaim)} → may be related to → ${describeClaim(toClaim)}`;
+    const key = `${relation.fromClaimId}:${relation.kind}:${relation.toClaimId}`;
+    const existing = itemsByRelation.get(key);
+
+    if (!existing || relation.confidence > (existing.confidence ?? 0)) {
+      itemsByRelation.set(key, {
+        id: relation.id,
+        label,
+        summary:
+          "Possible relationship between semantic claims asserted by the kernel relation layer. This does not assert causality.",
+        confidence: relation.confidence,
+      });
+    }
+  }
+
+  return [...itemsByRelation.values()];
 }
 
 function buildUnderstanding(execution: KernelExecution): ShowcaseUnderstanding {
@@ -167,6 +244,14 @@ function buildUnderstanding(execution: KernelExecution): ShowcaseUnderstanding {
       emptyState:
         "No subject-associated emotion claims were exposed through semantic claim generation.",
     },
+    possibleRelations: {
+      title: "Possible Relations",
+      summary:
+        "Possible relationships projected from kernel-owned semantic claim relations.",
+      items: buildPossibleRelationItems(execution),
+      emptyState:
+        "No possible semantic claim relations were exposed through relation generation.",
+    },
   };
 }
 
@@ -180,6 +265,10 @@ export function buildShowcaseProjection(
   const hasGrounding = hasSteps(execution, "grounding.completed");
   const entityMentionCount = countSteps(execution, "entity_mention.extracted");
   const semanticClaimCount = countSteps(execution, "semantic_claim.generated");
+  const semanticClaimRelationCount = countSteps(
+    execution,
+    "semantic_claim_relation.generated"
+  );
   const observationCount = countSteps(execution, "observation.available");
   const relationshipCount = countSteps(execution, "relationship.inferred");
   const memoryCount = countSteps(execution, "memory.available");
@@ -211,12 +300,12 @@ export function buildShowcaseProjection(
           ? "Meaning was interpreted by the semantic layer."
           : "No semantic interpretation was recorded.",
         `${entityMentionCount} entity mention extraction step(s) recorded.`,
-        `${semanticClaimCount} semantic claim(s) generated.`,
+        `${semanticClaimCount} semantic claim(s) and ${semanticClaimRelationCount} semantic claim relation(s) generated.`,
       ],
       log: `${countSteps(
         execution,
         "semantic_interpretation.completed"
-      )} semantic interpretation step(s), ${entityMentionCount} entity mention extraction step(s), ${semanticClaimCount} semantic claim step(s).`,
+      )} semantic interpretation step(s), ${entityMentionCount} entity mention extraction step(s), ${semanticClaimCount} semantic claim step(s), ${semanticClaimRelationCount} semantic claim relation step(s).`,
     },
     {
       title: "Grounding Knowledge",
