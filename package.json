@@ -21,7 +21,8 @@
     "proof:import-lease": "tsx scripts/proofs/import-lease-proof.ts",
     "proof:import-cancellation": "tsx scripts/proofs/import-cancellation-proof.ts",
     "proof:import-status": "tsx scripts/proofs/import-status-projection-proof.ts",
-    "proof:import-boundary": "tsx scripts/proofs/import-boundary-proof.ts"
+    "proof:import-boundary": "tsx scripts/proofs/import-boundary-proof.ts",
+    "proof:import-recovery": "tsx scripts/proofs/import-recovery-proof.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",
