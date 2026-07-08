@@ -49,6 +49,13 @@ import {
 } from "./goal";
 
 import {
+  BasicGroundingEngine,
+  InMemoryGroundingRepository,
+  type GroundingEngine,
+  type GroundingRepository,
+} from "./grounding";
+
+import {
   BasicIdentityResolutionEngine,
   type IdentityResolutionEngineResult,
 } from "./identity-resolution";
@@ -139,6 +146,8 @@ export type ForgeKernelDependencies = {
   planningEngine?: PlanningEngine;
   interpretationEngine?: InterpretationEngine;
   interpretationRepository?: InterpretationRepository;
+  groundingEngine?: GroundingEngine;
+  groundingRepository?: GroundingRepository;
   semanticObservationProjector?: SemanticObservationProjector;
   reflectionEngine?: ReflectionEngine;
   reflectionRepository?: ReflectionRepository;
@@ -180,6 +189,8 @@ export class ForgeKernel {
   private readonly planningEngine: PlanningEngine;
   private readonly interpretationEngine: InterpretationEngine;
   private readonly interpretationRepository: InterpretationRepository;
+  private readonly groundingEngine: GroundingEngine;
+  private readonly groundingRepository: GroundingRepository;
   private readonly semanticObservationProjector: SemanticObservationProjector;
   private readonly reflectionEngine: ReflectionEngine;
   private readonly reflectionRepository: ReflectionRepository;
@@ -229,8 +240,7 @@ export class ForgeKernel {
     );
 
     this.relationshipRepository =
-      dependencies.relationshipRepository ??
-      new InMemoryRelationshipRepository();
+      dependencies.relationshipRepository ?? new InMemoryRelationshipRepository();
 
     this.relationshipEngine =
       dependencies.relationshipEngine ??
@@ -240,8 +250,7 @@ export class ForgeKernel {
       );
 
     this.goalEngine =
-      dependencies.goalEngine ??
-      new BasicGoalEngine(new InMemoryGoalRepository());
+      dependencies.goalEngine ?? new BasicGoalEngine(new InMemoryGoalRepository());
 
     this.planningEngine =
       dependencies.planningEngine ??
@@ -255,13 +264,19 @@ export class ForgeKernel {
       dependencies.interpretationEngine ??
       new BasicInterpretationEngine(this.interpretationRepository);
 
+    this.groundingRepository =
+      dependencies.groundingRepository ?? new InMemoryGroundingRepository();
+
+    this.groundingEngine =
+      dependencies.groundingEngine ??
+      new BasicGroundingEngine(this.groundingRepository);
+
     this.semanticObservationProjector =
       dependencies.semanticObservationProjector ??
       new BasicSemanticObservationProjector(this.observationRepository);
 
     this.reflectionRepository =
-      dependencies.reflectionRepository ??
-      new InMemoryReflectionRepository();
+      dependencies.reflectionRepository ?? new InMemoryReflectionRepository();
 
     this.reflectionEngine =
       dependencies.reflectionEngine ??
@@ -344,6 +359,12 @@ export class ForgeKernel {
 
     recorder.recordInterpretation(interpretationResult.record);
 
+    const groundingResult = await this.groundingEngine.ground({
+      interpretation: interpretationResult.record,
+    });
+
+    recorder.recordGrounding(groundingResult.record);
+
     const projectedObservationResult =
       await this.semanticObservationProjector.project({
         interpretation: interpretationResult.record,
@@ -414,6 +435,10 @@ export class ForgeKernel {
     const interpretationResult = await this.interpretationEngine.interpret(
       result.event
     );
+
+    await this.groundingEngine.ground({
+      interpretation: interpretationResult.record,
+    });
 
     await this.semanticObservationProjector.project({
       interpretation: interpretationResult.record,

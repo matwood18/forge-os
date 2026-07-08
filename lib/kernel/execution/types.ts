@@ -2,6 +2,7 @@
 import type { Event, Question } from "@/lib/domain";
 
 import type { CognitivePassExecution } from "../cognitive-pipeline";
+import type { GroundingRecord } from "../grounding";
 import type { InterpretationRecord } from "../interpretation";
 import type { MemoryRecord } from "../memory";
 import type { ObservationRecord } from "../observation";
@@ -12,6 +13,7 @@ export type KernelExecutionStepType =
   | "input.received"
   | "event.created"
   | "semantic_interpretation.completed"
+  | "grounding.completed"
   | "observation.available"
   | "relationship.inferred"
   | "memory.available"
@@ -22,6 +24,7 @@ export type KernelExecutionStepArtifact =
   | string
   | Event
   | InterpretationRecord
+  | GroundingRecord
   | ObservationRecord
   | RelationshipRecord
   | MemoryRecord

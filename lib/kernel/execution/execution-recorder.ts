@@ -2,6 +2,7 @@
 import type { Event, Question } from "@/lib/domain";
 
 import type { CognitivePassExecution } from "../cognitive-pipeline";
+import type { GroundingRecord } from "../grounding";
 import type { InterpretationRecord } from "../interpretation";
 import type { MemoryRecord } from "../memory";
 import type { ObservationRecord } from "../observation";
@@ -37,20 +38,16 @@ export class KernelExecutionRecorder {
     );
   }
 
+  recordGrounding(record: GroundingRecord): void {
+    this.record("grounding.completed", "Grounding completed", record);
+  }
+
   recordObservation(observation: ObservationRecord): void {
-    this.record(
-      "observation.available",
-      "Observation available",
-      observation
-    );
+    this.record("observation.available", "Observation available", observation);
   }
 
   recordRelationship(relationship: RelationshipRecord): void {
-    this.record(
-      "relationship.inferred",
-      "Relationship inferred",
-      relationship
-    );
+    this.record("relationship.inferred", "Relationship inferred", relationship);
   }
 
   recordMemory(memory: MemoryRecord): void {
@@ -58,11 +55,7 @@ export class KernelExecutionRecorder {
   }
 
   recordReasoning(reasoningSession: ReasoningSession): void {
-    this.record(
-      "reasoning.completed",
-      "Reasoning completed",
-      reasoningSession
-    );
+    this.record("reasoning.completed", "Reasoning completed", reasoningSession);
   }
 
   recordQuestion(question: Question): void {
