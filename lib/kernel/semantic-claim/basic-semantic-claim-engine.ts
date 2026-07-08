@@ -9,6 +9,12 @@ import type {
   SemanticClaimEngineResult,
 } from "./types";
 
+const PERSON_LIKE_KINDS = new Set([
+  "person_name",
+  "current_operator",
+  "pronoun",
+]);
+
 export class BasicSemanticClaimEngine implements SemanticClaimEngine {
   constructor(private readonly repository: SemanticClaimRepository) {}
 
@@ -42,6 +48,7 @@ export class BasicSemanticClaimEngine implements SemanticClaimEngine {
           subject: "current_operator",
           predicate: "has_possible_obligation",
           object: mention.normalizedText,
+          confidence: mention.confidence,
         })
       );
   }
@@ -49,18 +56,64 @@ export class BasicSemanticClaimEngine implements SemanticClaimEngine {
   private buildEmotionClaims(
     input: SemanticClaimEngineInput
   ): SemanticClaim[] {
-    return input.entityMentionExtraction.mentions
+    const mentions = input.entityMentionExtraction.mentions;
+
+    return mentions
       .filter((mention) => mention.kind === "emotion_expression")
-      .map((mention, index) =>
-        this.createClaim({
+      .map((emotionMention, index) => {
+        const subjectMention = this.findNearestPrecedingPersonLikeMention(
+          mentions,
+          emotionMention
+        );
+
+        if (!subjectMention) {
+          return this.createClaim({
+            input,
+            mention: emotionMention,
+            index,
+            subject: "current_input",
+            predicate: "contains_possible_emotion_expression",
+            object: emotionMention.normalizedText,
+            confidence: emotionMention.confidence,
+          });
+        }
+
+        return this.createClaim({
           input,
-          mention,
+          mention: emotionMention,
           index,
-          subject: "current_input",
-          predicate: "contains_possible_emotion_expression",
-          object: mention.normalizedText,
-        })
-      );
+          subject: this.subjectFor(subjectMention),
+          predicate: "expresses_possible_emotion",
+          object: emotionMention.normalizedText,
+          confidence: Math.min(
+            emotionMention.confidence,
+            subjectMention.confidence
+          ),
+        });
+      });
+  }
+
+  private findNearestPrecedingPersonLikeMention(
+    mentions: EntityMention[],
+    emotionMention: EntityMention
+  ): EntityMention | null {
+    const candidates = mentions
+      .filter(
+        (mention) =>
+          PERSON_LIKE_KINDS.has(mention.kind) &&
+          mention.endOffset <= emotionMention.startOffset
+      )
+      .sort((left, right) => right.endOffset - left.endOffset);
+
+    return candidates[0] ?? null;
+  }
+
+  private subjectFor(mention: EntityMention): string {
+    if (mention.kind === "current_operator") {
+      return "current_operator";
+    }
+
+    return mention.normalizedText;
   }
 
   private createClaim(input: {
@@ -70,13 +123,14 @@ export class BasicSemanticClaimEngine implements SemanticClaimEngine {
     subject: string;
     predicate: string;
     object: string;
+    confidence: number;
   }): SemanticClaim {
     return {
       id: `${input.input.entityMentionExtraction.id}:semantic-claim:${input.index + 1}:${input.predicate}`,
       subject: input.subject,
       predicate: input.predicate,
       object: input.object,
-      confidence: input.mention.confidence,
+      confidence: input.confidence,
       provenance: {
         sourceType: "entity_mention",
         sourceId: input.mention.id,
