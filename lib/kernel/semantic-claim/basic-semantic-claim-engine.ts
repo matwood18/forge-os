@@ -1,5 +1,6 @@
 // lib/kernel/semantic-claim/basic-semantic-claim-engine.ts
 import type { SemanticClaimEngine } from "./semantic-claim-engine";
+import type { SemanticClaimRepository } from "./semantic-claim-repository";
 import type {
   SemanticClaim,
   SemanticClaimEngineInput,
@@ -7,6 +8,8 @@ import type {
 } from "./types";
 
 export class BasicSemanticClaimEngine implements SemanticClaimEngine {
+  constructor(private readonly repository: SemanticClaimRepository) {}
+
   async generateClaims(
     input: SemanticClaimEngineInput
   ): Promise<SemanticClaimEngineResult> {
@@ -27,6 +30,12 @@ export class BasicSemanticClaimEngine implements SemanticClaimEngine {
         } satisfies SemanticClaim;
       });
 
-    return { claims };
+    const persistedClaims = await Promise.all(
+      claims.map((claim) => this.repository.save(claim))
+    );
+
+    return {
+      claims: persistedClaims,
+    };
   }
 }
