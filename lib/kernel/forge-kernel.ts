@@ -439,6 +439,7 @@ export class ForgeKernel {
     const semanticClaimRelationResult =
       await this.semanticClaimRelationEngine.relateClaims({
         claims: semanticClaimResult.claims,
+        entityMentionExtraction: entityMentionResult.record,
       });
 
     for (const relation of semanticClaimRelationResult.relations) {

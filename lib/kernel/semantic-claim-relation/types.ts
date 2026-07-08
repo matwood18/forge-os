@@ -1,4 +1,5 @@
 // lib/kernel/semantic-claim-relation/types.ts
+import type { EntityMentionExtractionRecord } from "@/lib/kernel/entity-mention";
 import type { SemanticClaim } from "@/lib/kernel/semantic-claim";
 
 export type SemanticClaimRelationKind =
@@ -11,7 +12,9 @@ export type SemanticClaimRelationProvenance = {
   sourceId: string;
 };
 
-export type SemanticClaimRelationEvidenceKind = "shared_claim_set";
+export type SemanticClaimRelationEvidenceKind =
+  | "shared_claim_set"
+  | "source_mention_proximity";
 
 export type SemanticClaimRelationEvidence = {
   kind: SemanticClaimRelationEvidenceKind;
@@ -32,6 +35,7 @@ export type SemanticClaimRelation = {
 
 export type SemanticClaimRelationEngineInput = {
   claims: SemanticClaim[];
+  entityMentionExtraction: EntityMentionExtractionRecord;
 };
 
 export type SemanticClaimRelationEngineResult = {
