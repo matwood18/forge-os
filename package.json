@@ -19,7 +19,8 @@
     "proof:import-provider-execution": "tsx scripts/proofs/import-provider-execution-proof.ts",
     "proof:durable-import-state": "tsx scripts/proofs/durable-import-state-proof.ts",
     "proof:import-lease": "tsx scripts/proofs/import-lease-proof.ts",
-    "proof:import-cancellation": "tsx scripts/proofs/import-cancellation-proof.ts"
+    "proof:import-cancellation": "tsx scripts/proofs/import-cancellation-proof.ts",
+    "proof:import-status": "tsx scripts/proofs/import-status-projection-proof.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",
