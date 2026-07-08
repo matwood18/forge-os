@@ -4,6 +4,7 @@
 
 import { useEffect, useMemo, useState, useTransition } from "react";
 import type { ShowcaseProjection } from "@/lib/showcase";
+import type { ShowcaseUnderstandingSection } from "@/lib/showcase/types";
 
 type CognitiveStageStatus = "future" | "active" | "complete";
 
@@ -21,7 +22,6 @@ const sampleInputs = [
 ];
 
 const defaultInput = sampleInputs[0];
-
 const stageDurationMs = 950;
 
 function buildStages(
@@ -51,19 +51,64 @@ function getStageStatus(
   stageIndex: number,
   activeStageIndex: number
 ): CognitiveStageStatus {
-  if (stageIndex < activeStageIndex) {
-    return "complete";
-  }
-
-  if (stageIndex === activeStageIndex) {
-    return "active";
-  }
-
+  if (stageIndex < activeStageIndex) return "complete";
+  if (stageIndex === activeStageIndex) return "active";
   return "future";
 }
 
 function formatTimestamp(offsetSeconds: number) {
   return `00:${String(offsetSeconds).padStart(2, "0")}`;
+}
+
+function UnderstandingSectionCard({
+  section,
+  fallbackTitle,
+  fallbackSummary,
+}: {
+  section?: ShowcaseUnderstandingSection;
+  fallbackTitle: string;
+  fallbackSummary: string;
+}) {
+  return (
+    <div className="rounded-3xl border border-slate-800 bg-slate-950/80 p-5">
+      <div>
+        <p className="text-lg font-semibold text-slate-100">
+          {section?.title ?? fallbackTitle}
+        </p>
+
+        <p className="mt-2 text-sm leading-6 text-slate-500">
+          {section?.summary ?? fallbackSummary}
+        </p>
+      </div>
+
+      <div className="mt-5 space-y-3">
+        {section && section.items.length > 0 ? (
+          section.items.map((item) => (
+            <div
+              key={item.id}
+              className="rounded-2xl border border-slate-800 bg-slate-900 px-4 py-3"
+            >
+              <p className="font-semibold text-slate-100">{item.label}</p>
+
+              <p className="mt-1 text-sm leading-6 text-slate-400">
+                {item.summary}
+              </p>
+
+              {typeof item.confidence === "number" ? (
+                <p className="mt-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                  Confidence {Math.round(item.confidence * 100)}%
+                </p>
+              ) : null}
+            </div>
+          ))
+        ) : (
+          <div className="rounded-2xl border border-dashed border-slate-700 bg-slate-950 px-4 py-5 text-sm leading-6 text-slate-500">
+            {section?.emptyState ?? "No understanding projection has been produced yet."}
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }
 
 export function InteractiveForgeShowcase() {
@@ -89,13 +134,7 @@ export function InteractiveForgeShowcase() {
       : Math.round((activeStageIndex / (stages.length - 1)) * 100);
 
   useEffect(() => {
-    if (!isRunning) {
-      return;
-    }
-
-    if (activeStageIndex >= stages.length - 1) {
-      return;
-    }
+    if (!isRunning || activeStageIndex >= stages.length - 1) return;
 
     const timeout = window.setTimeout(() => {
       setActiveStageIndex((current) => Math.min(current + 1, stages.length - 1));
@@ -118,9 +157,7 @@ export function InteractiveForgeShowcase() {
       try {
         const response = await fetch("/api/forge-showcase/execute", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ input: normalizedInput }),
         });
 
@@ -140,7 +177,6 @@ export function InteractiveForgeShowcase() {
         setIsRunning(true);
       } catch (error) {
         console.error(error);
-
         setError(
           error instanceof Error
             ? error.message
@@ -150,31 +186,12 @@ export function InteractiveForgeShowcase() {
     });
   }
 
-  function analyze() {
-    runAnalysis(input);
-  }
-
-  function selectSample(sample: string) {
-    runAnalysis(sample);
-  }
-
   function getStatusLabel() {
-    if (isPending) {
-      return "executing kernel";
-    }
-
-    if (projection && isComplete) {
-      return "complete";
-    }
-
-    if (isRunning) {
-      return "playing back";
-    }
-
+    if (isPending) return "executing kernel";
+    if (projection && isComplete) return "complete";
+    if (isRunning) return "playing back";
     return "ready";
   }
-
-  const peopleUnderstanding = projection?.understanding.people;
 
   return (
     <main className="min-h-screen bg-slate-950 px-6 py-10 text-slate-100">
@@ -189,9 +206,8 @@ export function InteractiveForgeShowcase() {
           </h1>
 
           <p className="mt-5 max-w-3xl text-lg leading-8 text-slate-400">
-            This is the product-feel layer: a living cognitive experience that
-            runs the real Forge kernel, then projects the result into honest
-            product understanding.
+            This product layer runs the real Forge kernel, then projects the
+            result into honest structured understanding.
           </p>
         </header>
 
@@ -209,16 +225,14 @@ export function InteractiveForgeShowcase() {
               value={input}
               onChange={(event) => setInput(event.target.value)}
               onKeyDown={(event) => {
-                if (event.key === "Enter" && !isPending) {
-                  analyze();
-                }
+                if (event.key === "Enter" && !isPending) runAnalysis(input);
               }}
               className="min-h-14 flex-1 rounded-2xl border border-slate-700 bg-slate-950 px-4 text-base text-slate-100 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-400/10"
             />
 
             <button
               type="button"
-              onClick={analyze}
+              onClick={() => runAnalysis(input)}
               disabled={isPending}
               className="rounded-2xl bg-cyan-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-60"
             >
@@ -231,7 +245,7 @@ export function InteractiveForgeShowcase() {
               <button
                 key={sample}
                 type="button"
-                onClick={() => selectSample(sample)}
+                onClick={() => runAnalysis(sample)}
                 disabled={isPending}
                 className="rounded-full border border-slate-700 px-3 py-2 text-sm text-slate-300 transition hover:border-cyan-400 hover:text-cyan-200 disabled:cursor-not-allowed disabled:opacity-60"
               >
@@ -354,57 +368,28 @@ export function InteractiveForgeShowcase() {
           </div>
 
           <aside className="rounded-3xl border border-slate-800 bg-slate-900 p-6">
-            <p className="text-sm font-semibold uppercase tracking-[0.25em] text-slate-500">
-              Understanding
-            </p>
+            <div className="flex items-center justify-between gap-4">
+              <p className="text-sm font-semibold uppercase tracking-[0.25em] text-slate-500">
+                Understanding
+              </p>
 
-            <div className="mt-6 rounded-3xl border border-slate-800 bg-slate-950/80 p-5">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p className="text-lg font-semibold text-slate-100">
-                    {peopleUnderstanding?.title ?? "People"}
-                  </p>
+              <span className="rounded-full border border-cyan-400/30 bg-cyan-400/10 px-3 py-1 text-xs font-semibold text-cyan-200">
+                projection
+              </span>
+            </div>
 
-                  <p className="mt-2 text-sm leading-6 text-slate-500">
-                    {peopleUnderstanding?.summary ??
-                      "Run Forge to see what people the current execution safely exposes."}
-                  </p>
-                </div>
+            <div className="mt-6 space-y-4">
+              <UnderstandingSectionCard
+                section={projection?.understanding.people}
+                fallbackTitle="People"
+                fallbackSummary="Run Forge to see what people the current execution safely exposes."
+              />
 
-                <span className="rounded-full border border-cyan-400/30 bg-cyan-400/10 px-3 py-1 text-xs font-semibold text-cyan-200">
-                  first panel
-                </span>
-              </div>
-
-              <div className="mt-5 space-y-3">
-                {peopleUnderstanding && peopleUnderstanding.items.length > 0 ? (
-                  peopleUnderstanding.items.map((item) => (
-                    <div
-                      key={item.id}
-                      className="rounded-2xl border border-slate-800 bg-slate-900 px-4 py-3"
-                    >
-                      <p className="font-semibold text-slate-100">
-                        {item.label}
-                      </p>
-
-                      <p className="mt-1 text-sm leading-6 text-slate-400">
-                        {item.summary}
-                      </p>
-
-                      {typeof item.confidence === "number" ? (
-                        <p className="mt-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
-                          Confidence {Math.round(item.confidence * 100)}%
-                        </p>
-                      ) : null}
-                    </div>
-                  ))
-                ) : (
-                  <div className="rounded-2xl border border-dashed border-slate-700 bg-slate-950 px-4 py-5 text-sm leading-6 text-slate-500">
-                    {peopleUnderstanding?.emptyState ??
-                      "No understanding projection has been produced yet."}
-                  </div>
-                )}
-              </div>
+              <UnderstandingSectionCard
+                section={projection?.understanding.obligations}
+                fallbackTitle="Obligations"
+                fallbackSummary="Run Forge to see what possible obligations the current execution safely exposes."
+              />
             </div>
 
             <div className="mt-4 rounded-2xl border border-slate-800 bg-black/20 p-4">
@@ -413,7 +398,7 @@ export function InteractiveForgeShowcase() {
               </p>
 
               <p className="mt-3 text-sm leading-6 text-slate-400">
-                This panel renders only the showcase projection. It does not
+                These panels render only the showcase projection. They do not
                 inspect kernel internals, parse raw input, or invent cognitive
                 facts.
               </p>
@@ -427,11 +412,9 @@ export function InteractiveForgeShowcase() {
           </p>
 
           <p className="mt-3 max-w-4xl leading-7 text-slate-300">
-            This showcase now runs the real Forge kernel through a server
-            boundary, then projects both execution playback and early structured
-            understanding into the product experience. Empty understanding
-            sections are intentional when the kernel execution contract does not
-            expose enough artifact data yet.
+            This showcase runs the real Forge kernel through a server boundary,
+            then projects execution playback, people, and obligations into the
+            product experience.
           </p>
         </section>
       </div>

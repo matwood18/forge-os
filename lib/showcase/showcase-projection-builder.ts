@@ -29,10 +29,12 @@ function isEntityMentionExtractionStep(
   return step.type === "entity_mention.extracted";
 }
 
-function buildPeopleItems(
-  execution: KernelExecution
+function buildMentionItems(
+  execution: KernelExecution,
+  kind: "person_name" | "task_or_obligation",
+  summary: string
 ): ShowcaseUnderstandingItem[] {
-  const peopleByName = new Map<string, ShowcaseUnderstandingItem>();
+  const itemsByNormalizedText = new Map<string, ShowcaseUnderstandingItem>();
 
   for (const step of execution.steps) {
     if (!isEntityMentionExtractionStep(step)) {
@@ -40,40 +42,53 @@ function buildPeopleItems(
     }
 
     for (const mention of step.artifact.mentions) {
-      if (mention.kind !== "person_name") {
+      if (mention.kind !== kind) {
         continue;
       }
 
       const label = mention.normalizedText || mention.text;
       const key = label.toLowerCase();
+      const existing = itemsByNormalizedText.get(key);
 
-      const existing = peopleByName.get(key);
-
-      if (!existing || (mention.confidence ?? 0) > (existing.confidence ?? 0)) {
-        peopleByName.set(key, {
+      if (!existing || mention.confidence > (existing.confidence ?? 0)) {
+        itemsByNormalizedText.set(key, {
           id: mention.id,
           label,
-          summary: "Person mention extracted by the kernel.",
+          summary,
           confidence: mention.confidence,
         });
       }
     }
   }
 
-  return [...peopleByName.values()];
+  return [...itemsByNormalizedText.values()];
 }
 
 function buildUnderstanding(execution: KernelExecution): ShowcaseUnderstanding {
-  const peopleItems = buildPeopleItems(execution);
-
   return {
     people: {
       title: "People",
       summary:
         "People mentioned in the input, projected from kernel entity mention extraction.",
-      items: peopleItems,
+      items: buildMentionItems(
+        execution,
+        "person_name",
+        "Person mention extracted by the kernel."
+      ),
       emptyState:
         "No person mentions were exposed through entity mention extraction.",
+    },
+    obligations: {
+      title: "Obligations",
+      summary:
+        "Tasks or obligations identified in the input by kernel entity mention extraction.",
+      items: buildMentionItems(
+        execution,
+        "task_or_obligation",
+        "Possible task or obligation extracted by the kernel."
+      ),
+      emptyState:
+        "No task or obligation mentions were exposed through entity mention extraction.",
     },
   };
 }

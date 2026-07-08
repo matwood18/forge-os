@@ -24,6 +24,7 @@ export type ShowcaseUnderstandingSection = {
 
 export type ShowcaseUnderstanding = {
   people: ShowcaseUnderstandingSection;
+  obligations: ShowcaseUnderstandingSection;
 };
 
 export type ShowcaseProjection = {
