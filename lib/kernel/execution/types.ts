@@ -10,6 +10,7 @@ import type { ObservationRecord } from "../observation";
 import type { ReasoningSession } from "../reasoning";
 import type { RelationshipRecord } from "../relationship";
 import type { SemanticClaim } from "../semantic-claim";
+import type { SemanticClaimRelation } from "../semantic-claim-relation";
 
 export type KernelExecutionStepType =
   | "input.received"
@@ -17,6 +18,7 @@ export type KernelExecutionStepType =
   | "semantic_interpretation.completed"
   | "entity_mention.extracted"
   | "semantic_claim.generated"
+  | "semantic_claim_relation.generated"
   | "grounding.completed"
   | "observation.available"
   | "relationship.inferred"
@@ -30,6 +32,7 @@ export type KernelExecutionStepArtifact =
   | InterpretationRecord
   | EntityMentionExtractionRecord
   | SemanticClaim
+  | SemanticClaimRelation
   | GroundingRecord
   | ObservationRecord
   | RelationshipRecord

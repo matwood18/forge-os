@@ -10,6 +10,7 @@ import type { ObservationRecord } from "../observation";
 import type { ReasoningSession } from "../reasoning";
 import type { RelationshipRecord } from "../relationship";
 import type { SemanticClaim } from "../semantic-claim";
+import type { SemanticClaimRelation } from "../semantic-claim-relation";
 
 import type {
   KernelExecution,
@@ -53,6 +54,14 @@ export class KernelExecutionRecorder {
       "semantic_claim.generated",
       "Semantic claim generated",
       claim
+    );
+  }
+
+  recordSemanticClaimRelation(relation: SemanticClaimRelation): void {
+    this.record(
+      "semantic_claim_relation.generated",
+      "Semantic claim relation generated",
+      relation
     );
   }
 

@@ -147,6 +147,14 @@ import {
   type SemanticClaimRepository,
 } from "./semantic-claim";
 
+import {
+  BasicSemanticClaimRelationEngine,
+  InMemorySemanticClaimRelationRepository,
+  type SemanticClaimRelation,
+  type SemanticClaimRelationEngine,
+  type SemanticClaimRelationRepository,
+} from "./semantic-claim-relation";
+
 import { BasicWorldModelBuilder } from "./world-model";
 
 export type CaptureResult = EventIngestResult;
@@ -167,6 +175,8 @@ export type ForgeKernelDependencies = {
   groundingRepository?: GroundingRepository;
   semanticClaimEngine?: SemanticClaimEngine;
   semanticClaimRepository?: SemanticClaimRepository;
+  semanticClaimRelationEngine?: SemanticClaimRelationEngine;
+  semanticClaimRelationRepository?: SemanticClaimRelationRepository;
   semanticObservationProjector?: SemanticObservationProjector;
   reflectionEngine?: ReflectionEngine;
   reflectionRepository?: ReflectionRepository;
@@ -214,6 +224,8 @@ export class ForgeKernel {
   private readonly groundingRepository: GroundingRepository;
   private readonly semanticClaimEngine: SemanticClaimEngine;
   private readonly semanticClaimRepository: SemanticClaimRepository;
+  private readonly semanticClaimRelationEngine: SemanticClaimRelationEngine;
+  private readonly semanticClaimRelationRepository: SemanticClaimRelationRepository;
   private readonly semanticObservationProjector: SemanticObservationProjector;
   private readonly reflectionEngine: ReflectionEngine;
   private readonly reflectionRepository: ReflectionRepository;
@@ -309,6 +321,16 @@ export class ForgeKernel {
     this.semanticClaimEngine =
       dependencies.semanticClaimEngine ??
       new BasicSemanticClaimEngine(this.semanticClaimRepository);
+
+    this.semanticClaimRelationRepository =
+      dependencies.semanticClaimRelationRepository ??
+      new InMemorySemanticClaimRelationRepository();
+
+    this.semanticClaimRelationEngine =
+      dependencies.semanticClaimRelationEngine ??
+      new BasicSemanticClaimRelationEngine(
+        this.semanticClaimRelationRepository
+      );
 
     this.semanticObservationProjector =
       dependencies.semanticObservationProjector ??
@@ -412,6 +434,15 @@ export class ForgeKernel {
 
     for (const claim of semanticClaimResult.claims) {
       recorder.recordSemanticClaim(claim);
+    }
+
+    const semanticClaimRelationResult =
+      await this.semanticClaimRelationEngine.relateClaims({
+        claims: semanticClaimResult.claims,
+      });
+
+    for (const relation of semanticClaimRelationResult.relations) {
+      recorder.recordSemanticClaimRelation(relation);
     }
 
     const groundingResult = await this.groundingEngine.ground({
@@ -582,6 +613,10 @@ export class ForgeKernel {
 
   async semanticClaims(): Promise<SemanticClaim[]> {
     return this.semanticClaimRepository.list();
+  }
+
+  async semanticClaimRelations(): Promise<SemanticClaimRelation[]> {
+    return this.semanticClaimRelationRepository.list();
   }
 
   async reflections(): Promise<ReflectionRecord[]> {
