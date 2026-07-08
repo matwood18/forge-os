@@ -55,10 +55,12 @@ import {
 
 import {
   BasicInterpretationEngine,
+  BasicSemanticObservationProjector,
   InMemoryInterpretationRepository,
   type InterpretationEngine,
   type InterpretationRecord,
   type InterpretationRepository,
+  type SemanticObservationProjector,
 } from "./interpretation";
 
 import {
@@ -137,6 +139,7 @@ export type ForgeKernelDependencies = {
   planningEngine?: PlanningEngine;
   interpretationEngine?: InterpretationEngine;
   interpretationRepository?: InterpretationRepository;
+  semanticObservationProjector?: SemanticObservationProjector;
   reflectionEngine?: ReflectionEngine;
   reflectionRepository?: ReflectionRepository;
   recommendationEngine?: RecommendationEngine;
@@ -177,6 +180,7 @@ export class ForgeKernel {
   private readonly planningEngine: PlanningEngine;
   private readonly interpretationEngine: InterpretationEngine;
   private readonly interpretationRepository: InterpretationRepository;
+  private readonly semanticObservationProjector: SemanticObservationProjector;
   private readonly reflectionEngine: ReflectionEngine;
   private readonly reflectionRepository: ReflectionRepository;
   private readonly recommendationEngine: RecommendationEngine;
@@ -250,6 +254,10 @@ export class ForgeKernel {
     this.interpretationEngine =
       dependencies.interpretationEngine ??
       new BasicInterpretationEngine(this.interpretationRepository);
+
+    this.semanticObservationProjector =
+      dependencies.semanticObservationProjector ??
+      new BasicSemanticObservationProjector(this.observationRepository);
 
     this.reflectionRepository =
       dependencies.reflectionRepository ??
@@ -336,12 +344,21 @@ export class ForgeKernel {
 
     recorder.recordInterpretation(interpretationResult.record);
 
+    const projectedObservationResult =
+      await this.semanticObservationProjector.project({
+        interpretation: interpretationResult.record,
+      });
+
     const cognitiveRun = await this.runCognition({
       text,
       interpretation: interpretationResult.record,
     });
 
     recorder.recordPassExecutions(cognitiveRun.passExecutions);
+
+    for (const observation of projectedObservationResult.observations) {
+      recorder.recordObservation(observation);
+    }
 
     for (const observation of cognitiveRun.observations) {
       recorder.recordObservation(observation);
@@ -397,6 +414,10 @@ export class ForgeKernel {
     const interpretationResult = await this.interpretationEngine.interpret(
       result.event
     );
+
+    await this.semanticObservationProjector.project({
+      interpretation: interpretationResult.record,
+    });
 
     if (!text) {
       return result;
