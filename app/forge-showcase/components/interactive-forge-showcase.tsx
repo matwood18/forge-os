@@ -2,7 +2,8 @@
 
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
+import type { ShowcaseProjection } from "@/lib/showcase";
 
 type CognitiveStageStatus = "future" | "active" | "complete";
 
@@ -23,89 +24,27 @@ const defaultInput = sampleInputs[0];
 
 const stageDurationMs = 950;
 
-function buildStages(input: string): CognitiveStage[] {
-  const normalizedInput = input.toLowerCase();
+function buildStages(
+  input: string,
+  projection: ShowcaseProjection | null
+): CognitiveStage[] {
+  if (!projection) {
+    return [
+      {
+        title: "Ready",
+        summary: "Forge is waiting for a real input to analyze.",
+        log: "Awaiting operator input.",
+        details: [input],
+      },
+    ];
+  }
 
-  const hasJess = normalizedInput.includes("jess");
-  const hasInsurance = normalizedInput.includes("insurance");
-  const hasContact = normalizedInput.includes("contact");
-  const hasMad = normalizedInput.includes("mad");
-  const hasMe =
-    normalizedInput.includes(" me ") ||
-    normalizedInput.startsWith("me ") ||
-    normalizedInput.includes(" i ") ||
-    normalizedInput.startsWith("i ");
-
-  const personMention = hasJess ? "Jess" : "unresolved person";
-  const operatorMention = hasMe ? "current operator" : "operator implied";
-  const obligationMention =
-    hasInsurance && hasContact
-      ? "contact insurance"
-      : hasInsurance
-        ? "insurance obligation"
-        : "possible follow-up obligation";
-
-  return [
-    {
-      title: "Receiving Input",
-      summary: "Forge receives the raw life input without cleaning it up first.",
-      log: "Captured source text from operator.",
-      details: [input],
-    },
-    {
-      title: "Understanding Meaning",
-      summary:
-        "Forge looks for emotional pressure, social context, and unresolved work.",
-      log: "Detected concern, relationship pressure, and unfinished obligation.",
-      details: [
-        hasMad ? "emotional signal: someone is upset" : "emotional signal: mild",
-        "context type: personal responsibility",
-        "possible need: repair trust through follow-up",
-      ],
-    },
-    {
-      title: "Extracting Entity Mentions",
-      summary:
-        "Forge identifies references before pretending it knows what they mean.",
-      log: "Extracted person, operator, and task-like mentions.",
-      details: [personMention, operatorMention, obligationMention],
-    },
-    {
-      title: "Grounding Knowledge",
-      summary:
-        "Forge separates known references from unresolved references that need grounding.",
-      log: "Marked unresolved mentions for future canonical resolution.",
-      details: [
-        `${personMention} → person candidate`,
-        `${operatorMention} → actor candidate`,
-        `${obligationMention} → obligation candidate`,
-      ],
-    },
-    {
-      title: "Evaluating Safety",
-      summary:
-        "Forge checks whether anything should happen automatically. It should not.",
-      log: "No external action authorized. No persistence required in showcase mode.",
-      details: [
-        "no email sent",
-        "no calendar event created",
-        "no database mutation",
-        "authorization required before action",
-      ],
-    },
-    {
-      title: "Understanding Complete",
-      summary:
-        "Forge has transformed messy input into structured understanding.",
-      log: "Compiled input into safe, explainable cognitive state.",
-      details: [
-        "meaning understood",
-        "mentions extracted",
-        "knowledge boundaries preserved",
-        "ready for future reasoning runtime",
-      ],
-    },
-  ];
+  return projection.stages.map((stage) => ({
+    title: stage.title,
+    summary: stage.headline,
+    log: stage.log,
+    details: stage.bullets,
+  }));
 }
 
 function getStageStatus(
@@ -130,10 +69,17 @@ function formatTimestamp(offsetSeconds: number) {
 export function InteractiveForgeShowcase() {
   const [input, setInput] = useState(defaultInput);
   const [submittedInput, setSubmittedInput] = useState(defaultInput);
+  const [projection, setProjection] = useState<ShowcaseProjection | null>(null);
   const [activeStageIndex, setActiveStageIndex] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
 
-  const stages = useMemo(() => buildStages(submittedInput), [submittedInput]);
+  const stages = useMemo(
+    () => buildStages(submittedInput, projection),
+    [submittedInput, projection]
+  );
+
   const activeStage = stages[activeStageIndex];
   const isComplete = activeStageIndex >= stages.length - 1;
 
@@ -158,29 +104,72 @@ export function InteractiveForgeShowcase() {
     return () => window.clearTimeout(timeout);
   }, [activeStageIndex, isRunning, stages.length]);
 
-  function analyze() {
-    setSubmittedInput(input.trim() || defaultInput);
+  function runAnalysis(nextInput: string) {
+    const normalizedInput = nextInput.trim() || defaultInput;
+
+    setInput(normalizedInput);
+    setSubmittedInput(normalizedInput);
     setActiveStageIndex(0);
-    setIsRunning(true);
+    setProjection(null);
+    setError(null);
+    setIsRunning(false);
+
+    startTransition(async () => {
+      try {
+        const response = await fetch("/api/forge-showcase/execute", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ input: normalizedInput }),
+        });
+
+        const result = (await response.json()) as {
+          projection?: ShowcaseProjection;
+          error?: string;
+        };
+
+        if (!response.ok || !result.projection) {
+          throw new Error(result.error ?? "Forge could not complete this execution.");
+        }
+
+        setProjection(result.projection);
+        setActiveStageIndex(0);
+        setIsRunning(true);
+      }  catch (error) {
+            console.error(error);
+
+            setError(
+            error instanceof Error
+                ? error.message
+                : "Forge could not complete this execution."
+            );
+        }
+    });
+  }
+
+  function analyze() {
+    runAnalysis(input);
   }
 
   function selectSample(sample: string) {
-    setInput(sample);
-    setSubmittedInput(sample);
-    setActiveStageIndex(0);
-    setIsRunning(true);
+    runAnalysis(sample);
   }
 
   function getStatusLabel() {
-    if (isRunning && !isComplete) {
-      return "thinking";
+    if (isPending) {
+      return "executing kernel";
     }
 
-    if (isComplete) {
+    if (projection && isComplete) {
       return "complete";
     }
 
-    return "paused";
+    if (isRunning) {
+      return "playing back";
+    }
+
+    return "ready";
   }
 
   return (
@@ -197,8 +186,8 @@ export function InteractiveForgeShowcase() {
 
           <p className="mt-5 max-w-3xl text-lg leading-8 text-slate-400">
             This is the product-feel layer: a living cognitive experience that
-            shows Forge receiving, interpreting, extracting, grounding, and
-            safely stopping before action.
+            now plays back real Forge kernel execution instead of local simulated
+            stages.
           </p>
         </header>
 
@@ -216,7 +205,7 @@ export function InteractiveForgeShowcase() {
               value={input}
               onChange={(event) => setInput(event.target.value)}
               onKeyDown={(event) => {
-                if (event.key === "Enter") {
+                if (event.key === "Enter" && !isPending) {
                   analyze();
                 }
               }}
@@ -226,9 +215,10 @@ export function InteractiveForgeShowcase() {
             <button
               type="button"
               onClick={analyze}
-              className="rounded-2xl bg-cyan-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cyan-300"
+              disabled={isPending}
+              className="rounded-2xl bg-cyan-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              Analyze
+              {isPending ? "Running..." : "Analyze"}
             </button>
           </div>
 
@@ -238,18 +228,25 @@ export function InteractiveForgeShowcase() {
                 key={sample}
                 type="button"
                 onClick={() => selectSample(sample)}
-                className="rounded-full border border-slate-700 px-3 py-2 text-sm text-slate-300 transition hover:border-cyan-400 hover:text-cyan-200"
+                disabled={isPending}
+                className="rounded-full border border-slate-700 px-3 py-2 text-sm text-slate-300 transition hover:border-cyan-400 hover:text-cyan-200 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {sample}
               </button>
             ))}
           </div>
+
+          {error ? (
+            <p className="mt-4 rounded-2xl border border-red-400/30 bg-red-400/10 px-4 py-3 text-sm text-red-200">
+              {error}
+            </p>
+          ) : null}
         </section>
 
         <section className="mt-8 grid gap-6 xl:grid-cols-[0.8fr_1.1fr_0.9fr]">
           <div className="rounded-3xl border border-slate-800 bg-slate-900 p-5">
             <p className="text-sm font-semibold uppercase tracking-[0.25em] text-slate-500">
-              Cognitive compiler
+              Real kernel playback
             </p>
 
             <div className="mt-5 space-y-3">
@@ -336,7 +333,7 @@ export function InteractiveForgeShowcase() {
 
             <div className="mt-7 rounded-2xl border border-slate-800 bg-black/30 p-4">
               <p className="text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">
-                Compiler log
+                Kernel log
               </p>
 
               <div className="mt-4 space-y-2 font-mono text-sm">
@@ -354,26 +351,28 @@ export function InteractiveForgeShowcase() {
 
           <aside className="rounded-3xl border border-slate-800 bg-slate-900 p-6">
             <p className="text-sm font-semibold uppercase tracking-[0.25em] text-slate-500">
-              Knowledge graph
+              Execution graph
             </p>
 
             <div className="mt-6 rounded-3xl border border-dashed border-slate-700 bg-slate-950/80 p-6">
               <div className="flex min-h-80 flex-col items-center justify-center text-center">
                 <div className="relative h-40 w-40">
                   <div className="absolute left-1/2 top-4 h-4 w-4 -translate-x-1/2 rounded-full bg-cyan-400 shadow-lg shadow-cyan-400/30" />
-                  <div className="absolute bottom-8 left-8 h-4 w-4 rounded-full bg-slate-600" />
+                  <div className="absolute bottom-8 left-8 h-4 w-4 rounded-full bg-emerald-400/70" />
                   <div className="absolute bottom-8 right-8 h-4 w-4 rounded-full bg-slate-600" />
                   <div className="absolute left-1/2 top-8 h-24 w-px -translate-x-1/2 rotate-[-32deg] bg-slate-700" />
                   <div className="absolute left-1/2 top-8 h-24 w-px -translate-x-1/2 rotate-[32deg] bg-slate-700" />
                 </div>
 
                 <p className="text-lg font-semibold text-slate-200">
-                  Coming soon
+                  {projection
+                    ? `${projection.totalSteps} kernel steps`
+                    : "No execution yet"}
                 </p>
 
                 <p className="mt-3 max-w-xs text-sm leading-6 text-slate-500">
-                  Canonical people, obligations, relationships, and unresolved
-                  references will eventually appear here.
+                  This panel is now backed by real execution output. The visual
+                  graph can grow as kernel artifacts become richer.
                 </p>
               </div>
             </div>
@@ -386,10 +385,10 @@ export function InteractiveForgeShowcase() {
           </p>
 
           <p className="mt-3 max-w-4xl leading-7 text-slate-300">
-            This showcase does not mutate the kernel, write to Prisma, or create
-            durable actions. It visualizes the cognitive shape Forge is growing
-            toward while the real debug/proof layer remains isolated at{" "}
-            <span className="font-mono text-slate-100">/forge-demo</span>.
+            This showcase now runs the real Forge kernel through a server
+            boundary, then plays the result back as a product experience. It
+            still avoids Prisma, durable persistence, and unauthorized external
+            action.
           </p>
         </section>
       </div>
