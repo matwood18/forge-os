@@ -529,6 +529,19 @@ export class ForgeKernel {
       document,
     });
 
+    if (sourceDocumentResult.status === "existing") {
+      const existingEvent = await this.findSourceDocumentEvent(
+        sourceDocumentResult.document.id
+      );
+
+      if (existingEvent) {
+        return {
+          event: existingEvent,
+          questions: [],
+        };
+      }
+    }
+
     return this.ingest(sourceDocumentResult.eventInput);
   }
 
@@ -553,6 +566,25 @@ export class ForgeKernel {
       ...result,
       questions: cognitiveRun.questions,
     };
+  }
+
+  private async findSourceDocumentEvent(
+    sourceDocumentId: string
+  ): Promise<Event | null> {
+    const events = await this.eventStore.list();
+
+    return (
+      events.find((event) => {
+        const payload = event.payload;
+
+        return (
+          typeof payload === "object" &&
+          payload !== null &&
+          "sourceDocumentId" in payload &&
+          payload.sourceDocumentId === sourceDocumentId
+        );
+      }) ?? null
+    );
   }
 
   async publish(event: Parameters<EventBus["publish"]>[0]): Promise<void> {

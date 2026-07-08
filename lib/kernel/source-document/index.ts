@@ -5,6 +5,7 @@ export type {
   SourceDocumentExternalIdentity,
   SourceDocumentIngestorInput,
   SourceDocumentIngestorResult,
+  SourceDocumentIngestorStatus,
   SourceDocumentKind,
   SourceDocumentParticipant,
 } from "./types";

@@ -41,7 +41,10 @@ export type SourceDocumentIngestorInput = {
   document: SourceDocument;
 };
 
+export type SourceDocumentIngestorStatus = "created" | "existing";
+
 export type SourceDocumentIngestorResult = {
   document: SourceDocument;
   eventInput: EventIngestInput;
+  status: SourceDocumentIngestorStatus;
 };

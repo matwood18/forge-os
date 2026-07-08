@@ -24,6 +24,7 @@ export class BasicSourceDocumentIngestor implements SourceDocumentIngestor {
     return {
       document,
       eventInput: this.toEventInput(document),
+      status: existingDocument ? "existing" : "created",
     };
   }
 
