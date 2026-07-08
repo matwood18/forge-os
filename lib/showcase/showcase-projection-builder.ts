@@ -8,6 +8,7 @@ import type {
 import type { SemanticClaim } from "@/lib/kernel/semantic-claim";
 import type { SemanticClaimRelation } from "@/lib/kernel/semantic-claim-relation";
 
+import { buildShowcaseNarrative } from "./narrative";
 import type {
   ShowcaseProjection,
   ShowcaseStage,
@@ -377,13 +378,21 @@ export function buildShowcaseProjection(
     },
   ];
 
-  return {
+  const understanding = buildUnderstanding(execution);
+
+  const projection: ShowcaseProjection = {
     executionId: execution.id,
     input: execution.input,
     startedAt: execution.startedAt.toISOString(),
     completedAt: execution.completedAt.toISOString(),
     totalSteps: execution.steps.length,
     stages,
-    understanding: buildUnderstanding(execution),
+    understanding,
+    narrative: undefined as never,
+  };
+
+  return {
+    ...projection,
+    narrative: buildShowcaseNarrative(projection),
   };
 }

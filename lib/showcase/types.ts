@@ -1,3 +1,5 @@
+import type { ShowcaseNarrative } from "./narrative";
+
 // lib/showcase/types.ts
 
 export type ShowcaseStage = {
@@ -37,4 +39,5 @@ export type ShowcaseProjection = {
   totalSteps: number;
   stages: ShowcaseStage[];
   understanding: ShowcaseUnderstanding;
+  narrative: ShowcaseNarrative;
 };
