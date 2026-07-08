@@ -9,7 +9,8 @@
     "lint": "eslint",
     "forge:bundle": "zip -r forge-os-source.zip . -x 'node_modules/*' -x '.next/*' -x '.git/*' -x '.env' -x '.env.local' -x 'dev.db' -x '*.log'",
     "forge:status": "bash ./scripts/architecture-snapshot",
-    "proof:source-document": "tsx scripts/proofs/source-document-ingestion-proof.ts"
+    "proof:source-document": "tsx scripts/proofs/source-document-ingestion-proof.ts",
+    "proof:source-document-batch": "tsx scripts/proofs/source-document-batch-ingestion-proof.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",
