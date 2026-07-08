@@ -16,3 +16,12 @@ export type {
   ImportProviderContractProofResult,
   SourceDocumentMappingInput,
 } from "./types";
+
+export type {
+  ImportProviderOrchestrator,
+  ImportProviderOrchestratorInput,
+  ImportProviderOrchestratorResult,
+  ImportProviderPageProcessor,
+} from "./import-provider-orchestrator";
+
+export { BasicImportProviderOrchestrator } from "./import-provider-orchestrator";
