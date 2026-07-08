@@ -2,6 +2,7 @@
 import type { Event, Question } from "@/lib/domain";
 
 import type { CognitivePassExecution } from "../cognitive-pipeline";
+import type { EntityMentionExtractionRecord } from "../entity-mention";
 import type { GroundingRecord } from "../grounding";
 import type { InterpretationRecord } from "../interpretation";
 import type { MemoryRecord } from "../memory";
@@ -34,6 +35,14 @@ export class KernelExecutionRecorder {
     this.record(
       "semantic_interpretation.completed",
       "Semantic interpretation completed",
+      record
+    );
+  }
+
+  recordEntityMentionExtraction(record: EntityMentionExtractionRecord): void {
+    this.record(
+      "entity_mention.extracted",
+      "Entity mentions extracted",
       record
     );
   }

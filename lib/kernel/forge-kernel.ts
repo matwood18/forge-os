@@ -384,6 +384,8 @@ export class ForgeKernel {
 
     await this.entityMentionRepository.remember(entityMentionResult.record);
 
+    recorder.recordEntityMentionExtraction(entityMentionResult.record);
+
     const groundingResult = await this.groundingEngine.ground({
       interpretation: interpretationResult.record,
     });
