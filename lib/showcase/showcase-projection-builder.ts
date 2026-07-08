@@ -9,6 +9,7 @@ import type { SemanticClaim } from "@/lib/kernel/semantic-claim";
 import type { SemanticClaimRelation } from "@/lib/kernel/semantic-claim-relation";
 
 import { buildShowcaseNarrative } from "./narrative";
+import { BasicExecutiveBriefBuilder } from "@/lib/executive";
 import type {
   ShowcaseProjection,
   ShowcaseStage,
@@ -388,11 +389,18 @@ export function buildShowcaseProjection(
     totalSteps: execution.steps.length,
     stages,
     understanding,
+    executiveBrief: {
+      title: "",
+      summary: "",
+      priorities: [],
+      createdAt: new Date(),
+    },
     narrative: undefined as never,
   };
 
   return {
     ...projection,
+    executiveBrief: new BasicExecutiveBriefBuilder().build(projection),
     narrative: buildShowcaseNarrative(projection),
   };
 }

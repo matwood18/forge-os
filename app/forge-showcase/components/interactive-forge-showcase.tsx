@@ -264,6 +264,55 @@ export function InteractiveForgeShowcase() {
 
         <ShowcaseNarrative narrative={projection?.narrative} />
 
+        <section className="mt-8 rounded-3xl border border-cyan-500/20 bg-slate-900 p-6 shadow-2xl shadow-cyan-950/20">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-[0.25em] text-cyan-300">
+              Executive Brief
+            </p>
+
+            <h2 className="mt-3 text-3xl font-bold text-slate-100">
+              {projection?.executiveBrief.title ?? "What appears to matter"}
+            </h2>
+
+            <p className="mt-3 max-w-3xl leading-7 text-slate-400">
+              {projection?.executiveBrief.summary ??
+                "Run Forge to generate an executive brief."}
+            </p>
+          </div>
+
+          <div className="mt-6 space-y-4">
+            {projection?.executiveBrief.priorities.map((priority) => (
+              <div
+                key={priority.title}
+                className="rounded-2xl border border-slate-800 bg-slate-950 p-5"
+              >
+                <p className="text-xl font-semibold text-slate-100">
+                  {priority.title}
+                </p>
+
+                <p className="mt-3 text-sm leading-6 text-slate-400">
+                  {priority.whyItMatters}
+                </p>
+
+                <p className="mt-3 text-sm leading-6 text-cyan-200">
+                  Suggested next step: {priority.suggestedNextStep}
+                </p>
+
+                <div className="mt-4 space-y-2">
+                  {priority.evidence.map((item) => (
+                    <p
+                      key={item}
+                      className="text-sm text-slate-500"
+                    >
+                      → {item}
+                    </p>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
 
         <section className="mt-8 grid gap-6 xl:grid-cols-[0.8fr_1.1fr_0.9fr]">
           <div className="rounded-3xl border border-slate-800 bg-slate-900 p-5">
