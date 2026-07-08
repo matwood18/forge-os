@@ -1,4 +1,5 @@
 // lib/kernel/source-document/types.ts
+import type { EventIngestInput } from "@/lib/kernel/event-store";
 
 export type SourceDocumentKind =
   | "manual_note"
@@ -34,4 +35,13 @@ export type SourceDocument = {
   content: SourceDocumentContent;
   occurredAt: Date;
   importedAt: Date;
+};
+
+export type SourceDocumentIngestorInput = {
+  document: SourceDocument;
+};
+
+export type SourceDocumentIngestorResult = {
+  document: SourceDocument;
+  eventInput: EventIngestInput;
 };
