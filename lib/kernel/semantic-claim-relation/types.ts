@@ -1,4 +1,5 @@
 // lib/kernel/semantic-claim-relation/types.ts
+import type { SemanticClaim } from "@/lib/kernel/semantic-claim";
 
 export type SemanticClaimRelationKind =
   | "may_be_related_to"
@@ -18,4 +19,12 @@ export type SemanticClaimRelation = {
   confidence: number;
   provenance: SemanticClaimRelationProvenance;
   createdAt: Date;
+};
+
+export type SemanticClaimRelationEngineInput = {
+  claims: SemanticClaim[];
+};
+
+export type SemanticClaimRelationEngineResult = {
+  relations: SemanticClaimRelation[];
 };
