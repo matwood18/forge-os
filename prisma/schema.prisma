@@ -97,3 +97,26 @@ model ImportCheckpoint {
   @@index([externalImportId])
   @@index([completed])
 }
+
+
+model ImportLease {
+  id String @id
+
+  sourceSystem     String
+  externalImportId String
+
+  ownerId   String
+  acquiredAt DateTime
+  expiresAt  DateTime
+  releasedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([sourceSystem, externalImportId])
+  @@index([sourceSystem])
+  @@index([externalImportId])
+  @@index([ownerId])
+  @@index([expiresAt])
+  @@index([releasedAt])
+}
