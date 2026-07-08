@@ -30,6 +30,11 @@ export class DemoSessionBuilder {
         completedAt: now,
         items: [],
       },
+      semanticUnderstandingInspector: {
+        id: crypto.randomUUID(),
+        signals: [],
+        observations: [],
+      },
       reflectionInspector: {
         id: crypto.randomUUID(),
         items: [],

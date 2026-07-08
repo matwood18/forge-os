@@ -1,3 +1,4 @@
+// lib/demo/demo-data-provider.ts
 import type { ForgeKernel } from "@/lib/kernel";
 
 import { ActionInspectorBuilder } from "./action";
@@ -8,6 +9,7 @@ import { PassExecutionInspectorBuilder } from "./pass-execution";
 import { RecommendationInspectorBuilder } from "./recommendation";
 import { ReflectionInspectorBuilder } from "./reflection";
 import { RunSummaryBuilder } from "./run-summary";
+import { SemanticUnderstandingInspectorBuilder } from "./semantic-understanding";
 import type { DemoScenario } from "./scenario";
 import type { DemoSession } from "./session";
 import { ExecutionTimelineBuilder } from "./timeline";
@@ -27,6 +29,8 @@ export class DemoDataProvider {
     private readonly timelineBuilder = new ExecutionTimelineBuilder(),
     private readonly passExecutionInspectorBuilder =
       new PassExecutionInspectorBuilder(),
+    private readonly semanticUnderstandingInspectorBuilder =
+      new SemanticUnderstandingInspectorBuilder(),
     private readonly reflectionInspectorBuilder =
       new ReflectionInspectorBuilder(),
     private readonly recommendationInspectorBuilder =
@@ -58,6 +62,8 @@ export class DemoDataProvider {
     const timeline = this.timelineBuilder.build(execution);
     const passExecutionInspector =
       this.passExecutionInspectorBuilder.build(execution);
+    const semanticUnderstandingInspector =
+      this.semanticUnderstandingInspectorBuilder.build(execution);
     const reflectionInspector =
       this.reflectionInspectorBuilder.build(execution, reflections);
     const recommendationInspector =
@@ -91,6 +97,7 @@ export class DemoDataProvider {
       pipeline,
       timeline,
       passExecutionInspector,
+      semanticUnderstandingInspector,
       reflectionInspector,
       recommendationInspector,
       authorizationDecisionInspector,

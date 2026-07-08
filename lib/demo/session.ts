@@ -1,3 +1,4 @@
+// lib/demo/session.ts
 import type { ActionInspector } from "./action";
 import type { AuthorizationDecisionInspector } from "./authorization";
 import type { DecisionChainProjection } from "./decision-chain";
@@ -5,6 +6,7 @@ import type { PassExecutionInspector } from "./pass-execution";
 import type { RecommendationInspector } from "./recommendation";
 import type { ReflectionInspector } from "./reflection";
 import type { RunSummary } from "./run-summary";
+import type { SemanticUnderstandingInspector } from "./semantic-understanding";
 import type { ExecutionTimeline } from "./timeline";
 import type { DemoPipeline } from "./types";
 
@@ -15,6 +17,7 @@ export type DemoSession = {
   pipeline: DemoPipeline;
   timeline: ExecutionTimeline;
   passExecutionInspector: PassExecutionInspector;
+  semanticUnderstandingInspector: SemanticUnderstandingInspector;
   reflectionInspector: ReflectionInspector;
   recommendationInspector: RecommendationInspector;
   authorizationDecisionInspector: AuthorizationDecisionInspector;

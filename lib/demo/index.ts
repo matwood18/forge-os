@@ -1,3 +1,4 @@
+// lib/demo/index.ts
 export { ActionInspectorBuilder } from "./action";
 export { AuthorizationDecisionInspectorBuilder } from "./authorization";
 export { DecisionChainBuilder } from "./decision-chain";
@@ -10,6 +11,7 @@ export { PassExecutionInspectorBuilder } from "./pass-execution";
 export { RecommendationInspectorBuilder } from "./recommendation";
 export { ReflectionInspectorBuilder } from "./reflection";
 export { RunSummaryBuilder } from "./run-summary";
+export { SemanticUnderstandingInspectorBuilder } from "./semantic-understanding";
 
 export {
   COGNITIVE_OUTPUT_DEMO_SCENARIO,
@@ -74,6 +76,12 @@ export type {
   RunSummaryChainItem,
   RunSummaryChainItemStatus,
 } from "./run-summary";
+
+export type {
+  SemanticUnderstandingInspector,
+  SemanticUnderstandingObservationItem,
+  SemanticUnderstandingSignalItem,
+} from "./semantic-understanding";
 
 export type {
   ExecutionTimeline,

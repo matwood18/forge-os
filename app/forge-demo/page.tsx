@@ -1,3 +1,4 @@
+// app/forge-demo/page.tsx
 import {
   DemoDataProvider,
   FULL_LIFECYCLE_DEMO_SCENARIO,
@@ -16,6 +17,7 @@ import { PipelineStage } from "./components/pipeline-stage";
 import { RecommendationInspectorView } from "./components/recommendation-inspector";
 import { ReflectionInspectorView } from "./components/reflection-inspector";
 import { RunSummaryView } from "./components/run-summary";
+import { SemanticUnderstandingInspectorView } from "./components/semantic-understanding-inspector";
 
 type ForgeDemoPageProps = {
   searchParams?: Promise<{
@@ -44,7 +46,8 @@ export default async function ForgeDemoPage({
       ? await dataProvider.load(validation.input)
       : await dataProvider.loadScenario(FULL_LIFECYCLE_DEMO_SCENARIO);
 
-  const formInput = validation?.ok === true ? validation.input : rawInput ?? session.input;
+  const formInput =
+    validation?.ok === true ? validation.input : rawInput ?? session.input;
   const formError = validation?.ok === false ? validation.message : undefined;
 
   return (
@@ -92,6 +95,10 @@ export default async function ForgeDemoPage({
             {session.input || "No input provided."}
           </p>
         </section>
+
+        <SemanticUnderstandingInspectorView
+          inspector={session.semanticUnderstandingInspector}
+        />
 
         <ExecutionTimelineView timeline={session.timeline} />
 
