@@ -48,3 +48,22 @@ export type SourceDocumentIngestorResult = {
   eventInput: EventIngestInput;
   status: SourceDocumentIngestorStatus;
 };
+
+export type SourceDocumentBatchIngestorInput = {
+  documents: SourceDocument[];
+};
+
+export type SourceDocumentBatchIngestorItemResult =
+  | {
+      status: "fulfilled";
+      result: SourceDocumentIngestorResult;
+    }
+  | {
+      status: "rejected";
+      document: SourceDocument;
+      reason: string;
+    };
+
+export type SourceDocumentBatchIngestorResult = {
+  results: SourceDocumentBatchIngestorItemResult[];
+};
