@@ -1,13 +1,11 @@
 // lib/kernel/interpretation/observation-projection/semantic-observation-projector.ts
+import type { GroundingRecord } from "@/lib/kernel/grounding";
 import type { ObservationRecord } from "@/lib/kernel/observation";
 
-import type { InterpretationRecord } from "../interpretation-record";
-import type {
-  SemanticObservationProjectionPolicyDecision,
-} from "./policy";
+import type { SemanticObservationProjectionPolicyDecision } from "./policy";
 
 export type SemanticObservationProjectionInput = {
-  interpretation: InterpretationRecord;
+  grounding: GroundingRecord;
 };
 
 export type SemanticObservationProjectionResult = {

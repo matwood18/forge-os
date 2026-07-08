@@ -367,7 +367,7 @@ export class ForgeKernel {
 
     const projectedObservationResult =
       await this.semanticObservationProjector.project({
-        interpretation: interpretationResult.record,
+        grounding: groundingResult.record,
       });
 
     const cognitiveRun = await this.runCognition({
@@ -436,12 +436,12 @@ export class ForgeKernel {
       result.event
     );
 
-    await this.groundingEngine.ground({
+    const groundingResult = await this.groundingEngine.ground({
       interpretation: interpretationResult.record,
     });
 
     await this.semanticObservationProjector.project({
-      interpretation: interpretationResult.record,
+      grounding: groundingResult.record,
     });
 
     if (!text) {
