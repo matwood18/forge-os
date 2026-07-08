@@ -107,6 +107,40 @@ function buildObligationItems(
   return [...itemsByObject.values()];
 }
 
+function buildEmotionItems(
+  execution: KernelExecution
+): ShowcaseUnderstandingItem[] {
+  const itemsByClaim = new Map<string, ShowcaseUnderstandingItem>();
+
+  for (const step of execution.steps) {
+    if (!isSemanticClaimStep(step)) {
+      continue;
+    }
+
+    const claim = step.artifact;
+
+    if (claim.predicate !== "expresses_possible_emotion") {
+      continue;
+    }
+
+    const label = `${claim.subject}: ${claim.object}`;
+    const key = `${claim.subject.toLowerCase()}:${claim.object.toLowerCase()}`;
+    const existing = itemsByClaim.get(key);
+
+    if (!existing || claim.confidence > (existing.confidence ?? 0)) {
+      itemsByClaim.set(key, {
+        id: claim.id,
+        label,
+        summary:
+          "Possible emotion associated with a nearby subject by the kernel semantic layer.",
+        confidence: claim.confidence,
+      });
+    }
+  }
+
+  return [...itemsByClaim.values()];
+}
+
 function buildUnderstanding(execution: KernelExecution): ShowcaseUnderstanding {
   return {
     people: {
@@ -124,6 +158,14 @@ function buildUnderstanding(execution: KernelExecution): ShowcaseUnderstanding {
       items: buildObligationItems(execution),
       emptyState:
         "No possible obligation claims were exposed through semantic claim generation.",
+    },
+    emotions: {
+      title: "Emotions",
+      summary:
+        "Possible subject-associated emotions projected from kernel-owned semantic claims.",
+      items: buildEmotionItems(execution),
+      emptyState:
+        "No subject-associated emotion claims were exposed through semantic claim generation.",
     },
   };
 }

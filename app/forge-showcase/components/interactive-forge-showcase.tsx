@@ -390,6 +390,12 @@ export function InteractiveForgeShowcase() {
                 fallbackTitle="Obligations"
                 fallbackSummary="Run Forge to see what possible obligations the current execution safely exposes."
               />
+
+              <UnderstandingSectionCard
+                section={projection?.understanding.emotions}
+                fallbackTitle="Emotions"
+                fallbackSummary="Run Forge to see what possible subject-associated emotions the current execution safely exposes."
+              />
             </div>
 
             <div className="mt-4 rounded-2xl border border-slate-800 bg-black/20 p-4">
@@ -413,8 +419,8 @@ export function InteractiveForgeShowcase() {
 
           <p className="mt-3 max-w-4xl leading-7 text-slate-300">
             This showcase runs the real Forge kernel through a server boundary,
-            then projects execution playback, people, and obligations into the
-            product experience.
+            then projects execution playback, people, obligations, and possible
+            subject-associated emotions into the product experience.
           </p>
         </section>
       </div>
