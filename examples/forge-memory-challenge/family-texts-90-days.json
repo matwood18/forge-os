@@ -1,0 +1,571 @@
+{
+  "name": "Forge Memory Challenge Dataset v1",
+  "description": "Synthetic 90 day family conversation corpus for testing longitudinal understanding.",
+  "conversationId": "family-main",
+  "documents": [
+    {
+      "id": "msg-0001",
+      "kind": "text-message",
+      "externalId": "msg-0001",
+      "conversationId": "family-main",
+      "occurredAt": "2026-04-03T08:12:00Z",
+      "participants": [
+        "Jess",
+        "Madison"
+      ],
+      "content": "Did you ever send that insurance stuff?"
+    },
+    {
+      "id": "msg-0002",
+      "kind": "text-message",
+      "externalId": "msg-0002",
+      "conversationId": "family-main",
+      "occurredAt": "2026-04-03T08:20:00Z",
+      "participants": [
+        "Madison",
+        "Jess"
+      ],
+      "content": "Not yet. I need to find the paperwork."
+    },
+    {
+      "id": "msg-0003",
+      "kind": "text-message",
+      "externalId": "msg-0003",
+      "conversationId": "family-main",
+      "occurredAt": "2026-04-08T17:30:00Z",
+      "participants": [
+        "Jess",
+        "Madison"
+      ],
+      "content": "The insurance company called again."
+    },
+    {
+      "id": "msg-0004",
+      "kind": "text-message",
+      "externalId": "msg-0004",
+      "conversationId": "family-main",
+      "occurredAt": "2026-04-08T17:45:00Z",
+      "participants": [
+        "Madison",
+        "Jess"
+      ],
+      "content": "I know. I keep putting it off."
+    },
+    {
+      "id": "msg-0101",
+      "kind": "text-message",
+      "externalId": "msg-0101",
+      "conversationId": "family-main",
+      "occurredAt": "2026-04-10T09:00:00Z",
+      "participants": [
+        "Madison",
+        "Jess"
+      ],
+      "content": "I still need to call the doctor about that appointment."
+    },
+    {
+      "id": "msg-0005",
+      "kind": "text-message",
+      "externalId": "msg-0005",
+      "conversationId": "family-main",
+      "occurredAt": "2026-04-12T09:15:00Z",
+      "participants": [
+        "Madison",
+        "Jess"
+      ],
+      "content": "I am going to handle insurance today."
+    },
+    {
+      "id": "msg-0010",
+      "kind": "text-message",
+      "externalId": "msg-0010",
+      "conversationId": "family-main",
+      "occurredAt": "2026-04-15T15:10:00Z",
+      "participants": [
+        "Jess",
+        "Madison"
+      ],
+      "content": "Maxx needs help with his science project this weekend."
+    },
+    {
+      "id": "msg-0011",
+      "kind": "text-message",
+      "externalId": "msg-0011",
+      "conversationId": "family-main",
+      "occurredAt": "2026-04-15T15:20:00Z",
+      "participants": [
+        "Madison",
+        "Jess"
+      ],
+      "content": "I can help him Saturday morning."
+    },
+    {
+      "id": "msg-0102",
+      "kind": "text-message",
+      "externalId": "msg-0102",
+      "conversationId": "family-main",
+      "occurredAt": "2026-04-18T08:30:00Z",
+      "participants": [
+        "Jess",
+        "Madison"
+      ],
+      "content": "Did you ever schedule that doctor thing?"
+    },
+    {
+      "id": "msg-0103",
+      "kind": "text-message",
+      "externalId": "msg-0103",
+      "conversationId": "family-main",
+      "occurredAt": "2026-04-18T08:45:00Z",
+      "participants": [
+        "Madison",
+        "Jess"
+      ],
+      "content": "No. It keeps slipping my mind."
+    },
+    {
+      "id": "msg-0012",
+      "kind": "text-message",
+      "externalId": "msg-0012",
+      "conversationId": "family-main",
+      "occurredAt": "2026-04-18T12:00:00Z",
+      "participants": [
+        "Maxx",
+        "Madison"
+      ],
+      "content": "Can we work on the robot project today?"
+    },
+    {
+      "id": "msg-0130",
+      "kind": "text-message",
+      "externalId": "msg-0130",
+      "conversationId": "family-main",
+      "occurredAt": "2026-04-20T19:00:00Z",
+      "participants": [
+        "Jess",
+        "Madison"
+      ],
+      "content": "Ellie has soccer Tuesday and I think Maxx has something Thursday."
+    },
+    {
+      "id": "msg-0020",
+      "kind": "text-message",
+      "externalId": "msg-0020",
+      "conversationId": "family-main",
+      "occurredAt": "2026-04-22T18:00:00Z",
+      "participants": [
+        "Jess",
+        "Madison"
+      ],
+      "content": "The fence is still broken."
+    },
+    {
+      "id": "msg-0021",
+      "kind": "text-message",
+      "externalId": "msg-0021",
+      "conversationId": "family-main",
+      "occurredAt": "2026-04-22T18:10:00Z",
+      "participants": [
+        "Madison",
+        "Jess"
+      ],
+      "content": "I know. I need to call someone."
+    },
+    {
+      "id": "msg-0140",
+      "kind": "text-message",
+      "externalId": "msg-0140",
+      "conversationId": "family-main",
+      "occurredAt": "2026-04-25T13:00:00Z",
+      "participants": [
+        "Maxx",
+        "Madison"
+      ],
+      "content": "I want to build another robot."
+    },
+    {
+      "id": "msg-0110",
+      "kind": "text-message",
+      "externalId": "msg-0110",
+      "conversationId": "family-main",
+      "occurredAt": "2026-04-27T11:00:00Z",
+      "participants": [
+        "Jess",
+        "Madison"
+      ],
+      "content": "The car registration is coming up too."
+    },
+    {
+      "id": "msg-0150",
+      "kind": "text-message",
+      "externalId": "msg-0150",
+      "conversationId": "family-main",
+      "occurredAt": "2026-04-30T16:00:00Z",
+      "participants": [
+        "Ellie",
+        "Madison"
+      ],
+      "content": "Can we practice soccer after dinner?"
+    },
+    {
+      "id": "msg-0160",
+      "kind": "text-message",
+      "externalId": "msg-0160",
+      "conversationId": "family-main",
+      "occurredAt": "2026-05-02T15:00:00Z",
+      "participants": [
+        "Gus",
+        "Madison"
+      ],
+      "content": "Can we go skateboarding today?"
+    },
+    {
+      "id": "msg-0111",
+      "kind": "text-message",
+      "externalId": "msg-0111",
+      "conversationId": "family-main",
+      "occurredAt": "2026-05-03T10:00:00Z",
+      "participants": [
+        "Jess",
+        "Madison"
+      ],
+      "content": "Did you renew the registration?"
+    },
+    {
+      "id": "msg-0112",
+      "kind": "text-message",
+      "externalId": "msg-0112",
+      "conversationId": "family-main",
+      "occurredAt": "2026-05-04T16:00:00Z",
+      "participants": [
+        "Madison",
+        "Jess"
+      ],
+      "content": "Taking care of it tonight."
+    },
+    {
+      "id": "msg-0030",
+      "kind": "text-message",
+      "externalId": "msg-0030",
+      "conversationId": "family-main",
+      "occurredAt": "2026-05-05T07:30:00Z",
+      "participants": [
+        "Jess",
+        "Madison"
+      ],
+      "content": "Any update on the insurance claim?"
+    },
+    {
+      "id": "msg-0031",
+      "kind": "text-message",
+      "externalId": "msg-0031",
+      "conversationId": "family-main",
+      "occurredAt": "2026-05-05T07:40:00Z",
+      "participants": [
+        "Madison",
+        "Jess"
+      ],
+      "content": "Honestly I forgot again."
+    },
+    {
+      "id": "msg-0131",
+      "kind": "text-message",
+      "externalId": "msg-0131",
+      "conversationId": "family-main",
+      "occurredAt": "2026-05-06T18:00:00Z",
+      "participants": [
+        "Madison",
+        "Jess"
+      ],
+      "content": "I put the kids schedule on the calendar."
+    },
+    {
+      "id": "msg-0120",
+      "kind": "text-message",
+      "externalId": "msg-0120",
+      "conversationId": "family-main",
+      "occurredAt": "2026-05-08T18:00:00Z",
+      "participants": [
+        "Jess",
+        "Madison"
+      ],
+      "content": "We still need to figure out the fence repair."
+    },
+    {
+      "id": "msg-0104",
+      "kind": "text-message",
+      "externalId": "msg-0104",
+      "conversationId": "family-main",
+      "occurredAt": "2026-05-12T17:00:00Z",
+      "participants": [
+        "Madison",
+        "Jess"
+      ],
+      "content": "I finally scheduled the appointment."
+    },
+    {
+      "id": "msg-0040",
+      "kind": "text-message",
+      "externalId": "msg-0040",
+      "conversationId": "family-main",
+      "occurredAt": "2026-05-14T19:00:00Z",
+      "participants": [
+        "Ellie",
+        "Madison"
+      ],
+      "content": "Soccer practice was awesome today."
+    },
+    {
+      "id": "msg-0041",
+      "kind": "text-message",
+      "externalId": "msg-0041",
+      "conversationId": "family-main",
+      "occurredAt": "2026-05-14T19:15:00Z",
+      "participants": [
+        "Madison",
+        "Jess"
+      ],
+      "content": "Ellie is really enjoying soccer this year."
+    },
+    {
+      "id": "msg-0141",
+      "kind": "text-message",
+      "externalId": "msg-0141",
+      "conversationId": "family-main",
+      "occurredAt": "2026-05-20T16:00:00Z",
+      "participants": [
+        "Madison",
+        "Jess"
+      ],
+      "content": "Maxx has been watching robotics videos nonstop."
+    },
+    {
+      "id": "msg-0050",
+      "kind": "text-message",
+      "externalId": "msg-0050",
+      "conversationId": "family-main",
+      "occurredAt": "2026-05-22T16:00:00Z",
+      "participants": [
+        "Jess",
+        "Madison"
+      ],
+      "content": "I am frustrated that the insurance thing is still hanging over us."
+    },
+    {
+      "id": "msg-0151",
+      "kind": "text-message",
+      "externalId": "msg-0151",
+      "conversationId": "family-main",
+      "occurredAt": "2026-05-25T17:00:00Z",
+      "participants": [
+        "Ellie",
+        "Madison"
+      ],
+      "content": "I want to make an art project this weekend."
+    },
+    {
+      "id": "msg-0121",
+      "kind": "text-message",
+      "externalId": "msg-0121",
+      "conversationId": "family-main",
+      "occurredAt": "2026-05-30T15:00:00Z",
+      "participants": [
+        "Madison",
+        "Jess"
+      ],
+      "content": "Fence guy is coming next week."
+    },
+    {
+      "id": "msg-0060",
+      "kind": "text-message",
+      "externalId": "msg-0060",
+      "conversationId": "family-main",
+      "occurredAt": "2026-06-02T10:00:00Z",
+      "participants": [
+        "Madison",
+        "Jess"
+      ],
+      "content": "I finally found the documents."
+    },
+    {
+      "id": "msg-0061",
+      "kind": "text-message",
+      "externalId": "msg-0061",
+      "conversationId": "family-main",
+      "occurredAt": "2026-06-03T14:00:00Z",
+      "participants": [
+        "Madison",
+        "Jess"
+      ],
+      "content": "Insurance paperwork has been submitted."
+    },
+    {
+      "id": "msg-0161",
+      "kind": "text-message",
+      "externalId": "msg-0161",
+      "conversationId": "family-main",
+      "occurredAt": "2026-06-05T15:00:00Z",
+      "participants": [
+        "Gus",
+        "Madison"
+      ],
+      "content": "That skateboard trick was awesome."
+    },
+    {
+      "id": "msg-0070",
+      "kind": "text-message",
+      "externalId": "msg-0070",
+      "conversationId": "family-main",
+      "occurredAt": "2026-06-10T18:30:00Z",
+      "participants": [
+        "Jess",
+        "Madison"
+      ],
+      "content": "Thanks for finally getting that done."
+    },
+    {
+      "id": "msg-0122",
+      "kind": "text-message",
+      "externalId": "msg-0122",
+      "conversationId": "family-main",
+      "occurredAt": "2026-06-12T14:00:00Z",
+      "participants": [
+        "Madison",
+        "Jess"
+      ],
+      "content": "Fence is finally fixed."
+    },
+    {
+      "id": "msg-0080",
+      "kind": "text-message",
+      "externalId": "msg-0080",
+      "conversationId": "family-main",
+      "occurredAt": "2026-06-15T09:00:00Z",
+      "participants": [
+        "Maxx",
+        "Madison"
+      ],
+      "content": "I got my robot project working!"
+    },
+    {
+      "id": "msg-0081",
+      "kind": "text-message",
+      "externalId": "msg-0081",
+      "conversationId": "family-main",
+      "occurredAt": "2026-06-15T09:10:00Z",
+      "participants": [
+        "Madison",
+        "Jess"
+      ],
+      "content": "Maxx was so proud of that project."
+    },
+    {
+      "id": "msg-0142",
+      "kind": "text-message",
+      "externalId": "msg-0142",
+      "conversationId": "family-main",
+      "occurredAt": "2026-06-15T10:00:00Z",
+      "participants": [
+        "Jess",
+        "Madison"
+      ],
+      "content": "He really lights up when he builds things."
+    },
+    {
+      "id": "msg-0132",
+      "kind": "text-message",
+      "externalId": "msg-0132",
+      "conversationId": "family-main",
+      "occurredAt": "2026-06-18T18:30:00Z",
+      "participants": [
+        "Jess",
+        "Madison"
+      ],
+      "content": "Summer is going to get busy fast."
+    },
+    {
+      "id": "msg-0152",
+      "kind": "text-message",
+      "externalId": "msg-0152",
+      "conversationId": "family-main",
+      "occurredAt": "2026-06-20T12:00:00Z",
+      "participants": [
+        "Jess",
+        "Madison"
+      ],
+      "content": "Ellie has been really creative lately."
+    },
+    {
+      "id": "msg-0090",
+      "kind": "text-message",
+      "externalId": "msg-0090",
+      "conversationId": "family-main",
+      "occurredAt": "2026-06-25T20:00:00Z",
+      "participants": [
+        "Jess",
+        "Madison"
+      ],
+      "content": "We should plan camping before summer gets away from us."
+    },
+    {
+      "id": "msg-0091",
+      "kind": "text-message",
+      "externalId": "msg-0091",
+      "conversationId": "family-main",
+      "occurredAt": "2026-06-26T08:00:00Z",
+      "participants": [
+        "Madison",
+        "Jess"
+      ],
+      "content": "Let's actually pick dates this time."
+    },
+    {
+      "id": "msg-0170",
+      "kind": "text-message",
+      "externalId": "msg-0170",
+      "conversationId": "family-main",
+      "occurredAt": "2026-06-28T18:00:00Z",
+      "participants": [
+        "Jess",
+        "Madison"
+      ],
+      "content": "We should actually take that camping trip."
+    },
+    {
+      "id": "msg-0171",
+      "kind": "text-message",
+      "externalId": "msg-0171",
+      "conversationId": "family-main",
+      "occurredAt": "2026-06-29T20:00:00Z",
+      "participants": [
+        "Jess",
+        "Madison"
+      ],
+      "content": "The kids would love getting away."
+    },
+    {
+      "id": "msg-0180",
+      "kind": "text-message",
+      "externalId": "msg-0180",
+      "conversationId": "family-main",
+      "occurredAt": "2026-06-30T20:30:00Z",
+      "participants": [
+        "Jess",
+        "Madison"
+      ],
+      "content": "It feels like we finally caught up on a lot of things."
+    },
+    {
+      "id": "msg-0100",
+      "kind": "text-message",
+      "externalId": "msg-0100",
+      "conversationId": "family-main",
+      "occurredAt": "2026-06-30T21:00:00Z",
+      "participants": [
+        "Jess",
+        "Madison"
+      ],
+      "content": "Things feel a lot less stressful lately."
+    }
+  ]
+}

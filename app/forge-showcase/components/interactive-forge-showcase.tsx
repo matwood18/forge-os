@@ -5,6 +5,7 @@
 import { useEffect, useMemo, useState, useTransition } from "react";
 import type { ShowcaseProjection } from "@/lib/showcase";
 import type { ShowcaseUnderstandingSection } from "@/lib/showcase/types";
+import { ShowcaseNarrative } from "./showcase-narrative";
 
 type CognitiveStageStatus = "future" | "active" | "complete";
 
@@ -260,6 +261,9 @@ export function InteractiveForgeShowcase() {
             </p>
           ) : null}
         </section>
+
+        <ShowcaseNarrative narrative={projection?.narrative} />
+
 
         <section className="mt-8 grid gap-6 xl:grid-cols-[0.8fr_1.1fr_0.9fr]">
           <div className="rounded-3xl border border-slate-800 bg-slate-900 p-5">
