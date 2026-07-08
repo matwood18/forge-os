@@ -241,22 +241,87 @@ print_existing \
 echo "✓ Provider-neutral historical import envelope"
 echo "✓ External import identity"
 echo "✓ Import lifecycle ownership"
-echo "✓ Aggregate discovered, processed, succeeded, and failed counts"
-echo "✓ Batch source document processing orchestration"
+echo "✓ Incremental discovery recording"
+echo "✓ Incremental processed, succeeded, and failed counts"
+echo "✓ Running sessions preserved across bounded batches"
+echo "✓ Explicit import session failure"
+echo "✓ Terminal lifecycle mutation guards"
 echo "✓ Import session reuse by external identity"
 echo "✓ Import completion status projection"
+
+print_section "Import Providers"
+print_existing \
+  lib/kernel/import-provider/types.ts \
+  lib/kernel/import-provider/import-provider-adapter.ts \
+  lib/kernel/import-provider/source-document-mapper.ts \
+  lib/kernel/import-provider/import-provider-orchestrator.ts \
+  lib/kernel/import-provider/index.ts
+
+echo "✓ Provider-neutral external record contract"
+echo "✓ Provider adapter discovery boundary"
+echo "✓ Cursor-based paginated discovery"
+echo "✓ Bounded discovery vocabulary"
+echo "✓ Deterministic ExternalSourceRecord → SourceDocument mapping"
+echo "✓ Stable source document identity"
+echo "✓ Provider-neutral traversal orchestration"
+echo "✓ Bounded processing batches"
+echo "✓ Provider cursor contract validation"
+echo "✓ No provider-specific concerns in kernel contracts"
+
+print_section "Import Checkpoints"
+print_existing \
+  lib/kernel/import-checkpoint/types.ts \
+  lib/kernel/import-checkpoint/import-checkpoint-repository.ts \
+  lib/kernel/import-checkpoint/in-memory-import-checkpoint-repository.ts \
+  lib/kernel/import-checkpoint/index.ts
+
+echo "✓ Provider-neutral checkpoint identity"
+echo "✓ Persisted provider cursor"
+echo "✓ Checkpoint repository boundary"
+echo "✓ Checkpoint advancement after successful page processing"
+echo "✓ Last safe page boundary preserved on interruption"
+echo "✓ Resume from persisted cursor"
+echo "✓ Completed checkpoint projection"
+
+print_section "Resumable Provider Import Execution"
+print_existing \
+  lib/kernel/forge-kernel.ts \
+  lib/kernel/import-provider/import-provider-orchestrator.ts \
+  lib/kernel/import-checkpoint/import-checkpoint-repository.ts \
+  lib/kernel/import-session/import-session-engine.ts
+
+echo "✓ Provider discovery → deterministic mapping → SourceDocument ingestion"
+echo "✓ Bounded page and processing execution"
+echo "✓ Incremental import session discovery and progress"
+echo "✓ Per-document failure isolation preserved"
+echo "✓ Traversal failure marks session failed"
+echo "✓ Last safe checkpoint preserved across interruption"
+echo "✓ Resume from persisted provider cursor"
+echo "✓ Existing SourceDocument idempotency protects replay"
+echo "✓ Completed provider import rerun is a no-op"
+echo "✓ Provider-neutral kernel execution path"
 
 print_section "Executable Proofs"
 print_existing \
   scripts/proofs/source-document-ingestion-proof.ts \
   scripts/proofs/source-document-batch-ingestion-proof.ts \
-  scripts/proofs/import-session-proof.ts
+  scripts/proofs/import-session-proof.ts \
+  scripts/proofs/import-provider-contract-proof.ts \
+  scripts/proofs/import-provider-orchestrator-proof.ts \
+  scripts/proofs/import-session-resumable-proof.ts \
+  scripts/proofs/import-checkpoint-proof.ts \
+  scripts/proofs/import-provider-execution-proof.ts
 
 echo "✓ Single source document end-to-end proof"
 echo "✓ Batch ingestion and failure isolation proof"
 echo "✓ Source document rerun idempotency proof"
 echo "✓ Import session lifecycle and count proof"
 echo "✓ Import session rerun proof"
+echo "✓ Provider adapter pagination and deterministic mapping proof"
+echo "✓ Provider orchestration and bounded processing proof"
+echo "✓ Resumable import session lifecycle proof"
+echo "✓ Safe checkpoint persistence and resume proof"
+echo "✓ End-to-end resumable provider import execution proof"
 
 print_section "Repositories"
 find lib/kernel -name "*repository.ts" -o -name "in-memory-*-repository.ts" | sort
