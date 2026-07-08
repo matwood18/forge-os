@@ -139,6 +139,14 @@ import {
   type RelationshipRepository,
 } from "./relationship";
 
+import {
+  BasicSemanticClaimEngine,
+  InMemorySemanticClaimRepository,
+  type SemanticClaim,
+  type SemanticClaimEngine,
+  type SemanticClaimRepository,
+} from "./semantic-claim";
+
 import { BasicWorldModelBuilder } from "./world-model";
 
 export type CaptureResult = EventIngestResult;
@@ -157,6 +165,8 @@ export type ForgeKernelDependencies = {
   entityMentionRepository?: EntityMentionRepository;
   groundingEngine?: GroundingEngine;
   groundingRepository?: GroundingRepository;
+  semanticClaimEngine?: SemanticClaimEngine;
+  semanticClaimRepository?: SemanticClaimRepository;
   semanticObservationProjector?: SemanticObservationProjector;
   reflectionEngine?: ReflectionEngine;
   reflectionRepository?: ReflectionRepository;
@@ -202,6 +212,8 @@ export class ForgeKernel {
   private readonly entityMentionRepository: EntityMentionRepository;
   private readonly groundingEngine: GroundingEngine;
   private readonly groundingRepository: GroundingRepository;
+  private readonly semanticClaimEngine: SemanticClaimEngine;
+  private readonly semanticClaimRepository: SemanticClaimRepository;
   private readonly semanticObservationProjector: SemanticObservationProjector;
   private readonly reflectionEngine: ReflectionEngine;
   private readonly reflectionRepository: ReflectionRepository;
@@ -289,6 +301,14 @@ export class ForgeKernel {
     this.groundingEngine =
       dependencies.groundingEngine ??
       new BasicGroundingEngine(this.groundingRepository);
+
+    this.semanticClaimRepository =
+      dependencies.semanticClaimRepository ??
+      new InMemorySemanticClaimRepository();
+
+    this.semanticClaimEngine =
+      dependencies.semanticClaimEngine ??
+      new BasicSemanticClaimEngine(this.semanticClaimRepository);
 
     this.semanticObservationProjector =
       dependencies.semanticObservationProjector ??
@@ -385,6 +405,14 @@ export class ForgeKernel {
     await this.entityMentionRepository.remember(entityMentionResult.record);
 
     recorder.recordEntityMentionExtraction(entityMentionResult.record);
+
+    const semanticClaimResult = await this.semanticClaimEngine.generateClaims({
+      entityMentionExtraction: entityMentionResult.record,
+    });
+
+    for (const claim of semanticClaimResult.claims) {
+      recorder.recordSemanticClaim(claim);
+    }
 
     const groundingResult = await this.groundingEngine.ground({
       interpretation: interpretationResult.record,
@@ -550,6 +578,10 @@ export class ForgeKernel {
 
   async interpretations(): Promise<InterpretationRecord[]> {
     return this.interpretationRepository.all();
+  }
+
+  async semanticClaims(): Promise<SemanticClaim[]> {
+    return this.semanticClaimRepository.list();
   }
 
   async reflections(): Promise<ReflectionRecord[]> {
