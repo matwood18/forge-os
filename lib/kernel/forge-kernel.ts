@@ -156,10 +156,14 @@ import {
 } from "./semantic-claim-relation";
 
 import {
+  BasicSourceDocumentBatchIngestor,
   BasicSourceDocumentIngestor,
   InMemorySourceDocumentRepository,
   type SourceDocument,
+  type SourceDocumentBatchIngestor,
   type SourceDocumentIngestor,
+  type SourceDocumentProcessingBatchItemResult,
+  type SourceDocumentProcessingBatchResult,
   type SourceDocumentRepository,
 } from "./source-document";
 
@@ -186,6 +190,7 @@ export type ForgeKernelDependencies = {
   semanticClaimRelationEngine?: SemanticClaimRelationEngine;
   semanticClaimRelationRepository?: SemanticClaimRelationRepository;
   sourceDocumentIngestor?: SourceDocumentIngestor;
+  sourceDocumentBatchIngestor?: SourceDocumentBatchIngestor;
   sourceDocumentRepository?: SourceDocumentRepository;
   semanticObservationProjector?: SemanticObservationProjector;
   reflectionEngine?: ReflectionEngine;
@@ -248,6 +253,7 @@ export class ForgeKernel {
   private readonly semanticClaimRelationEngine: SemanticClaimRelationEngine;
   private readonly semanticClaimRelationRepository: SemanticClaimRelationRepository;
   private readonly sourceDocumentIngestor: SourceDocumentIngestor;
+  private readonly sourceDocumentBatchIngestor: SourceDocumentBatchIngestor;
   private readonly sourceDocumentRepository: SourceDocumentRepository;
   private readonly semanticObservationProjector: SemanticObservationProjector;
   private readonly reflectionEngine: ReflectionEngine;
@@ -362,6 +368,10 @@ export class ForgeKernel {
     this.sourceDocumentIngestor =
       dependencies.sourceDocumentIngestor ??
       new BasicSourceDocumentIngestor(this.sourceDocumentRepository);
+
+    this.sourceDocumentBatchIngestor =
+      dependencies.sourceDocumentBatchIngestor ??
+      new BasicSourceDocumentBatchIngestor(this.sourceDocumentIngestor);
 
     this.semanticObservationProjector =
       dependencies.semanticObservationProjector ??
@@ -529,20 +539,47 @@ export class ForgeKernel {
       document,
     });
 
-    if (sourceDocumentResult.status === "existing") {
-      const existingEvent = await this.findSourceDocumentEvent(
-        sourceDocumentResult.document.id
-      );
+    return this.processSourceDocumentIngestorResult(sourceDocumentResult);
+  }
 
-      if (existingEvent) {
-        return {
-          event: existingEvent,
-          questions: [],
-        };
+  async ingestSourceDocuments(
+    documents: SourceDocument[]
+  ): Promise<SourceDocumentProcessingBatchResult> {
+    const batchResult = await this.sourceDocumentBatchIngestor.ingestBatch({
+      documents,
+    });
+
+    const results: SourceDocumentProcessingBatchItemResult[] = [];
+
+    for (const item of batchResult.results) {
+      if (item.status === "rejected") {
+        results.push(item);
+        continue;
+      }
+
+      try {
+        const result = await this.processSourceDocumentIngestorResult(
+          item.result
+        );
+
+        results.push({
+          status: "fulfilled",
+          document: item.result.document,
+          result,
+        });
+      } catch (error) {
+        results.push({
+          status: "rejected",
+          document: item.result.document,
+          reason:
+            error instanceof Error
+              ? error.message
+              : "Unknown source document processing error.",
+        });
       }
     }
 
-    return this.ingest(sourceDocumentResult.eventInput);
+    return { results };
   }
 
   async ingest(input: EventIngestInput): Promise<EventIngestResult> {
@@ -566,6 +603,27 @@ export class ForgeKernel {
       ...result,
       questions: cognitiveRun.questions,
     };
+  }
+
+  private async processSourceDocumentIngestorResult(
+    sourceDocumentResult: Awaited<
+      ReturnType<SourceDocumentIngestor["ingest"]>
+    >
+  ): Promise<EventIngestResult> {
+    if (sourceDocumentResult.status === "existing") {
+      const existingEvent = await this.findSourceDocumentEvent(
+        sourceDocumentResult.document.id
+      );
+
+      if (existingEvent) {
+        return {
+          event: existingEvent,
+          questions: [],
+        };
+      }
+    }
+
+    return this.ingest(sourceDocumentResult.eventInput);
   }
 
   private async findSourceDocumentEvent(

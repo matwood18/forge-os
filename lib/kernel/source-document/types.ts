@@ -1,5 +1,5 @@
 // lib/kernel/source-document/types.ts
-import type { EventIngestInput } from "@/lib/kernel/event-store";
+import type { EventIngestInput, EventIngestResult } from "@/lib/kernel/event-store";
 
 export type SourceDocumentKind =
   | "manual_note"
@@ -66,4 +66,20 @@ export type SourceDocumentBatchIngestorItemResult =
 
 export type SourceDocumentBatchIngestorResult = {
   results: SourceDocumentBatchIngestorItemResult[];
+};
+
+export type SourceDocumentProcessingBatchItemResult =
+  | {
+      status: "fulfilled";
+      document: SourceDocument;
+      result: EventIngestResult;
+    }
+  | {
+      status: "rejected";
+      document: SourceDocument;
+      reason: string;
+    };
+
+export type SourceDocumentProcessingBatchResult = {
+  results: SourceDocumentProcessingBatchItemResult[];
 };

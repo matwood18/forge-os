@@ -11,6 +11,8 @@ export type {
   SourceDocumentIngestorStatus,
   SourceDocumentKind,
   SourceDocumentParticipant,
+  SourceDocumentProcessingBatchItemResult,
+  SourceDocumentProcessingBatchResult,
 } from "./types";
 
 export type { SourceDocumentRepository } from "./source-document-repository";
