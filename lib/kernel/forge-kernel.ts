@@ -53,6 +53,14 @@ import {
 } from "./identity-resolution";
 
 import {
+  BasicInterpretationEngine,
+  InMemoryInterpretationRepository,
+  type InterpretationEngine,
+  type InterpretationRecord,
+  type InterpretationRepository,
+} from "./interpretation";
+
+import {
   InMemoryMemoryRepository,
   MemoryEngine,
   MemoryService,
@@ -126,6 +134,8 @@ export type ForgeKernelDependencies = {
   relationshipRepository?: RelationshipRepository;
   goalEngine?: GoalEngine;
   planningEngine?: PlanningEngine;
+  interpretationEngine?: InterpretationEngine;
+  interpretationRepository?: InterpretationRepository;
   reflectionEngine?: ReflectionEngine;
   reflectionRepository?: ReflectionRepository;
   recommendationEngine?: RecommendationEngine;
@@ -164,6 +174,8 @@ export class ForgeKernel {
   private readonly curiosityEngine: CuriosityEngine;
   private readonly goalEngine: GoalEngine;
   private readonly planningEngine: PlanningEngine;
+  private readonly interpretationEngine: InterpretationEngine;
+  private readonly interpretationRepository: InterpretationRepository;
   private readonly reflectionEngine: ReflectionEngine;
   private readonly reflectionRepository: ReflectionRepository;
   private readonly recommendationEngine: RecommendationEngine;
@@ -229,6 +241,14 @@ export class ForgeKernel {
     this.planningEngine =
       dependencies.planningEngine ??
       new BasicPlanningEngine(new InMemoryPlanRepository());
+
+    this.interpretationRepository =
+      dependencies.interpretationRepository ??
+      new InMemoryInterpretationRepository();
+
+    this.interpretationEngine =
+      dependencies.interpretationEngine ??
+      new BasicInterpretationEngine(this.interpretationRepository);
 
     this.reflectionRepository =
       dependencies.reflectionRepository ??
@@ -309,6 +329,12 @@ export class ForgeKernel {
 
     recorder.recordEvent(ingestResult.event);
 
+    const interpretationResult = await this.interpretationEngine.interpret(
+      ingestResult.event
+    );
+
+    recorder.recordInterpretation(interpretationResult.record);
+
     const cognitiveRun = await this.runCognition(text);
 
     recorder.recordPassExecutions(cognitiveRun.passExecutions);
@@ -363,6 +389,8 @@ export class ForgeKernel {
   async ingest(input: EventIngestInput): Promise<EventIngestResult> {
     const result = await this.eventIngestor.ingest(input);
     const text = this.getTextFromPayload(input.payload);
+
+    await this.interpretationEngine.interpret(result.event);
 
     if (!text) {
       return result;
@@ -430,6 +458,10 @@ export class ForgeKernel {
 
   async memories(): Promise<MemoryRecord[]> {
     return this.memory.all();
+  }
+
+  async interpretations(): Promise<InterpretationRecord[]> {
+    return this.interpretationRepository.all();
   }
 
   async reflections(): Promise<ReflectionRecord[]> {

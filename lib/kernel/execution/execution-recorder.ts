@@ -2,6 +2,7 @@
 import type { Event, Question } from "@/lib/domain";
 
 import type { CognitivePassExecution } from "../cognitive-pipeline";
+import type { InterpretationRecord } from "../interpretation";
 import type { MemoryRecord } from "../memory";
 import type { ObservationRecord } from "../observation";
 import type { ReasoningSession } from "../reasoning";
@@ -26,6 +27,14 @@ export class KernelExecutionRecorder {
 
   recordEvent(event: Event): void {
     this.record("event.created", "Event created", event);
+  }
+
+  recordInterpretation(record: InterpretationRecord): void {
+    this.record(
+      "semantic_interpretation.completed",
+      "Semantic interpretation completed",
+      record
+    );
   }
 
   recordObservation(observation: ObservationRecord): void {

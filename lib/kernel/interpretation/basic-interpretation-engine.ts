@@ -1,5 +1,5 @@
 // lib/kernel/interpretation/basic-interpretation-engine.ts
-import type { DomainEvent } from "@/lib/kernel/events";
+import type { Event } from "@/lib/domain";
 import {
   SEMANTIC_EVENT_TYPES,
   type SemanticEvent,
@@ -29,7 +29,7 @@ type SignalDraft = {
 export class BasicInterpretationEngine implements InterpretationEngine {
   constructor(private readonly repository: InterpretationRepository) {}
 
-  async interpret(event: DomainEvent): Promise<InterpretationEngineResult> {
+  async interpret(event: Event): Promise<InterpretationEngineResult> {
     const text = this.getText(event.payload);
     const signalDrafts = text ? this.extractSignals(text) : [];
     const signals = signalDrafts.map((draft) => this.createSignal(draft));
@@ -69,7 +69,11 @@ export class BasicInterpretationEngine implements InterpretationEngine {
       });
     }
 
-    if (/\b(today|tomorrow|tonight|this week|next week|by \w+day)\b/.test(normalized)) {
+    if (
+      /\b(today|tomorrow|tonight|this week|next week|by \w+day)\b/.test(
+        normalized
+      )
+    ) {
       drafts.push({
         kind: "temporal_reference",
         label: "Temporal reference",
@@ -80,7 +84,11 @@ export class BasicInterpretationEngine implements InterpretationEngine {
       });
     }
 
-    if (/\b(keep forgetting|forgot|forgetting|missed again|again)\b/.test(normalized)) {
+    if (
+      /\b(keep forgetting|forgot|forgetting|missed again|again)\b/.test(
+        normalized
+      )
+    ) {
       drafts.push({
         kind: "repeated_failure_mode",
         label: "Repeated failure mode",
@@ -91,7 +99,11 @@ export class BasicInterpretationEngine implements InterpretationEngine {
       });
     }
 
-    if (/\b(mad|upset|angry|worried|concerned|stressed|anxious)\b/.test(normalized)) {
+    if (
+      /\b(mad|upset|angry|worried|concerned|stressed|anxious)\b/.test(
+        normalized
+      )
+    ) {
       drafts.push({
         kind: "concern",
         label: "Concern",
@@ -102,7 +114,11 @@ export class BasicInterpretationEngine implements InterpretationEngine {
       });
     }
 
-    if (/\b(going to be mad|will be mad|upset with me|mad at me)\b/.test(normalized)) {
+    if (
+      /\b(going to be mad|will be mad|upset with me|mad at me)\b/.test(
+        normalized
+      )
+    ) {
       drafts.push({
         kind: "relationship_impact",
         label: "Relationship impact",
@@ -113,7 +129,11 @@ export class BasicInterpretationEngine implements InterpretationEngine {
       });
     }
 
-    if (/\b(call|email|text|send|schedule|pay|submit|finish|complete)\b/.test(normalized)) {
+    if (
+      /\b(call|email|text|send|schedule|pay|submit|finish|complete)\b/.test(
+        normalized
+      )
+    ) {
       drafts.push({
         kind: "unresolved_obligation",
         label: "Unresolved obligation",
@@ -139,7 +159,7 @@ export class BasicInterpretationEngine implements InterpretationEngine {
   }
 
   private createSemanticEvent(
-    sourceEvent: DomainEvent,
+    sourceEvent: Event,
     draft: SignalDraft,
     signal: SemanticSignal
   ): SemanticEvent {
@@ -150,6 +170,7 @@ export class BasicInterpretationEngine implements InterpretationEngine {
       confidence: draft.confidence,
       source: {
         domainEventId: sourceEvent.id,
+        sourceSystem: sourceEvent.source,
         sourceType: sourceEvent.type,
       },
       payload: {

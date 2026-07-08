@@ -1,5 +1,5 @@
 // lib/kernel/interpretation/interpretation-record.ts
-import type { DomainEvent } from "@/lib/kernel/events";
+import type { Event } from "@/lib/domain";
 import type { SemanticEvent } from "@/lib/kernel/semantic-events";
 
 export type SemanticSignalKind =
@@ -23,7 +23,7 @@ export type SemanticSignal = {
 
 export type InterpretationRecord = {
   id: string;
-  sourceEvent: DomainEvent;
+  sourceEvent: Event;
   interpretedAt: Date;
   signals: SemanticSignal[];
   semanticEvents: SemanticEvent[];
