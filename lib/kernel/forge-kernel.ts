@@ -626,6 +626,16 @@ export class ForgeKernel {
       createdAt: input.createdAt,
     });
 
+    if (
+      session.status === "completed" ||
+      session.status === "completed_with_failures"
+    ) {
+      return {
+        session,
+        batch: { results: [] },
+      };
+    }
+
     await this.importSessionEngine.start(session.id);
 
     const batch = await this.ingestSourceDocuments(input.documents);

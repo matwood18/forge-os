@@ -37,6 +37,11 @@ export type ImportSessionCreateInput = {
   createdAt?: Date;
 };
 
+export type ImportSessionDiscoveryInput = {
+  sessionId: string;
+  discovered: number;
+};
+
 export type ImportSessionProgressInput = {
   sessionId: string;
   processed: number;
@@ -47,4 +52,9 @@ export type ImportSessionProgressInput = {
 export type ImportSessionCompletionInput = {
   sessionId: string;
   completedAt?: Date;
+};
+
+export type ImportSessionFailureInput = {
+  sessionId: string;
+  failedAt?: Date;
 };

@@ -4,7 +4,9 @@ export type {
   ImportSessionCompletionInput,
   ImportSessionCounts,
   ImportSessionCreateInput,
+  ImportSessionDiscoveryInput,
   ImportSessionExternalIdentity,
+  ImportSessionFailureInput,
   ImportSessionProgressInput,
   ImportSessionStatus,
 } from "./types";
