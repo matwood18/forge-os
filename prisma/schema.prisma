@@ -54,3 +54,46 @@ model Observation {
   @@index([objectEntityId])
   @@index([predicate])
 }
+
+model ImportSession {
+  id String @id
+
+  sourceSystem String
+  externalId   String
+
+  status String
+
+  discovered Int
+  processed   Int
+  succeeded   Int
+  failed      Int
+
+  startedAt   DateTime?
+  completedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([sourceSystem, externalId])
+  @@index([sourceSystem])
+  @@index([externalId])
+  @@index([status])
+}
+
+model ImportCheckpoint {
+  id String @id
+
+  sourceSystem     String
+  externalImportId String
+
+  cursorPayload String?
+  completed     Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([sourceSystem, externalImportId])
+  @@index([sourceSystem])
+  @@index([externalImportId])
+  @@index([completed])
+}
