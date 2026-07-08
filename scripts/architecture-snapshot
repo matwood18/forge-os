@@ -192,6 +192,72 @@ echo "✓ Durable intended work only"
 echo "✓ No action execution"
 echo "✓ No implicit kernel mutation"
 
+print_section "Semantic Understanding"
+print_existing \
+  lib/kernel/entity-mention/types.ts \
+  lib/kernel/entity-mention/entity-mention-repository.ts \
+  lib/kernel/semantic-claim/types.ts \
+  lib/kernel/semantic-claim/semantic-claim-engine.ts \
+  lib/kernel/semantic-claim-relation/types.ts \
+  lib/kernel/semantic-claim-relation/semantic-claim-relation-engine.ts \
+  lib/kernel/grounding/types.ts \
+  lib/kernel/grounding/grounding-engine.ts
+
+echo "✓ Entity mention extraction"
+echo "✓ Obligation semantic claims"
+echo "✓ Subject-associated emotion semantic claims"
+echo "✓ Semantic claim relations"
+echo "✓ Relation evidence"
+echo "✓ Shared semantic understanding path"
+echo "✓ Grounding preserved"
+
+print_section "Source Document Ingestion"
+print_existing \
+  lib/kernel/source-document/types.ts \
+  lib/kernel/source-document/source-document-repository.ts \
+  lib/kernel/source-document/source-document-ingestor.ts \
+  lib/kernel/source-document/basic-source-document-ingestor.ts \
+  lib/kernel/source-document/source-document-batch-ingestor.ts \
+  lib/kernel/source-document/basic-source-document-batch-ingestor.ts
+
+echo "✓ Provider-neutral source document contract"
+echo "✓ Email, text-message, chat-message, and manual-note kinds"
+echo "✓ External source identity preserved"
+echo "✓ Participants and conversation identity preserved"
+echo "✓ Source document persistence idempotency"
+echo "✓ Source document processing idempotency"
+echo "✓ Single-document ingestion"
+echo "✓ Batch ingestion with per-document failure isolation"
+echo "✓ Shared semantic understanding and cognition path"
+
+print_section "Import Sessions"
+print_existing \
+  lib/kernel/import-session/types.ts \
+  lib/kernel/import-session/import-session-repository.ts \
+  lib/kernel/import-session/in-memory-import-session-repository.ts \
+  lib/kernel/import-session/import-session-engine.ts \
+  lib/kernel/import-session/basic-import-session-engine.ts
+
+echo "✓ Provider-neutral historical import envelope"
+echo "✓ External import identity"
+echo "✓ Import lifecycle ownership"
+echo "✓ Aggregate discovered, processed, succeeded, and failed counts"
+echo "✓ Batch source document processing orchestration"
+echo "✓ Import session reuse by external identity"
+echo "✓ Import completion status projection"
+
+print_section "Executable Proofs"
+print_existing \
+  scripts/proofs/source-document-ingestion-proof.ts \
+  scripts/proofs/source-document-batch-ingestion-proof.ts \
+  scripts/proofs/import-session-proof.ts
+
+echo "✓ Single source document end-to-end proof"
+echo "✓ Batch ingestion and failure isolation proof"
+echo "✓ Source document rerun idempotency proof"
+echo "✓ Import session lifecycle and count proof"
+echo "✓ Import session rerun proof"
+
 print_section "Repositories"
 find lib/kernel -name "*repository.ts" -o -name "in-memory-*-repository.ts" | sort
 
