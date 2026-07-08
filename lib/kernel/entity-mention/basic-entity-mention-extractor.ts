@@ -111,6 +111,21 @@ export class BasicEntityMentionExtractor implements EntityMentionExtractor {
       }
     }
 
+    if (
+      typeof sourceEvent.payload === "object" &&
+      sourceEvent.payload !== null &&
+      "content" in sourceEvent.payload &&
+      typeof sourceEvent.payload.content === "object" &&
+      sourceEvent.payload.content !== null &&
+      "text" in sourceEvent.payload.content
+    ) {
+      const text = sourceEvent.payload.content.text;
+
+      if (typeof text === "string") {
+        return text;
+      }
+    }
+
     return sourceEvent.source;
   }
 
