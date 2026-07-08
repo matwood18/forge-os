@@ -11,7 +11,8 @@
     "forge:status": "bash ./scripts/architecture-snapshot",
     "proof:source-document": "tsx scripts/proofs/source-document-ingestion-proof.ts",
     "proof:source-document-batch": "tsx scripts/proofs/source-document-batch-ingestion-proof.ts",
-    "proof:import-session": "tsx scripts/proofs/import-session-proof.ts"
+    "proof:import-session": "tsx scripts/proofs/import-session-proof.ts",
+    "proof:import-provider": "tsx scripts/proofs/import-provider-contract-proof.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",

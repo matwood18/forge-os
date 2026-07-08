@@ -1,0 +1,448 @@
+
+> forge-os@0.1.0 forge:status
+> bash ./scripts/architecture-snapshot
+
+Forge OS Architecture Snapshot
+========================================
+
+Commit
+----------------------------------------
+a9b99fb
+
+Git Status
+----------------------------------------
+?? forge-status.txt
+
+Core Cognitive Pipeline
+----------------------------------------
+✓ lib/kernel/cognitive-pipeline/passes/reasoning-pass.ts
+✓ lib/kernel/cognitive-pipeline/passes/relationship-pass.ts
+✓ lib/kernel/cognitive-pipeline/passes/memory-pass.ts
+✓ lib/kernel/cognitive-pipeline/passes/curiosity-pass.ts
+✓ lib/kernel/cognitive-pipeline/passes/planning-pass.ts
+
+Instrumentation
+----------------------------------------
+✓ lib/kernel/cognitive-pipeline/execution/pass-execution.ts
+✓ lib/kernel/cognitive-pipeline/execution/pass-execution-recorder.ts
+✓ lib/kernel/execution/types.ts
+✓ lib/kernel/execution/execution-recorder.ts
+✓ PassExecutionRecorder
+✓ CognitivePassExecution
+✓ KernelExecution.passExecutions
+✓ Per-pass artifact deltas
+✓ Duration metrics
+✓ Failure capture
+
+Inspection
+----------------------------------------
+✓ lib/demo/timeline/types.ts
+✓ lib/demo/timeline/execution-timeline-builder.ts
+✓ lib/demo/pass-execution/types.ts
+✓ lib/demo/pass-execution/pass-execution-inspector-builder.ts
+✓ lib/demo/reflection/types.ts
+✓ lib/demo/reflection/reflection-inspector-builder.ts
+✓ lib/demo/recommendation/types.ts
+✓ lib/demo/recommendation/recommendation-inspector-builder.ts
+✓ lib/demo/authorization/types.ts
+✓ lib/demo/authorization/authorization-decision-inspector-builder.ts
+✓ lib/demo/action/types.ts
+✓ lib/demo/action/action-inspector-builder.ts
+✓ app/forge-demo/components/execution-timeline.tsx
+✓ app/forge-demo/components/pass-execution-inspector.tsx
+✓ app/forge-demo/components/reflection-inspector.tsx
+✓ app/forge-demo/components/recommendation-inspector.tsx
+✓ app/forge-demo/components/authorization-decision-inspector.tsx
+✓ app/forge-demo/components/action-inspector.tsx
+✓ Timeline
+✓ Pipeline
+✓ Pass Execution Inspector
+✓ Reflection Inspector
+✓ Recommendation Inspector
+✓ Authorization Decision Inspector
+✓ Action Inspector
+
+Demonstrable Forge
+----------------------------------------
+✓ lib/demo/run-summary/types.ts
+✓ lib/demo/run-summary/run-summary-builder.ts
+✓ lib/demo/run-summary/index.ts
+✓ lib/demo/scenario/types.ts
+✓ lib/demo/scenario/scenarios.ts
+✓ lib/demo/scenario/index.ts
+✓ app/forge-demo/components/run-summary.tsx
+✓ app/forge-demo/page.tsx
+✓ Product-facing run summary projection
+✓ Demo scenario contracts
+✓ Named full-lifecycle demo scenario
+✓ Named cognitive-output demo scenario
+✓ Full lifecycle demo path
+✓ Input → Execution → Reflection → Recommendation → Authorization → Action
+✓ Inspectors preserved as proof layer
+✓ No demo-faked kernel artifacts
+✓ No action execution
+✓ No implicit kernel mutation
+
+Explainable Decision Chain
+----------------------------------------
+✓ lib/demo/decision-chain/types.ts
+✓ lib/demo/decision-chain/decision-chain-builder.ts
+✓ lib/demo/decision-chain/index.ts
+✓ app/forge-demo/components/decision-chain.tsx
+✓ Action-anchored causal projection
+✓ Reflection → Recommendation → Authorization → Action explanation
+✓ Current-execution provenance only
+✓ Incomplete chains skipped rather than fabricated
+✓ Human-readable decision rationale
+✓ Demo-owned presentation semantics
+✓ No repository access
+✓ No action execution
+✓ No implicit kernel mutation
+
+Reflection
+----------------------------------------
+✓ lib/kernel/reflection/types.ts
+✓ lib/kernel/reflection/reflection-engine.ts
+✓ lib/kernel/reflection/basic-reflection-engine.ts
+✓ lib/kernel/reflection/reflection-repository.ts
+✓ lib/kernel/reflection/in-memory-reflection-repository.ts
+✓ lib/kernel/reflection/index.ts
+✓ Execution-derived reflection
+✓ Meaningful cognitive output reflection
+✓ Empty reasoning detected as artifact quality warning
+✓ ReflectionRepository
+✓ ReflectionEngine
+✓ Reflection records projected into demo
+
+Recommendation
+----------------------------------------
+✓ lib/kernel/recommendation/types.ts
+✓ lib/kernel/recommendation/recommendation-engine.ts
+✓ lib/kernel/recommendation/basic-recommendation-engine.ts
+✓ lib/kernel/recommendation/recommendation-repository.ts
+✓ lib/kernel/recommendation/in-memory-recommendation-repository.ts
+✓ lib/kernel/recommendation/index.ts
+✓ Reflection-derived recommendations
+✓ RecommendationRepository
+✓ RecommendationEngine
+✓ Recommendation records projected into demo
+✓ No automatic action execution
+
+Authorization
+----------------------------------------
+✓ lib/kernel/authorization/types.ts
+✓ lib/kernel/authorization/authorization-engine.ts
+✓ lib/kernel/authorization/basic-authorization-engine.ts
+✓ lib/kernel/authorization/authorization-repository.ts
+✓ lib/kernel/authorization/in-memory-authorization-repository.ts
+✓ lib/kernel/authorization/index.ts
+✓ lib/demo/authorization/types.ts
+✓ lib/demo/authorization/authorization-decision-inspector-builder.ts
+✓ lib/demo/authorization/index.ts
+✓ app/forge-demo/components/authorization-decision-inspector.tsx
+✓ Recommendation-derived authorization decisions
+✓ AuthorizationRepository
+✓ AuthorizationEngine
+✓ Deterministic policy evaluation
+✓ Authorization decisions projected into demo
+✓ No action execution
+✓ No implicit kernel mutation
+
+Action
+----------------------------------------
+✓ lib/kernel/action/types.ts
+✓ lib/kernel/action/action-repository.ts
+✓ lib/kernel/action/in-memory-action-repository.ts
+✓ lib/kernel/action/action-materialization-engine.ts
+✓ lib/kernel/action/basic-action-materialization-engine.ts
+✓ lib/kernel/action/index.ts
+✓ lib/demo/action/types.ts
+✓ lib/demo/action/action-inspector-builder.ts
+✓ lib/demo/action/index.ts
+✓ app/forge-demo/components/action-inspector.tsx
+✓ Authorization-derived action materialization
+✓ ActionRepository
+✓ ActionMaterializationEngine
+✓ Deterministic materialization rules
+✓ Action records projected into demo
+✓ Durable intended work only
+✓ No action execution
+✓ No implicit kernel mutation
+
+Semantic Understanding
+----------------------------------------
+✓ lib/kernel/entity-mention/types.ts
+✓ lib/kernel/entity-mention/entity-mention-repository.ts
+✓ lib/kernel/semantic-claim/types.ts
+✓ lib/kernel/semantic-claim/semantic-claim-engine.ts
+✓ lib/kernel/semantic-claim-relation/types.ts
+✓ lib/kernel/semantic-claim-relation/semantic-claim-relation-engine.ts
+✓ lib/kernel/grounding/types.ts
+✓ lib/kernel/grounding/grounding-engine.ts
+✓ Entity mention extraction
+✓ Obligation semantic claims
+✓ Subject-associated emotion semantic claims
+✓ Semantic claim relations
+✓ Relation evidence
+✓ Shared semantic understanding path
+✓ Grounding preserved
+
+Source Document Ingestion
+----------------------------------------
+✓ lib/kernel/source-document/types.ts
+✓ lib/kernel/source-document/source-document-repository.ts
+✓ lib/kernel/source-document/source-document-ingestor.ts
+✓ lib/kernel/source-document/basic-source-document-ingestor.ts
+✓ lib/kernel/source-document/source-document-batch-ingestor.ts
+✓ lib/kernel/source-document/basic-source-document-batch-ingestor.ts
+✓ Provider-neutral source document contract
+✓ Email, text-message, chat-message, and manual-note kinds
+✓ External source identity preserved
+✓ Participants and conversation identity preserved
+✓ Source document persistence idempotency
+✓ Source document processing idempotency
+✓ Single-document ingestion
+✓ Batch ingestion with per-document failure isolation
+✓ Shared semantic understanding and cognition path
+
+Import Sessions
+----------------------------------------
+✓ lib/kernel/import-session/types.ts
+✓ lib/kernel/import-session/import-session-repository.ts
+✓ lib/kernel/import-session/in-memory-import-session-repository.ts
+✓ lib/kernel/import-session/import-session-engine.ts
+✓ lib/kernel/import-session/basic-import-session-engine.ts
+✓ Provider-neutral historical import envelope
+✓ External import identity
+✓ Import lifecycle ownership
+✓ Aggregate discovered, processed, succeeded, and failed counts
+✓ Batch source document processing orchestration
+✓ Import session reuse by external identity
+✓ Import completion status projection
+
+Executable Proofs
+----------------------------------------
+✓ scripts/proofs/source-document-ingestion-proof.ts
+✓ scripts/proofs/source-document-batch-ingestion-proof.ts
+✓ scripts/proofs/import-session-proof.ts
+✓ Single source document end-to-end proof
+✓ Batch ingestion and failure isolation proof
+✓ Source document rerun idempotency proof
+✓ Import session lifecycle and count proof
+✓ Import session rerun proof
+
+Repositories
+----------------------------------------
+lib/kernel/action/action-repository.ts
+lib/kernel/action/in-memory-action-repository.ts
+lib/kernel/action/lifecycle/action-lifecycle-repository.ts
+lib/kernel/action/lifecycle/in-memory-action-lifecycle-repository.ts
+lib/kernel/authorization/authorization-repository.ts
+lib/kernel/authorization/in-memory-authorization-repository.ts
+lib/kernel/entity-mention/entity-mention-repository.ts
+lib/kernel/entity-mention/in-memory-entity-mention-repository.ts
+lib/kernel/goal/goal-repository.ts
+lib/kernel/goal/in-memory-goal-repository.ts
+lib/kernel/grounding/grounding-repository.ts
+lib/kernel/grounding/in-memory-grounding-repository.ts
+lib/kernel/import-session/import-session-repository.ts
+lib/kernel/import-session/in-memory-import-session-repository.ts
+lib/kernel/interpretation/in-memory-interpretation-repository.ts
+lib/kernel/interpretation/interpretation-repository.ts
+lib/kernel/memory/in-memory-memory-repository.ts
+lib/kernel/memory/memory-repository.ts
+lib/kernel/observation/in-memory-observation-repository.ts
+lib/kernel/observation/observation-repository.ts
+lib/kernel/planning/in-memory-plan-repository.ts
+lib/kernel/planning/plan-repository.ts
+lib/kernel/reasoning/in-memory-reasoning-session-repository.ts
+lib/kernel/reasoning/reasoning-session-repository.ts
+lib/kernel/recommendation/in-memory-recommendation-repository.ts
+lib/kernel/recommendation/recommendation-repository.ts
+lib/kernel/reflection/in-memory-reflection-repository.ts
+lib/kernel/reflection/reflection-repository.ts
+lib/kernel/relationship/in-memory-relationship-repository.ts
+lib/kernel/relationship/relationship-repository.ts
+lib/kernel/repositories/conversation-repository.ts
+lib/kernel/repositories/entity-repository.ts
+lib/kernel/repositories/event-repository.ts
+lib/kernel/repositories/observation-repository.ts
+lib/kernel/semantic-claim-relation/in-memory-semantic-claim-relation-repository.ts
+lib/kernel/semantic-claim-relation/semantic-claim-relation-repository.ts
+lib/kernel/semantic-claim/in-memory-semantic-claim-repository.ts
+lib/kernel/semantic-claim/semantic-claim-repository.ts
+lib/kernel/source-document/in-memory-source-document-repository.ts
+lib/kernel/source-document/source-document-repository.ts
+
+Engines
+----------------------------------------
+lib/kernel/action/action-materialization-engine.ts
+lib/kernel/action/basic-action-materialization-engine.ts
+lib/kernel/action/lifecycle/action-lifecycle-engine.ts
+lib/kernel/action/lifecycle/basic-action-lifecycle-engine.ts
+lib/kernel/authorization/authorization-engine.ts
+lib/kernel/authorization/basic-authorization-engine.ts
+lib/kernel/belief/belief-engine.ts
+lib/kernel/conversation/conversation-engine.ts
+lib/kernel/curiosity/basic-curiosity-engine.ts
+lib/kernel/curiosity/curiosity-engine.ts
+lib/kernel/goal/basic-goal-engine.ts
+lib/kernel/goal/goal-engine.ts
+lib/kernel/grounding/basic-grounding-engine.ts
+lib/kernel/grounding/grounding-engine.ts
+lib/kernel/identity-resolution/basic-identity-resolution-engine.ts
+lib/kernel/identity-resolution/identity-engine.ts
+lib/kernel/identity-resolution/identity-resolution-engine.ts
+lib/kernel/identity-resolution/question-engine.ts
+lib/kernel/import-session/basic-import-session-engine.ts
+lib/kernel/import-session/import-session-engine.ts
+lib/kernel/interpretation/basic-interpretation-engine.ts
+lib/kernel/interpretation/interpretation-engine.ts
+lib/kernel/memory/memory-engine.ts
+lib/kernel/planning/basic-planning-engine.ts
+lib/kernel/planning/planning-engine.ts
+lib/kernel/reasoning/basic-reasoning-engine.ts
+lib/kernel/recommendation/basic-recommendation-engine.ts
+lib/kernel/recommendation/recommendation-engine.ts
+lib/kernel/reflection/basic-reflection-engine.ts
+lib/kernel/reflection/reflection-engine.ts
+lib/kernel/relationship/basic-relationship-engine.ts
+lib/kernel/relationship/create-relationship-engine.ts
+lib/kernel/relationship/relationship-engine.ts
+lib/kernel/semantic-claim-relation/basic-semantic-claim-relation-engine.ts
+lib/kernel/semantic-claim-relation/semantic-claim-relation-engine.ts
+lib/kernel/semantic-claim/basic-semantic-claim-engine.ts
+lib/kernel/semantic-claim/semantic-claim-engine.ts
+lib/kernel/worldview/worldview-engine.ts
+
+World Model
+----------------------------------------
+✓ lib/kernel/world-model/basic-world-model-builder.ts
+✓ lib/kernel/world-model/world-model-builder.ts
+✓ lib/kernel/world-model/reasoning-adapter.ts
+✓ lib/kernel/world-model/types.ts
+
+Agency
+----------------------------------------
+✓ lib/kernel/goal/goal-engine.ts
+✓ lib/kernel/goal/goal-repository.ts
+✓ lib/kernel/goal/basic-goal-engine.ts
+✓ lib/kernel/planning/planning-engine.ts
+✓ lib/kernel/planning/plan-repository.ts
+✓ lib/kernel/planning/basic-planning-engine.ts
+
+Demo / Timeline
+----------------------------------------
+✓ lib/demo/timeline/types.ts
+✓ lib/demo/timeline/execution-timeline-builder.ts
+✓ app/forge-demo/components/execution-timeline.tsx
+✓ app/forge-demo/components/pipeline-stage.tsx
+✓ app/forge-demo/page.tsx
+
+Kernel Contexts
+----------------------------------------
+lib/kernel/action
+lib/kernel/authorization
+lib/kernel/belief
+lib/kernel/cognitive-pipeline
+lib/kernel/conversation
+lib/kernel/curiosity
+lib/kernel/entity
+lib/kernel/entity-mention
+lib/kernel/event-bus
+lib/kernel/event-store
+lib/kernel/events
+lib/kernel/execution
+lib/kernel/goal
+lib/kernel/grounding
+lib/kernel/identity-resolution
+lib/kernel/import-session
+lib/kernel/interpretation
+lib/kernel/memory
+lib/kernel/observation
+lib/kernel/person-store
+lib/kernel/planning
+lib/kernel/question-store
+lib/kernel/reasoning
+lib/kernel/recommendation
+lib/kernel/reflection
+lib/kernel/registry
+lib/kernel/relationship
+lib/kernel/repositories
+lib/kernel/semantic-claim
+lib/kernel/semantic-claim-relation
+lib/kernel/semantic-events
+lib/kernel/source-document
+lib/kernel/world-model
+lib/kernel/worldview
+
+Demo Files
+----------------------------------------
+app/forge-demo/components/action-inspector.tsx
+app/forge-demo/components/authorization-decision-inspector.tsx
+app/forge-demo/components/decision-chain.tsx
+app/forge-demo/components/demo-date.ts
+app/forge-demo/components/execution-timeline-item.tsx
+app/forge-demo/components/execution-timeline.tsx
+app/forge-demo/components/interactive-demo-form.tsx
+app/forge-demo/components/pass-execution-inspector.tsx
+app/forge-demo/components/pipeline-stage.tsx
+app/forge-demo/components/recommendation-inspector.tsx
+app/forge-demo/components/reflection-inspector.tsx
+app/forge-demo/components/run-summary.tsx
+app/forge-demo/components/semantic-understanding-inspector.tsx
+app/forge-demo/page.tsx
+lib/demo/action/action-inspector-builder.ts
+lib/demo/action/index.ts
+lib/demo/action/types.ts
+lib/demo/authorization/.gitkeep
+lib/demo/authorization/authorization-decision-inspector-builder.ts
+lib/demo/authorization/index.ts
+lib/demo/authorization/types.ts
+lib/demo/decision-chain/decision-chain-builder.ts
+lib/demo/decision-chain/index.ts
+lib/demo/decision-chain/types.ts
+lib/demo/demo-data-provider.ts
+lib/demo/demo-pipeline-builder.ts
+lib/demo/demo-session-builder.ts
+lib/demo/index.ts
+lib/demo/interactive/.gitkeep
+lib/demo/interactive/index.ts
+lib/demo/interactive/interactive-demo-input.ts
+lib/demo/interactive/types.ts
+lib/demo/kernel-demo-pipeline-builder.ts
+lib/demo/pass-execution/index.ts
+lib/demo/pass-execution/pass-execution-inspector-builder.ts
+lib/demo/pass-execution/types.ts
+lib/demo/recommendation/index.ts
+lib/demo/recommendation/recommendation-inspector-builder.ts
+lib/demo/recommendation/types.ts
+lib/demo/reflection/index.ts
+lib/demo/reflection/reflection-inspector-builder.ts
+lib/demo/reflection/types.ts
+lib/demo/run-summary/index.ts
+lib/demo/run-summary/run-summary-builder.ts
+lib/demo/run-summary/types.ts
+lib/demo/scenario/index.ts
+lib/demo/scenario/scenarios.ts
+lib/demo/scenario/types.ts
+lib/demo/semantic-understanding/index.ts
+lib/demo/semantic-understanding/semantic-understanding-inspector-builder.ts
+lib/demo/semantic-understanding/types.ts
+lib/demo/session.ts
+lib/demo/timeline/execution-timeline-builder.ts
+lib/demo/timeline/index.ts
+lib/demo/timeline/types.ts
+lib/demo/types.ts
+
+Package Scripts
+----------------------------------------
+dev = next dev
+build = next build
+start = next start
+lint = eslint
+forge:bundle = zip -r forge-os-source.zip . -x 'node_modules/*' -x '.next/*' -x '.git/*' -x '.env' -x '.env.local' -x 'dev.db' -x '*.log'
+forge:status = bash ./scripts/architecture-snapshot
+proof:source-document = tsx scripts/proofs/source-document-ingestion-proof.ts
+proof:source-document-batch = tsx scripts/proofs/source-document-batch-ingestion-proof.ts
+proof:import-session = tsx scripts/proofs/import-session-proof.ts
