@@ -41,6 +41,10 @@ function fakeProjection(id: string): ShowcaseProjection {
       priorities: [],
       createdAt: new Date(),
     },
+    executiveAttention: {
+      attention: [],
+      generatedAt: new Date(),
+    },
     executiveOutput: {
       suggestions: [],
       clarifications: [],

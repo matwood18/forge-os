@@ -28,6 +28,7 @@ import {
   OpenAIExecutiveSituationProvider,
   BasicExecutiveComparisonEngine,
   BasicExecutiveSelectionEngine,
+  BasicExecutiveAttentionEngine,
   projectSelectedReasoningResult,
 } from "@/lib/executive";
 import type {
@@ -515,6 +516,12 @@ export async function buildShowcaseProjection(
       generatedAt: comparison.generatedAt,
     });
 
+  const attention =
+    new BasicExecutiveAttentionEngine().evaluate({
+      decisions: selection.decisions,
+      generatedAt: selection.generatedAt,
+    });
+
   const selectedReasoning =
     projectSelectedReasoningResult(
       selection,
@@ -554,6 +561,7 @@ export async function buildShowcaseProjection(
     stages,
     understanding,
     executiveBrief,
+    executiveAttention: attention,
     executiveOutput,
     narrative: undefined as never,
   };
