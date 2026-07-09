@@ -1,6 +1,6 @@
 import {
-  InMemoryExecutiveConcernRepository,
-} from "@/lib/executive/concern";
+  PrismaExecutiveConcernRepository,
+} from "@/lib/infrastructure/executive-concern";
 
 import {
   BasicExecutiveConcernCoordinator,
@@ -15,7 +15,7 @@ import {
 } from "@/lib/executive/concern-reconciliation";
 
 export const executiveConcernRepository =
-  new InMemoryExecutiveConcernRepository();
+  new PrismaExecutiveConcernRepository();
 
 export const executiveConcernProjector =
   new BasicExecutiveConcernProjector();
