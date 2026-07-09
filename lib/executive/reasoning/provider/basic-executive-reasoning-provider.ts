@@ -49,6 +49,7 @@ export class BasicExecutiveReasoningProvider
     return {
       priorities,
       generatedAt: new Date(),
+      provider: "basic",
     };
   }
 }

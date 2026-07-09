@@ -2,6 +2,7 @@ export type {
   ExecutiveReasonedPriority,
   ExecutiveReasoningEvidence,
   ExecutiveReasoningInput,
+  ExecutiveReasoningProviderKind,
   ExecutiveReasoningResult,
 } from "./types";
 
@@ -13,6 +14,7 @@ export { BasicExecutiveReasoningEngine } from "./basic-executive-reasoning-engin
 
 export {
   BasicExecutiveReasoningProvider,
+  FallbackExecutiveReasoningProvider,
   OpenAIExecutiveReasoningProvider,
 } from "./provider";
 

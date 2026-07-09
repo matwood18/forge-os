@@ -49,6 +49,7 @@ export class OpenAIExecutiveReasoningProvider
     return {
       priorities,
       generatedAt: new Date(),
+      provider: "openai",
     };
   }
 }

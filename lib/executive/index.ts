@@ -23,6 +23,8 @@ export {
   BasicContextReflectionReasoningInputBuilder,
   BasicExecutiveReasoningEngine,
   BasicExecutiveReasoningProvider,
+  FallbackExecutiveReasoningProvider,
+  OpenAIExecutiveReasoningProvider,
 } from "./reasoning";
 
 export type {
@@ -33,5 +35,6 @@ export type {
   ExecutiveReasoningEvidence,
   ExecutiveReasoningInput,
   ExecutiveReasoningProvider,
+  ExecutiveReasoningProviderKind,
   ExecutiveReasoningResult,
 } from "./reasoning";

@@ -19,7 +19,12 @@ export type ExecutiveReasonedPriority = {
   confidence: number;
 };
 
+export type ExecutiveReasoningProviderKind =
+  | "basic"
+  | "openai";
+
 export type ExecutiveReasoningResult = {
   priorities: ExecutiveReasonedPriority[];
   generatedAt: Date;
+  provider: ExecutiveReasoningProviderKind;
 };

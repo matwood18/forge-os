@@ -16,6 +16,8 @@ import {
   BasicExecutiveBriefBuilder,
   BasicExecutiveReasoningEngine,
   BasicExecutiveReasoningProvider,
+  FallbackExecutiveReasoningProvider,
+  OpenAIExecutiveReasoningProvider,
 } from "@/lib/executive";
 import type {
   ShowcaseProjection,
@@ -427,7 +429,10 @@ export async function buildShowcaseProjection(
     });
 
   const reasoning = await new BasicExecutiveReasoningEngine(
-    new BasicExecutiveReasoningProvider()
+    new FallbackExecutiveReasoningProvider(
+      new OpenAIExecutiveReasoningProvider(),
+      new BasicExecutiveReasoningProvider()
+    )
   ).reason(reasoningInput);
 
   const executiveBrief =
