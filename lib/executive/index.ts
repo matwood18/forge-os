@@ -40,3 +40,17 @@ export type {
   ExecutiveReasoningProviderKind,
   ExecutiveReasoningResult,
 } from "./reasoning";
+
+export {
+  BasicExecutiveSituationEngine,
+  BasicExecutiveSituationProvider,
+} from "./situation";
+
+export type {
+  ExecutiveSituationCandidate,
+  ExecutiveSituationEngine,
+  ExecutiveSituationEvidence,
+  ExecutiveSituationInput,
+  ExecutiveSituationProvider,
+  ExecutiveSituationResult,
+} from "./situation";
