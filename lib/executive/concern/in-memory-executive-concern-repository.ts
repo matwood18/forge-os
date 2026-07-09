@@ -112,5 +112,9 @@ export class InMemoryExecutiveConcernRepository
   listByStatus(status: ExecutiveConcernStatus): ExecutiveConcern[] {
     return this.list().filter((concern) => concern.status === status);
   }
+
+  clear(): void {
+    this.concerns.clear();
+  }
 }
 

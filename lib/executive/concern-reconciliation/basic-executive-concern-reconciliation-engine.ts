@@ -92,10 +92,7 @@ export class BasicExecutiveConcernReconciliationEngine
         confidence: confidenceChanged
           ? observation.confidence
           : undefined,
-        observedAt:
-          novelEvidence.length > 0
-            ? observation.observedAt
-            : undefined,
+        observedAt: observation.observedAt,
         evidence:
           novelEvidence.length > 0
             ? novelEvidence

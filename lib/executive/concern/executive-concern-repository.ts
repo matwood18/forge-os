@@ -11,5 +11,6 @@ export interface ExecutiveConcernRepository {
   findById(id: string): ExecutiveConcern | undefined;
   list(): ExecutiveConcern[];
   listByStatus(status: ExecutiveConcernStatus): ExecutiveConcern[];
+  clear(): void;
 }
 
