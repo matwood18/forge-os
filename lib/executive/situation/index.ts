@@ -19,4 +19,5 @@ export {
 
 export {
   BasicExecutiveSituationProvider,
+  OpenAIExecutiveSituationProvider,
 } from "./provider";

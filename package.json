@@ -27,7 +27,8 @@
     "proof:executive-reasoning": "tsx scripts/proofs/executive-reasoning-proof.ts",
     "proof:ai-executive-reasoning": "tsx scripts/proofs/ai-executive-reasoning-provider-proof.ts",
     "proof:entity-mention-temporal-filter": "tsx scripts/proofs/entity-mention-temporal-filter-proof.ts",
-    "proof:executive-situation": "tsx scripts/proofs/executive-situation-proof.ts"
+    "proof:executive-situation": "tsx scripts/proofs/executive-situation-proof.ts",
+    "proof:ai-executive-situation": "tsx scripts/proofs/ai-executive-situation-provider-proof.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",

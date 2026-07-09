@@ -44,6 +44,7 @@ export type {
 export {
   BasicExecutiveSituationEngine,
   BasicExecutiveSituationProvider,
+  OpenAIExecutiveSituationProvider,
 } from "./situation";
 
 export type {
