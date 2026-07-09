@@ -3,7 +3,13 @@ import type {
 } from "@/lib/executive/concern";
 
 import type {
+  ExecutiveConcernIdentityCandidateSource,
+  ExecutiveConcernIdentityResolver,
+} from "@/lib/executive/concern-identity";
+
+import type {
   ExecutiveConcernReconciliationEngine,
+  ExecutiveConcernObservation,
 } from "@/lib/executive/concern-reconciliation";
 
 import type {
@@ -16,12 +22,27 @@ import type {
   ExecutiveConcernCoordinationResult,
 } from "./types";
 
+const DEFAULT_MAX_IDENTITY_CANDIDATES = 8;
+
+function observationWithConcernId(
+  observation: ExecutiveConcernObservation,
+  concernId: string
+): ExecutiveConcernObservation {
+  return {
+    ...observation,
+    concernId,
+  };
+}
+
 export class BasicExecutiveConcernCoordinator
   implements ExecutiveConcernCoordinator
 {
   constructor(
     private readonly repository: ExecutiveConcernRepository,
-    private readonly reconciliationEngine: ExecutiveConcernReconciliationEngine
+    private readonly reconciliationEngine: ExecutiveConcernReconciliationEngine,
+    private readonly identityResolver?: ExecutiveConcernIdentityResolver,
+    private readonly identityCandidateSource?: ExecutiveConcernIdentityCandidateSource,
+    private readonly maxIdentityCandidates = DEFAULT_MAX_IDENTITY_CANDIDATES
   ) {}
 
   async coordinate(
@@ -30,13 +51,41 @@ export class BasicExecutiveConcernCoordinator
     const records: ExecutiveConcernCoordinationRecord[] = [];
 
     for (const observation of input.projection.observations) {
+      const identityResult =
+        this.identityResolver && this.identityCandidateSource
+          ? this.identityResolver.resolve({
+              observation,
+              candidates: await this.identityCandidateSource.findCandidates({
+                observation,
+                maxCandidates: this.maxIdentityCandidates,
+              }),
+            })
+          : undefined;
+
+      if (identityResult?.kind === "ambiguous") {
+        records.push({
+          kind: "identity_ambiguous",
+          identityResult,
+        });
+
+        continue;
+      }
+
+      const reconciledObservation =
+        identityResult?.kind === "resolved"
+          ? observationWithConcernId(
+              observation,
+              identityResult.candidate.concernId
+            )
+          : observation;
+
       const existingConcern = await this.repository.findById(
-        observation.concernId
+        reconciledObservation.concernId
       );
 
       const decision = this.reconciliationEngine.reconcile({
         existingConcern,
-        observation,
+        observation: reconciledObservation,
       });
 
       switch (decision.kind) {
@@ -44,8 +93,10 @@ export class BasicExecutiveConcernCoordinator
           const concern = await this.repository.create(decision.createInput);
 
           records.push({
+            kind: "reconciled",
             decision,
             concern,
+            identityResult,
           });
 
           break;
@@ -55,8 +106,10 @@ export class BasicExecutiveConcernCoordinator
           const concern = await this.repository.update(decision.updateInput);
 
           records.push({
+            kind: "reconciled",
             decision,
             concern,
+            identityResult,
           });
 
           break;
@@ -70,8 +123,10 @@ export class BasicExecutiveConcernCoordinator
           }
 
           records.push({
+            kind: "reconciled",
             decision,
             concern: existingConcern,
+            identityResult,
           });
 
           break;
@@ -79,16 +134,26 @@ export class BasicExecutiveConcernCoordinator
       }
     }
 
+    const reconciledRecords = records.filter(
+      (record): record is Extract<
+        ExecutiveConcernCoordinationRecord,
+        { kind: "reconciled" }
+      > => record.kind === "reconciled"
+    );
+
     return {
       records,
-      createdCount: records.filter(
+      createdCount: reconciledRecords.filter(
         (record) => record.decision.kind === "create"
       ).length,
-      updatedCount: records.filter(
+      updatedCount: reconciledRecords.filter(
         (record) => record.decision.kind === "update"
       ).length,
-      unchangedCount: records.filter(
+      unchangedCount: reconciledRecords.filter(
         (record) => record.decision.kind === "no_change"
+      ).length,
+      ambiguousCount: records.filter(
+        (record) => record.kind === "identity_ambiguous"
       ).length,
       generatedAt: input.projection.generatedAt,
     };

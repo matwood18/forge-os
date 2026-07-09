@@ -7,6 +7,11 @@ import {
 } from "@/lib/executive/concern-coordination";
 
 import {
+  BasicExecutiveConcernIdentityCandidateSource,
+  BasicExecutiveConcernIdentityResolver,
+} from "@/lib/executive/concern-identity";
+
+import {
   BasicExecutiveConcernProjector,
 } from "@/lib/executive/concern-projection";
 
@@ -23,6 +28,10 @@ export const executiveConcernProjector =
 export const executiveConcernCoordinator =
   new BasicExecutiveConcernCoordinator(
     executiveConcernRepository,
-    new BasicExecutiveConcernReconciliationEngine()
+    new BasicExecutiveConcernReconciliationEngine(),
+    new BasicExecutiveConcernIdentityResolver(),
+    new BasicExecutiveConcernIdentityCandidateSource(
+      executiveConcernRepository
+    )
   );
 
