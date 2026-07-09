@@ -1,4 +1,6 @@
-import type { ShowcaseProjection } from "@/lib/showcase";
+import type {
+  ExecutiveReasoningResult,
+} from "@/lib/executive/reasoning";
 
 import type {
   ExecutiveBrief,
@@ -7,7 +9,7 @@ import type {
 
 export interface ExecutiveBriefBuilder {
   build(
-    projection: ShowcaseProjection
+    reasoning: ExecutiveReasoningResult
   ): ExecutiveBrief;
 }
 
@@ -15,55 +17,15 @@ export class BasicExecutiveBriefBuilder
   implements ExecutiveBriefBuilder
 {
   build(
-    projection: ShowcaseProjection
+    reasoning: ExecutiveReasoningResult
   ): ExecutiveBrief {
-    const priorities: ExecutivePriority[] = [];
-
-    const obligations =
-      projection.understanding.obligations.items;
-
-    const emotions =
-      projection.understanding.emotions.items;
-
-    const relations =
-      projection.understanding.possibleRelations.items;
-
-    if (obligations.length > 0) {
-      priorities.push({
-        title: obligations[0].label,
-
-        whyItMatters:
-          "Forge detected a possible unresolved obligation that may deserve attention.",
-
-        suggestedNextStep:
-          "Consider reviewing the outstanding obligation.",
-
-        evidence: obligations.map(
-          (item) => item.summary
-        ),
-      });
-    }
-
-    if (emotions.length > 0 || relations.length > 0) {
-      priorities.push({
-        title: "Possible relationship impact",
-
-        whyItMatters:
-          "Forge detected signals that may indicate another person or relationship is affected.",
-
-        suggestedNextStep:
-          "Consider whether communication or clarification would help.",
-
-        evidence: [
-          ...emotions.map(
-            (item) => item.summary
-          ),
-          ...relations.map(
-            (item) => item.summary
-          ),
-        ],
-      });
-    }
+    const priorities: ExecutivePriority[] =
+      reasoning.priorities.map((priority) => ({
+        title: priority.title,
+        whyItMatters: priority.rationale,
+        suggestedNextStep: priority.suggestedNextStep,
+        evidence: priority.evidenceIds,
+      }));
 
     return {
       title: "Forge Executive Brief",
@@ -75,7 +37,7 @@ export class BasicExecutiveBriefBuilder
 
       priorities,
 
-      createdAt: new Date(),
+      createdAt: reasoning.generatedAt,
     };
   }
 }

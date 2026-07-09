@@ -7,9 +7,16 @@ import type {
 } from "@/lib/kernel/execution";
 import type { SemanticClaim } from "@/lib/kernel/semantic-claim";
 import type { SemanticClaimRelation } from "@/lib/kernel/semantic-claim-relation";
+import type { InterpretationRecord } from "@/lib/kernel/interpretation";
 
 import { buildShowcaseNarrative } from "./narrative";
-import { BasicExecutiveBriefBuilder } from "@/lib/executive";
+import {
+  BasicContextReflectionEngine,
+  BasicContextReflectionReasoningInputBuilder,
+  BasicExecutiveBriefBuilder,
+  BasicExecutiveReasoningEngine,
+  BasicExecutiveReasoningProvider,
+} from "@/lib/executive";
 import type {
   ShowcaseProjection,
   ShowcaseStage,
@@ -47,6 +54,14 @@ function isSemanticClaimRelationStep(
   artifact: SemanticClaimRelation;
 } {
   return step.type === "semantic_claim_relation.generated";
+}
+
+function isInterpretationStep(
+  step: KernelExecutionStep
+): step is KernelExecutionStep & {
+  artifact: InterpretationRecord;
+} {
+  return step.type === "semantic_interpretation.completed";
 }
 
 function semanticClaimsById(
@@ -257,9 +272,9 @@ function buildUnderstanding(execution: KernelExecution): ShowcaseUnderstanding {
   };
 }
 
-export function buildShowcaseProjection(
+export async function buildShowcaseProjection(
   execution: KernelExecution
-): ShowcaseProjection {
+): Promise<ShowcaseProjection> {
   const hasInterpretation = hasSteps(
     execution,
     "semantic_interpretation.completed"
@@ -381,6 +396,43 @@ export function buildShowcaseProjection(
 
   const understanding = buildUnderstanding(execution);
 
+  const interpretationRecords = execution.steps
+    .filter(isInterpretationStep)
+    .map((step) => step.artifact);
+
+  const signals = interpretationRecords.flatMap(
+    (record) => record.signals
+  );
+
+  const contextInput = {
+    eventId:
+      interpretationRecords[0]?.sourceEvent.id ??
+      execution.id,
+    signals: signals.map((signal) => ({
+      kind: signal.kind,
+      label: signal.label,
+      confidence: signal.confidence,
+    })),
+  };
+
+  const reflection = await new BasicContextReflectionEngine().reflect(
+    contextInput
+  );
+
+  const reasoningInput =
+    new BasicContextReflectionReasoningInputBuilder().build({
+      sourceText: execution.input,
+      reflection,
+      contextInput,
+    });
+
+  const reasoning = await new BasicExecutiveReasoningEngine(
+    new BasicExecutiveReasoningProvider()
+  ).reason(reasoningInput);
+
+  const executiveBrief =
+    new BasicExecutiveBriefBuilder().build(reasoning);
+
   const projection: ShowcaseProjection = {
     executionId: execution.id,
     input: execution.input,
@@ -389,18 +441,13 @@ export function buildShowcaseProjection(
     totalSteps: execution.steps.length,
     stages,
     understanding,
-    executiveBrief: {
-      title: "",
-      summary: "",
-      priorities: [],
-      createdAt: new Date(),
-    },
+    executiveBrief,
     narrative: undefined as never,
   };
 
   return {
     ...projection,
-    executiveBrief: new BasicExecutiveBriefBuilder().build(projection),
+    executiveBrief,
     narrative: buildShowcaseNarrative(projection),
   };
 }

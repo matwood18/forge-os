@@ -16,7 +16,7 @@ export async function POST(request: Request) {
 
     const kernel = new ForgeKernel();
     const execution = await kernel.execute(input);
-    const projection = buildShowcaseProjection(execution);
+    const projection = await buildShowcaseProjection(execution);
 
     return NextResponse.json({ projection });
   } catch (error) {

@@ -18,3 +18,20 @@ export type {
   ExecutiveBriefBuilder,
   ExecutivePriority,
 } from "./brief";
+
+export {
+  BasicContextReflectionReasoningInputBuilder,
+  BasicExecutiveReasoningEngine,
+  BasicExecutiveReasoningProvider,
+} from "./reasoning";
+
+export type {
+  ContextReflectionReasoningInputBuilder,
+  ContextReflectionReasoningInputBuilderInput,
+  ExecutiveReasonedPriority,
+  ExecutiveReasoningEngine,
+  ExecutiveReasoningEvidence,
+  ExecutiveReasoningInput,
+  ExecutiveReasoningProvider,
+  ExecutiveReasoningResult,
+} from "./reasoning";
