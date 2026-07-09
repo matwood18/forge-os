@@ -11,6 +11,7 @@ export type ExecutiveConcernObservation = {
   confidence: number;
   observedAt: Date;
   evidence: ExecutiveConcernCreateInput["evidence"];
+  identityEvidenceIds?: string[];
   latestRecommendation?: ExecutiveConcern["latestRecommendation"];
   clarificationNeeded?: ExecutiveConcern["clarificationNeeded"];
 };

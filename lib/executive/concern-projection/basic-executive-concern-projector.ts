@@ -112,6 +112,7 @@ export class BasicExecutiveConcernProjector implements ExecutiveConcernProjector
           confidence: attention.priority.priority.confidence,
           observedAt: attention.createdAt,
           evidence,
+          identityEvidenceIds: attention.priority.priority.evidenceIds,
           latestRecommendation: suggestion
             ? {
                 id: suggestion.id,
