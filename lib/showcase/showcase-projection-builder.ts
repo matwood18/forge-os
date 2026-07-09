@@ -16,6 +16,7 @@ import {
   BasicExecutionSituationEvidenceBuilder,
   BasicExecutiveBriefBuilder,
   BasicExecutiveOutputProjector,
+  BasicExecutivePresentationProjector,
   BasicExecutiveReasoningEngine,
   BasicExecutiveReasoningProvider,
   BasicExecutiveSituationEngine,
@@ -505,10 +506,15 @@ export async function buildShowcaseProjection(
       reasoningResult: reasoning,
     });
 
-  const suggestions =
+  const rawSuggestions =
     new BasicSuggestionProjector().project({
       reasoningInput,
       reasoningResult: reasoning,
+    });
+
+  const suggestions =
+    new BasicExecutivePresentationProjector().project({
+      suggestions: rawSuggestions,
     });
 
   const executiveOutput =
