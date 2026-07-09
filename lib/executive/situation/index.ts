@@ -19,5 +19,6 @@ export {
 
 export {
   BasicExecutiveSituationProvider,
+  FallbackExecutiveSituationProvider,
   OpenAIExecutiveSituationProvider,
 } from "./provider";
