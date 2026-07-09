@@ -60,7 +60,8 @@
     "proof:showcase-executive-recall-longitudinal": "tsx scripts/proofs/showcase-executive-recall-longitudinal-proof.ts",
     "proof:executive-concern-identity": "tsx scripts/proofs/executive-concern-identity-contract-proof.ts",
     "proof:executive-concern-identity-resolver": "tsx scripts/proofs/executive-concern-identity-resolver-proof.ts",
-    "proof:executive-concern-identity-coordination": "tsx scripts/proofs/executive-concern-identity-coordination-proof.ts"
+    "proof:executive-concern-identity-coordination": "tsx scripts/proofs/executive-concern-identity-coordination-proof.ts",
+    "proof:durable-executive-concern-identity-convergence": "tsx scripts/proofs/durable-executive-concern-identity-convergence-proof.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",
