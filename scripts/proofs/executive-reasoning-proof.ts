@@ -102,6 +102,35 @@ async function main(): Promise<void> {
     "Expected priority evidence references to resolve to reasoning input evidence."
   );
 
+  const identityReasoning = await new BasicExecutiveReasoningEngine(
+    new BasicExecutiveReasoningProvider()
+  ).reason({
+    input: "I still have not contacted the insurance company.",
+    evidence: [
+      {
+        id: "recalled:insurance",
+        label: "Recalled concern obligation evidence: Contact insurance",
+        summary:
+          "Stable semantic identity evidence associated with this executive concern.",
+        confidence: 0.86,
+        source:
+          "concern-identity:obligation:current-operator:insurance",
+        identityEvidenceIds: [
+          "concern-identity:obligation:current-operator:insurance",
+        ],
+      },
+    ],
+  });
+
+  assert(
+    identityReasoning.priorities.some((priority) =>
+      priority.identityEvidenceIds?.includes(
+        "concern-identity:obligation:current-operator:insurance"
+      )
+    ),
+    "Expected reasoned priority to preserve stable identity provenance."
+  );
+
   const brief =
     new BasicExecutiveBriefBuilder().build({
       reasoningInput,
@@ -192,6 +221,12 @@ async function main(): Promise<void> {
           reflection.evidence.sourceEventId === sourceEventId,
         reasoningEvidenceCount: reasoningInput.evidence.length,
         reasonedPriorityCount: reasoning.priorities.length,
+        identityProvenancePreserved:
+          identityReasoning.priorities.some((priority) =>
+            priority.identityEvidenceIds?.includes(
+              "concern-identity:obligation:current-operator:insurance"
+            )
+          ),
         briefPriorityCount: brief.priorities.length,
         emptyEvidenceFabricatedPriorities:
           emptyReasoning.priorities.length > 0,

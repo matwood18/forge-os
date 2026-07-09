@@ -5,6 +5,7 @@ export type ExecutiveRecallStatus = "included" | "excluded";
 export type ExecutiveRecallInput = {
   maxConcerns: number;
   asOf: Date;
+  identityEvidenceIds?: string[];
 };
 
 export type ExecutiveRecalledConcern = {

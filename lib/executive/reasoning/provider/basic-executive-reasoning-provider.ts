@@ -1,9 +1,20 @@
 import type { ExecutiveReasoningProvider } from "../executive-reasoning-provider";
 import type {
   ExecutiveReasonedPriority,
+  ExecutiveReasoningEvidence,
   ExecutiveReasoningInput,
   ExecutiveReasoningResult,
 } from "../types";
+
+function identityEvidenceIdsFor(
+  evidence: ExecutiveReasoningEvidence[]
+): string[] {
+  return [
+    ...new Set(
+      evidence.flatMap((item) => item.identityEvidenceIds ?? [])
+    ),
+  ].sort();
+}
 
 export class BasicExecutiveReasoningProvider
   implements ExecutiveReasoningProvider
@@ -30,6 +41,8 @@ export class BasicExecutiveReasoningProvider
         suggestedNextStep:
           "Review the obligation and decide the smallest concrete next step.",
         evidenceIds: obligationEvidence.map((item) => item.id),
+        identityEvidenceIds:
+          identityEvidenceIdsFor(obligationEvidence),
         confidence: 0.72,
       });
     }
@@ -42,6 +55,8 @@ export class BasicExecutiveReasoningProvider
         suggestedNextStep:
           "Consider whether a short update or clarification would reduce friction.",
         evidenceIds: relationshipEvidence.map((item) => item.id),
+        identityEvidenceIds:
+          identityEvidenceIdsFor(relationshipEvidence),
         confidence: 0.68,
       });
     }

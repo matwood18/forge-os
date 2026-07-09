@@ -17,6 +17,7 @@ export type ExecutiveReasonedPriority = {
   rationale: string;
   suggestedNextStep: string;
   evidenceIds: string[];
+  identityEvidenceIds?: string[];
   confidence: number;
 };
 

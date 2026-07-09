@@ -62,7 +62,9 @@
     "proof:executive-concern-identity-resolver": "tsx scripts/proofs/executive-concern-identity-resolver-proof.ts",
     "proof:executive-concern-identity-coordination": "tsx scripts/proofs/executive-concern-identity-coordination-proof.ts",
     "proof:durable-executive-concern-identity-convergence": "tsx scripts/proofs/durable-executive-concern-identity-convergence-proof.ts",
-    "proof:executive-concern-identity-evidence": "tsx scripts/proofs/executive-concern-identity-evidence-proof.ts"
+    "proof:executive-concern-identity-evidence": "tsx scripts/proofs/executive-concern-identity-evidence-proof.ts",
+    "proof:showcase-executive-concern-identity-longitudinal": "tsx scripts/proofs/showcase-executive-concern-identity-longitudinal-proof.ts",
+    "proof:executive-concern-continuity": "tsx scripts/proofs/executive-concern-continuity-proof.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",

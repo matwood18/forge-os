@@ -130,7 +130,7 @@ export class BasicInterpretationEngine implements InterpretationEngine {
     }
 
     if (
-      /\b(call|email|text|send|schedule|pay|submit|finish|complete)\b/.test(
+      /\b(call|contact|contacting|contacted|email|text|send|schedule|pay|submit|finish|complete)\b/.test(
         normalized
       )
     ) {

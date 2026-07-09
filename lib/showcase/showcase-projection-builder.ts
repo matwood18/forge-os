@@ -14,6 +14,7 @@ import {
   BasicContextReflectionEngine,
   BasicContextReflectionReasoningInputBuilder,
   BasicExecutionSituationEvidenceBuilder,
+  BasicExecutiveConcernContinuityEngine,
   BasicExecutiveConcernIdentityEvidenceProjector,
   BasicExecutiveRecallContextProjector,
   BasicExecutiveRecallProjector,
@@ -498,12 +499,18 @@ export async function buildShowcaseProjection(
     })
   );
 
+  const currentIdentityEvidenceIds =
+    identityEvidenceResult.identityEvidence.map(
+      (identityEvidence) => identityEvidence.id
+    );
+
   const recallResult =
     await new BasicExecutiveRecallProjector(
       executiveConcernRepository
     ).project({
       maxConcerns: 3,
       asOf: new Date(),
+      identityEvidenceIds: currentIdentityEvidenceIds,
     });
 
   const recallContext =
@@ -537,6 +544,20 @@ export async function buildShowcaseProjection(
     )
   );
 
+  function identityEvidenceIdsForReasoningEvidence(
+    evidenceIds: string[]
+  ): string[] {
+    const requestedEvidenceIds = new Set(evidenceIds);
+
+    return [
+      ...new Set(
+        reasoningInput.evidence
+          .filter((evidence) => requestedEvidenceIds.has(evidence.id))
+          .flatMap((evidence) => evidence.identityEvidenceIds ?? [])
+      ),
+    ].sort();
+  }
+
   const missingSituationPriorities = situationResult.situations
     .filter((situation) => !referencedEvidenceIds.has(situation.id))
     .map((situation) => ({
@@ -546,6 +567,8 @@ export async function buildShowcaseProjection(
       suggestedNextStep:
         "Review this situation and decide whether it needs attention today.",
       evidenceIds: [situation.id],
+      identityEvidenceIds:
+        identityEvidenceIdsForReasoningEvidence([situation.id]),
       confidence: situation.confidence,
     }));
 
@@ -559,16 +582,35 @@ export async function buildShowcaseProjection(
         concern.latestRecommendation?.suggestedNextStep ??
         "Review this remembered concern and decide whether it still needs attention today.",
       evidenceIds: [`${concern.id}:recall`],
+      identityEvidenceIds:
+        identityEvidenceIdsForReasoningEvidence([
+          `${concern.id}:recall`,
+          ...reasoningInput.evidence
+            .filter((evidence) =>
+              evidence.id.startsWith(`${concern.id}:evidence:`)
+            )
+            .map((evidence) => evidence.id),
+        ]),
       confidence: concern.confidence,
     }));
 
-  const reasoning = {
+  const rawReasoning = {
     ...initialReasoning,
     priorities: [
       ...initialReasoning.priorities,
       ...missingSituationPriorities,
       ...missingRecallPriorities,
     ],
+  };
+
+  const continuity =
+    new BasicExecutiveConcernContinuityEngine().correlate({
+      reasoning: rawReasoning,
+    });
+
+  const reasoning = {
+    ...rawReasoning,
+    priorities: continuity.priorities,
   };
 
   const comparison =

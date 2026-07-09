@@ -24,6 +24,33 @@ function supportingEvidenceIds(concern: ExecutiveConcern): string[] {
   return concern.supportingEvidence.map((evidence) => evidence.id);
 }
 
+function concernIdentityEvidenceIds(concern: ExecutiveConcern): Set<string> {
+  return new Set(
+    concern.supportingEvidence
+      .map((evidence) => evidence.sourceId)
+      .filter(
+        (sourceId): sourceId is string =>
+          typeof sourceId === "string" &&
+          sourceId.startsWith("concern-identity:")
+      )
+  );
+}
+
+function sharesCurrentIdentityEvidence(
+  concern: ExecutiveConcern,
+  currentIdentityEvidenceIds: Set<string>
+): boolean {
+  if (currentIdentityEvidenceIds.size === 0) {
+    return false;
+  }
+
+  const concernIdentityIds = concernIdentityEvidenceIds(concern);
+
+  return [...currentIdentityEvidenceIds].some((identityEvidenceId) =>
+    concernIdentityIds.has(identityEvidenceId)
+  );
+}
+
 function compareRecallPriority(
   left: ExecutiveConcern,
   right: ExecutiveConcern
@@ -62,14 +89,33 @@ export class BasicExecutiveRecallProjector implements ExecutiveRecallProjector {
   async project(input: ExecutiveRecallInput): Promise<ExecutiveRecallResult> {
     const allConcerns = await this.repository.list();
 
+    const currentIdentityEvidenceIds = new Set(
+      input.identityEvidenceIds ?? []
+    );
+
     const eligibleConcerns = allConcerns
-      .filter((concern) => OPEN_RECALL_STATUSES.has(concern.status))
+      .filter((concern) => OPEN_RECALL_STATUSES.has(concern.status));
+
+    const matchingConcerns = eligibleConcerns
+      .filter((concern) =>
+        sharesCurrentIdentityEvidence(concern, currentIdentityEvidenceIds)
+      )
       .sort(compareRecallPriority);
 
-    const boundedConcerns = eligibleConcerns.slice(
-      0,
-      Math.max(0, input.maxConcerns)
-    );
+    const ordinaryConcerns = eligibleConcerns
+      .filter(
+        (concern) =>
+          !sharesCurrentIdentityEvidence(
+            concern,
+            currentIdentityEvidenceIds
+          )
+      )
+      .sort(compareRecallPriority);
+
+    const boundedConcerns = [
+      ...matchingConcerns,
+      ...ordinaryConcerns,
+    ].slice(0, Math.max(0, input.maxConcerns));
 
     const recalledConcerns: ExecutiveRecalledConcern[] = boundedConcerns.map(
       (concern) => ({

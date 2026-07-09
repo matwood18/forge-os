@@ -31,6 +31,7 @@ const TASK_TRIGGER_TERMS = new Set([
   "calling",
   "contact",
   "contacting",
+  "contacted",
   "email",
   "emailing",
   "text",
@@ -241,9 +242,14 @@ export class BasicEntityMentionExtractor implements EntityMentionExtractor {
         continue;
       }
 
-      const nextToken = tokens[index + 1];
-      const taskText = nextToken
-        ? `${token.text} ${nextToken.text}`
+      const nextTokens = tokens.slice(index + 1, index + 4);
+      const objectToken = nextTokens.find(
+        (candidate) =>
+          !["a", "an", "the"].includes(this.normalize(candidate.text))
+      );
+
+      const taskText = objectToken
+        ? `${token.text} ${objectToken.text}`
         : token.text;
 
       mentions.push(
@@ -252,7 +258,7 @@ export class BasicEntityMentionExtractor implements EntityMentionExtractor {
           token: {
             text: taskText,
             startOffset: token.startOffset,
-            endOffset: nextToken?.endOffset ?? token.endOffset,
+            endOffset: objectToken?.endOffset ?? token.endOffset,
           },
           kind: "task_or_obligation",
           role: "object",

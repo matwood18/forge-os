@@ -146,6 +146,122 @@ async function main(): Promise<void> {
     "Expected deterministic situation provider to receive assembled evidence."
   );
 
+  const negativeObligationExecution = {
+    id: "execution-negative-obligation-proof",
+    input: "I still have not contacted the insurance company.",
+    startedAt: new Date("2026-07-09T12:01:00.000Z"),
+    completedAt: new Date("2026-07-09T12:01:01.000Z"),
+    steps: [
+      {
+        id: "step-negative-obligation-interpretation",
+        type: "semantic_interpretation.completed",
+        startedAt: new Date("2026-07-09T12:01:00.000Z"),
+        completedAt: new Date("2026-07-09T12:01:00.100Z"),
+        artifact: {
+          id: "interpretation-negative-obligation",
+          sourceEvent: {
+            id: "event-negative-obligation",
+            type: "manual_note.created",
+            source: "proof",
+            occurredAt: new Date("2026-07-09T12:01:00.000Z"),
+            payload: {
+              text: "I still have not contacted the insurance company.",
+            },
+          },
+          interpretedAt: new Date("2026-07-09T12:01:00.000Z"),
+          signals: [
+            {
+              id: "signal-negative-obligation",
+              kind: "unresolved_obligation",
+              label: "Unresolved obligation",
+              summary:
+                "The input appears to describe an unfinished obligation.",
+              confidence: 0.76,
+              payload: {
+                text:
+                  "I still have not contacted the insurance company.",
+              },
+            },
+          ],
+          semanticEvents: [],
+        },
+      },
+      {
+        id: "step-negative-obligation-mentions",
+        type: "entity_mention.extracted",
+        startedAt: new Date("2026-07-09T12:01:00.100Z"),
+        completedAt: new Date("2026-07-09T12:01:00.200Z"),
+        artifact: {
+          id: "extraction-negative-obligation",
+          interpretationId: "interpretation-negative-obligation",
+          source: {
+            interpretationId: "interpretation-negative-obligation",
+            input:
+              "I still have not contacted the insurance company.",
+          },
+          mentions: [
+            {
+              id: "mention-current-operator-negative-obligation",
+              extractionId: "extraction-negative-obligation",
+              text: "I",
+              normalizedText: "i",
+              kind: "current_operator",
+              role: "actor",
+              startOffset: 0,
+              endOffset: 1,
+              confidence: 0.95,
+              resolutionHints: [],
+            },
+            {
+              id: "mention-contacted-insurance",
+              extractionId: "extraction-negative-obligation",
+              text: "contacted insurance",
+              normalizedText: "contacted insurance",
+              kind: "task_or_obligation",
+              role: "object",
+              startOffset: 17,
+              endOffset: 36,
+              confidence: 0.55,
+              resolutionHints: [],
+            },
+          ],
+          extractedAt: new Date("2026-07-09T12:01:00.200Z"),
+        },
+      },
+      {
+        id: "step-negative-obligation-claim",
+        type: "semantic_claim.generated",
+        startedAt: new Date("2026-07-09T12:01:00.200Z"),
+        completedAt: new Date("2026-07-09T12:01:00.300Z"),
+        artifact: {
+          id: "claim-negative-insurance",
+          subject: "current_operator",
+          predicate: "has_possible_obligation",
+          object: "contacted insurance",
+          confidence: 0.55,
+          provenance: {
+            sourceType: "entity_mention",
+            sourceId: "mention-contacted-insurance",
+          },
+          createdAt: new Date("2026-07-09T12:01:00.300Z"),
+        },
+      },
+    ],
+    passExecutions: [],
+  } as never;
+
+  const negativeObligationSituationInput =
+    new BasicExecutionSituationEvidenceBuilder().build(
+      negativeObligationExecution
+    );
+
+  assert(
+    negativeObligationSituationInput.evidence.some(
+      (evidence) => evidence.id === "claim-negative-insurance"
+    ),
+    "Expected negative obligation wording to reach executive situation evidence."
+  );
+
   console.log("Executive situation integration proof passed.");
   console.log(
     JSON.stringify(
@@ -161,6 +277,10 @@ async function main(): Promise<void> {
           ),
         deterministicSituationCount:
           situationResult.situations.length,
+        negativeObligationEvidencePreserved:
+          negativeObligationSituationInput.evidence.some(
+            (evidence) => evidence.id === "claim-negative-insurance"
+          ),
       },
       null,
       2

@@ -37,6 +37,10 @@ export class BasicRecallContextReasoningInputBuilder
             summary: evidenceItem.summary,
             confidence: concern.confidence,
             source: evidenceItem.sourceId ?? concern.id,
+            identityEvidenceIds:
+              evidenceItem.sourceId?.startsWith("concern-identity:")
+                ? [evidenceItem.sourceId]
+                : undefined,
           });
         }
 

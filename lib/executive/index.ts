@@ -69,6 +69,7 @@ export * from "./output";
 
 export * from "./presentation";
 export * from "./session";
+export * from "./concern-continuity";
 export * from "./comparison";
 
 export * from "./selection";

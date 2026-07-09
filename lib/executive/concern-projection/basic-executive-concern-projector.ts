@@ -63,6 +63,13 @@ function identityEvidenceIdsForAttention(
   attention: ExecutiveAttentionRecord,
   suggestion?: Suggestion
 ): string[] {
+  const priorityIdentityEvidenceIds =
+    attention.priority.priority.identityEvidenceIds ?? [];
+
+  if (priorityIdentityEvidenceIds.length > 0) {
+    return [...new Set(priorityIdentityEvidenceIds)].sort();
+  }
+
   const priorityEvidenceIds = new Set(attention.priority.priority.evidenceIds);
   const identityEvidenceIds = new Set<string>();
 
@@ -94,6 +101,11 @@ export class BasicExecutiveConcernProjector implements ExecutiveConcernProjector
           title
         );
 
+        const identityEvidenceIds = identityEvidenceIdsForAttention(
+          attention,
+          suggestion
+        );
+
         const evidence = [
           {
             id: `concern-evidence:attention:${slug(title)}`,
@@ -105,6 +117,18 @@ export class BasicExecutiveConcernProjector implements ExecutiveConcernProjector
             observedAt: attention.createdAt,
             sourceId: title,
           },
+          ...identityEvidenceIds
+            .filter((identityEvidenceId) =>
+              identityEvidenceId.startsWith("concern-identity:")
+            )
+            .map((identityEvidenceId) => ({
+              id: `concern-evidence:identity:${identityEvidenceId}`,
+              kind: "identityEvidence" as const,
+              summary:
+                "Stable semantic identity evidence associated with this executive concern.",
+              observedAt: attention.createdAt,
+              sourceId: identityEvidenceId,
+            })),
           ...(suggestion
             ? [
                 {
@@ -136,10 +160,7 @@ export class BasicExecutiveConcernProjector implements ExecutiveConcernProjector
           confidence: attention.priority.priority.confidence,
           observedAt: attention.createdAt,
           evidence,
-          identityEvidenceIds: identityEvidenceIdsForAttention(
-            attention,
-            suggestion
-          ),
+          identityEvidenceIds,
           latestRecommendation: suggestion
             ? {
                 id: suggestion.id,

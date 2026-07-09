@@ -33,6 +33,16 @@ async function main(): Promise<void> {
         observedAt: firstObserved,
         sourceId: "source:previous-execution",
       },
+      {
+        id:
+          "concern-evidence:identity:concern-identity:obligation:current-operator:insurance",
+        kind: "identityEvidence",
+        summary:
+          "Stable semantic identity evidence associated with this executive concern.",
+        observedAt: firstObserved,
+        sourceId:
+          "concern-identity:obligation:current-operator:insurance",
+      },
     ],
     latestRecommendation: {
       id: "recommendation:insurance",
@@ -92,6 +102,15 @@ async function main(): Promise<void> {
   assert(
     reasoningInput.evidence.some(
       (evidence) =>
+        evidence.identityEvidenceIds?.includes(
+          "concern-identity:obligation:current-operator:insurance"
+        )
+    ),
+    "Expected recalled concern evidence to preserve stable identity evidence ids."
+  );
+  assert(
+    reasoningInput.evidence.some(
+      (evidence) =>
         evidence.id ===
         "concern:contact-insurance:latest-recommendation"
     ),
@@ -120,6 +139,7 @@ async function main(): Promise<void> {
         recallContextConcernCount: recallContext.concerns.length,
         reasoningEvidenceCount: reasoningInput.evidence.length,
         includesRecallEvidence: true,
+        includesIdentityEvidence: true,
         includesRecommendationEvidence: true,
         includesClarificationEvidence: true,
       },

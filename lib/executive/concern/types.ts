@@ -15,6 +15,7 @@ export type ExecutiveConcernEvidenceKind =
   | "suggestion"
   | "clarification"
   | "operatorUpdate"
+  | "identityEvidence"
   | "resolution";
 
 export type ExecutiveConcernEvidence = {

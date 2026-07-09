@@ -180,6 +180,40 @@ async function main(): Promise<void> {
     "Expected recall to preserve recommendation provenance."
   );
 
+  await repository.create({
+    id: "concern:identity-match-low",
+    title: "Identity matched low concern",
+    importance: "low",
+    confidence: 0.7,
+    observedAt: firstObserved,
+    evidence: [
+      {
+        id:
+          "concern-evidence:identity:concern-identity:obligation:current-operator:insurance",
+        kind: "identityEvidence",
+        summary:
+          "Stable semantic identity evidence associated with this concern.",
+        observedAt: firstObserved,
+        sourceId:
+          "concern-identity:obligation:current-operator:insurance",
+      },
+    ],
+  });
+
+  const identityAwareResult = await projector.project({
+    maxConcerns: 1,
+    asOf: generatedAt,
+    identityEvidenceIds: [
+      "concern-identity:obligation:current-operator:insurance",
+    ],
+  });
+
+  assert(
+    identityAwareResult.recalledConcerns[0]?.concern.id ===
+      "concern:identity-match-low",
+    "Expected matching stable identity evidence to be recalled before generic priority ranking."
+  );
+
   const emptyResult = await projector.project({
     maxConcerns: 0,
     asOf: generatedAt,
@@ -190,7 +224,7 @@ async function main(): Promise<void> {
     "Expected zero max concern bound to return no recalled concerns."
   );
   assert(
-    emptyResult.excludedConcernCount === 5,
+    emptyResult.excludedConcernCount === 6,
     "Expected empty bounded result to count all concerns as excluded."
   );
 
@@ -203,6 +237,9 @@ async function main(): Promise<void> {
         excludedConcernCount: boundedResult.excludedConcernCount,
         firstRecalledConcern: boundedResult.recalledConcerns[0]?.concern.id,
         secondRecalledConcern: boundedResult.recalledConcerns[1]?.concern.id,
+        identityAwareRecall:
+          identityAwareResult.recalledConcerns[0]?.concern.id ===
+          "concern:identity-match-low",
         emptyBoundRespected: emptyResult.recalledConcerns.length === 0,
         provenancePreserved: true,
       },

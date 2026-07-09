@@ -13,6 +13,9 @@ const reasoning = {
       rationale: "Relationship impact exists because Jess is upset.",
       suggestedNextStep: "Call insurance.",
       evidenceIds: ["important"],
+      identityEvidenceIds: [
+        "concern-identity:obligation:current-operator:insurance",
+      ],
       confidence: 0.9,
     },
     {
@@ -68,6 +71,15 @@ if (suggestions.length !== 1) {
   throw new Error("Suggestion projection leaked quiet priorities.");
 }
 
+if (
+  selected.priorities[0]?.identityEvidenceIds?.[0] !==
+  "concern-identity:obligation:current-operator:insurance"
+) {
+  throw new Error(
+    "Selection did not preserve stable identity provenance."
+  );
+}
+
 if (suggestions[0].evidence[0]?.id !== "important") {
   throw new Error("Evidence was not preserved.");
 }
@@ -84,6 +96,9 @@ console.log(
       suggestionCount: suggestions.length,
       evidencePreserved:
         suggestions[0].evidence[0]?.id === "important",
+      identityProvenancePreserved:
+        selected.priorities[0]?.identityEvidenceIds?.[0] ===
+        "concern-identity:obligation:current-operator:insurance",
       noSelectionLeak:
         !("selectionSignals" in suggestions[0]),
     },

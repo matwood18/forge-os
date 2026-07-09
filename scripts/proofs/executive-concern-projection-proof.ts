@@ -57,6 +57,9 @@ const output: ExecutiveOutput = {
             "Jess appears affected by an unresolved insurance responsibility.",
           confidence: 0.86,
           source: "execution:test",
+          identityEvidenceIds: [
+            "concern-identity:obligation:current-operator:insurance",
+          ],
         },
       ],
       confidence: 0.86,
@@ -87,10 +90,24 @@ assert(observation.concernId === "concern:contact-insurance", "stable concern id
 assert(observation.title === "Contact insurance", "title should be preserved");
 assert(observation.importance === "high", "surfaced attention should become high importance");
 assert(observation.confidence === 0.86, "confidence should come from executive priority");
-assert(observation.evidence.length === 2, "attention and suggestion evidence should be included");
 assert(
-  observation.identityEvidenceIds?.includes("evidence:insurance"),
-  "priority evidence ids should be preserved for identity resolution"
+  observation.evidence.length === 3,
+  "attention, identity, and suggestion evidence should be included"
+);
+assert(
+  observation.identityEvidenceIds?.includes(
+    "concern-identity:obligation:current-operator:insurance"
+  ) === true,
+  "stable identity evidence ids should be preserved for identity resolution"
+);
+assert(
+  observation.evidence.some(
+    (item) =>
+      item.kind === "identityEvidence" &&
+      item.sourceId ===
+        "concern-identity:obligation:current-operator:insurance"
+  ),
+  "stable identity evidence should be persisted as concern evidence"
 );
 assert(Boolean(observation.latestRecommendation), "suggestion should become latest recommendation");
 assert(
