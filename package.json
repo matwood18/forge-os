@@ -42,7 +42,8 @@
     "proof:executive-comparison-integration": "tsx scripts/proofs/executive-comparison-integration-proof.ts",
     "proof:executive-selection": "tsx scripts/proofs/executive-selection-proof.ts",
     "proof:executive-selection-integration": "tsx scripts/proofs/executive-selection-integration-proof.ts",
-    "proof:executive-attention": "tsx scripts/proofs/executive-attention-proof.ts"
+    "proof:executive-attention": "tsx scripts/proofs/executive-attention-proof.ts",
+    "proof:executive-attention-memory": "tsx scripts/proofs/executive-attention-memory-proof.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",
