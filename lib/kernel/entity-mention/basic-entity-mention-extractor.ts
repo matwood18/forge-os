@@ -53,6 +53,32 @@ const EMOTION_TERMS = new Set([
   "worried",
 ]);
 
+const TEMPORAL_TERMS = new Set([
+  "monday",
+  "tuesday",
+  "wednesday",
+  "thursday",
+  "friday",
+  "saturday",
+  "sunday",
+  "today",
+  "tomorrow",
+  "tonight",
+  "yesterday",
+  "january",
+  "february",
+  "march",
+  "april",
+  "may",
+  "june",
+  "july",
+  "august",
+  "september",
+  "october",
+  "november",
+  "december",
+]);
+
 type TokenMatch = {
   text: string;
   startOffset: number;
@@ -183,6 +209,10 @@ export class BasicEntityMentionExtractor implements EntityMentionExtractor {
 
     if (EMOTION_TERMS.has(normalizedText)) {
       return "emotion_expression";
+    }
+
+    if (TEMPORAL_TERMS.has(normalizedText)) {
+      return "unknown";
     }
 
     if (this.looksLikePersonName(originalText)) {
