@@ -26,6 +26,9 @@ import {
   FallbackExecutiveSituationProvider,
   OpenAIExecutiveReasoningProvider,
   OpenAIExecutiveSituationProvider,
+  BasicExecutiveComparisonEngine,
+  BasicExecutiveSelectionEngine,
+  projectSelectedReasoningResult,
 } from "@/lib/executive";
 import type {
   ShowcaseProjection,
@@ -500,16 +503,34 @@ export async function buildShowcaseProjection(
     ],
   };
 
+  const comparison =
+    new BasicExecutiveComparisonEngine().compare({
+      priorities: reasoning.priorities,
+      generatedAt: reasoning.generatedAt,
+    });
+
+  const selection =
+    new BasicExecutiveSelectionEngine().select({
+      priorities: comparison.priorities,
+      generatedAt: comparison.generatedAt,
+    });
+
+  const selectedReasoning =
+    projectSelectedReasoningResult(
+      selection,
+      reasoning
+    );
+
   const executiveBrief =
     new BasicExecutiveBriefBuilder().build({
       reasoningInput,
-      reasoningResult: reasoning,
+      reasoningResult: selectedReasoning,
     });
 
   const rawSuggestions =
     new BasicSuggestionProjector().project({
       reasoningInput,
-      reasoningResult: reasoning,
+      reasoningResult: selectedReasoning,
     });
 
   const suggestions =
