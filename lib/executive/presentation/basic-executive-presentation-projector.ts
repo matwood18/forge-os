@@ -18,27 +18,23 @@ const forbiddenTerms = [
 ];
 
 const actionVerbs = [
-  "Call",
-  "Contact",
-  "Help",
-  "Check",
-  "Reply",
-  "Review",
-  "Schedule",
-  "Update",
-  "Resolve",
-  "Text",
+  "call",
+  "contact",
+  "help",
+  "check",
+  "reply",
+  "review",
+  "schedule",
+  "update",
+  "resolve",
+  "text",
 ];
 
-function combinedText(suggestion: Suggestion): string {
+function visibleSourceText(suggestion: Suggestion): string {
   return [
     suggestion.title,
     suggestion.whyItMatters,
     suggestion.suggestedNextStep,
-    ...suggestion.evidence.flatMap((evidence) => [
-      evidence.label,
-      evidence.summary,
-    ]),
   ].join(" ").toLowerCase();
 }
 
@@ -68,30 +64,37 @@ function firstTwoSentences(text: string): string {
 
 function startsWithActionVerb(title: string): boolean {
   return actionVerbs.some((verb) =>
-    title.toLowerCase().startsWith(verb.toLowerCase() + " ")
+    title.toLowerCase().startsWith(`${verb} `)
   );
 }
 
-function presentTitle(suggestion: Suggestion): string {
-  const text = combinedText(suggestion);
+function normalizeTitle(title: string): string {
+  return stripInternalReferences(title)
+    .replace(/^concerns? about\s+/i, "")
+    .replace(/^possible\s+/i, "")
+    .replace(/^the\s+/i, "")
+    .trim();
+}
 
-  if (text.includes("dentist")) {
-    return "Call the dentist";
-  }
+function presentTitle(suggestion: Suggestion): string {
+  const text = visibleSourceText(suggestion);
+  const cleaned = normalizeTitle(suggestion.title);
 
   if (text.includes("insurance")) {
     return "Contact insurance";
+  }
+
+  if (text.includes("dentist")) {
+    return "Call the dentist";
   }
 
   if (text.includes("maxx") && text.includes("project")) {
     return "Help Maxx with his project";
   }
 
-  const cleaned = stripInternalReferences(suggestion.title)
-    .replace(/^concerns? about\s+/i, "")
-    .replace(/^possible\s+/i, "")
-    .replace(/^the\s+/i, "")
-    .trim();
+  if (!cleaned) {
+    return "Review this";
+  }
 
   if (startsWithActionVerb(cleaned)) {
     return cleaned;
@@ -101,14 +104,14 @@ function presentTitle(suggestion: Suggestion): string {
 }
 
 function presentWhy(suggestion: Suggestion): string {
-  const text = combinedText(suggestion);
-
-  if (text.includes("dentist") && text.includes("friday")) {
-    return "This needs attention before Friday.";
-  }
+  const text = visibleSourceText(suggestion);
 
   if (text.includes("insurance") && text.includes("jess")) {
     return "Jess appears affected by this remaining unresolved.";
+  }
+
+  if (text.includes("dentist") && text.includes("friday")) {
+    return "This needs attention before Friday.";
   }
 
   if (text.includes("maxx") && text.includes("project")) {
@@ -125,14 +128,14 @@ function presentWhy(suggestion: Suggestion): string {
 }
 
 function presentNextStep(suggestion: Suggestion): string {
-  const text = combinedText(suggestion);
-
-  if (text.includes("dentist")) {
-    return "Schedule the appointment.";
-  }
+  const text = visibleSourceText(suggestion);
 
   if (text.includes("insurance")) {
     return "Contact insurance today.";
+  }
+
+  if (text.includes("dentist")) {
+    return "Schedule the appointment.";
   }
 
   if (text.includes("maxx") && text.includes("project")) {
@@ -145,18 +148,14 @@ function presentNextStep(suggestion: Suggestion): string {
     cleaned.toLowerCase().startsWith("review this situation") ||
     cleaned.toLowerCase().startsWith("review the situation")
   ) {
-    return "Decide the next concrete step today.";
+    return "Choose the next concrete step.";
   }
 
   return cleaned || "Choose the next concrete step.";
 }
 
 function containsForbiddenLanguage(suggestion: Suggestion): boolean {
-  const visibleText = [
-    suggestion.title,
-    suggestion.whyItMatters,
-    suggestion.suggestedNextStep,
-  ].join(" ").toLowerCase();
+  const visibleText = visibleSourceText(suggestion);
 
   return forbiddenTerms.some((term) => visibleText.includes(term));
 }

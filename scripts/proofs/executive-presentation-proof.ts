@@ -48,6 +48,27 @@ const suggestions: Suggestion[] = [
     status: "pending",
     createdAt,
   },
+  {
+    id: "suggestion:3",
+    title: "Assist Maxx with his project",
+    whyItMatters:
+      "Maxx has asked for help again, which indicates he may be waiting on support.",
+    suggestedNextStep:
+      "Check in with Maxx on the status of the project and offer assistance soon.",
+    evidence: [
+      {
+        id: "openai-situation:2",
+        label: "Executive situation: dentist",
+        summary:
+          "The dentist needs to be called before Friday.",
+        confidence: 0.88,
+        source: "test",
+      },
+    ],
+    confidence: 0.75,
+    status: "pending",
+    createdAt,
+  },
 ];
 
 const projected =
@@ -100,6 +121,10 @@ const proof = {
   dentistWhyPlain:
     projected[1].whyItMatters ===
     "This needs attention before Friday.",
+  sharedEvidenceDoesNotMisclassifyMaxx:
+    projected[2].title === "Help Maxx with his project" &&
+    projected[2].suggestedNextStep ===
+      "Check in with Maxx about the project.",
   noForbiddenVisibleLanguage:
     !forbiddenTerms.some((term) => visibleText.includes(term)),
   noEvidenceIdsVisible:
@@ -111,6 +136,7 @@ const passed = Object.values(proof).every(Boolean);
 if (!passed) {
   console.error("Executive presentation proof failed.");
   console.error(JSON.stringify(proof, null, 2));
+  console.error(JSON.stringify(projected, null, 2));
   process.exit(1);
 }
 
