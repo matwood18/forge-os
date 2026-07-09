@@ -80,3 +80,4 @@ export * from "./concern-reconciliation";
 export * from "./concern-projection";
 export * from "./concern-coordination";
 export * from "./concern-runtime";
+export * from "./recall";
