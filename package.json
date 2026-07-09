@@ -37,7 +37,8 @@
     "proof:showcase-executive-output": "tsx scripts/proofs/showcase-executive-output-integration-proof.ts",
     "proof:today-output": "tsx scripts/proofs/today-output-proof.ts",
     "proof:executive-presentation": "tsx scripts/proofs/executive-presentation-proof.ts",
-    "proof:executive-session": "tsx scripts/proofs/executive-session-proof.ts"
+    "proof:executive-session": "tsx scripts/proofs/executive-session-proof.ts",
+    "proof:executive-comparison": "tsx scripts/proofs/executive-comparison-proof.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",

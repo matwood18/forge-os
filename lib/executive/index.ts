@@ -69,3 +69,4 @@ export * from "./output";
 
 export * from "./presentation";
 export * from "./session";
+export * from "./comparison";
