@@ -19,10 +19,7 @@ export function TodayExperience({
       })
     : [];
 
-  const surfacedAttention =
-    attention?.attention.filter(
-      (item) => item.state === "surfaced"
-    ) ?? [];
+  const visibleAttention = attention?.attention ?? [];
 
   const hasSession = Boolean(output);
   const hasSuggestions = presentedSuggestions.length > 0;
@@ -50,9 +47,9 @@ export function TodayExperience({
             Forge is watching
           </p>
 
-          {surfacedAttention.length > 0 ? (
+          {visibleAttention.length > 0 ? (
             <div className="mt-5 space-y-3">
-              {surfacedAttention.map((item) => (
+              {visibleAttention.map((item) => (
                 <div
                   key={item.priority.priority.title}
                   className="rounded-2xl border border-slate-800 bg-slate-950/80 p-4"
@@ -62,7 +59,9 @@ export function TodayExperience({
                   </p>
 
                   <p className="mt-2 text-sm leading-6 text-slate-400">
-                    Forge surfaced this because it appears important.
+                    {item.state === "surfaced"
+                      ? "Forge surfaced this because it appears important."
+                      : "Forge is quietly tracking this because it may matter."}
                   </p>
                 </div>
               ))}

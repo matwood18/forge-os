@@ -1,4 +1,9 @@
 import { executiveSessionStore } from "@/lib/executive";
+
+export const runtime = "nodejs";
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 import { TodayExperience } from "./components/today-experience";
 
 export default async function TodayPage() {
