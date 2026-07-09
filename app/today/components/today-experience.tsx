@@ -2,9 +2,10 @@ import type { ExecutiveOutput } from "@/lib/executive";
 import { ClarificationCard } from "./clarification-card";
 import { SuggestionCard } from "./suggestion-card";
 
-export function TodayExperience({ output }: { output: ExecutiveOutput }) {
-  const hasSuggestions = output.suggestions.length > 0;
-  const hasClarifications = output.clarifications.length > 0;
+export function TodayExperience({ output }: { output?: ExecutiveOutput }) {
+  const hasSession = Boolean(output);
+  const hasSuggestions = (output?.suggestions.length ?? 0) > 0;
+  const hasClarifications = (output?.clarifications.length ?? 0) > 0;
 
   return (
     <main className="min-h-screen bg-slate-950 px-6 py-10 text-slate-100">
@@ -24,8 +25,18 @@ export function TodayExperience({ output }: { output: ExecutiveOutput }) {
         </header>
 
         <section aria-label="What matters today" className="space-y-4">
-          {hasSuggestions ? (
-            output.suggestions.map((suggestion, index) => (
+          {!hasSession ? (
+            <div className="rounded-3xl border border-slate-800 bg-slate-900/70 p-6">
+              <p className="text-lg font-semibold text-slate-100">
+                Forge doesn&apos;t have an executive briefing yet.
+              </p>
+
+              <p className="mt-3 leading-7 text-slate-400">
+                Run Forge from the Showcase to establish the current executive session.
+              </p>
+            </div>
+          ) : hasSuggestions ? (
+            output?.suggestions.map((suggestion, index) => (
               <SuggestionCard
                 key={suggestion.id}
                 suggestion={suggestion}
@@ -52,7 +63,7 @@ export function TodayExperience({ output }: { output: ExecutiveOutput }) {
 
           <div className="mt-5 space-y-4">
             {hasClarifications ? (
-              output.clarifications.map((clarification) => (
+              output?.clarifications.map((clarification) => (
                 <ClarificationCard
                   key={clarification.id}
                   clarification={clarification}
