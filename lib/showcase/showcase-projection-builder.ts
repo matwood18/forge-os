@@ -518,11 +518,25 @@ export async function buildShowcaseProjection(
       confidence: situation.confidence,
     }));
 
+  const missingRecallPriorities = recallContext.concerns
+    .filter((concern) => !referencedEvidenceIds.has(`${concern.id}:recall`))
+    .map((concern) => ({
+      title: concern.title,
+      rationale:
+        concern.reason,
+      suggestedNextStep:
+        concern.latestRecommendation?.suggestedNextStep ??
+        "Review this remembered concern and decide whether it still needs attention today.",
+      evidenceIds: [`${concern.id}:recall`],
+      confidence: concern.confidence,
+    }));
+
   const reasoning = {
     ...initialReasoning,
     priorities: [
       ...initialReasoning.priorities,
       ...missingSituationPriorities,
+      ...missingRecallPriorities,
     ],
   };
 
