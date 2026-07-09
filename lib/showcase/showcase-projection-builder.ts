@@ -436,7 +436,10 @@ export async function buildShowcaseProjection(
   ).reason(reasoningInput);
 
   const executiveBrief =
-    new BasicExecutiveBriefBuilder().build(reasoning);
+    new BasicExecutiveBriefBuilder().build({
+      reasoningInput,
+      reasoningResult: reasoning,
+    });
 
   const projection: ShowcaseProjection = {
     executionId: execution.id,

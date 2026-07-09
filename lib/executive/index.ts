@@ -16,6 +16,7 @@ export {
 export type {
   ExecutiveBrief,
   ExecutiveBriefBuilder,
+  ExecutiveBriefBuilderInput,
   ExecutivePriority,
 } from "./brief";
 

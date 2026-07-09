@@ -93,7 +93,10 @@ async function main(): Promise<void> {
   );
 
   const brief =
-    new BasicExecutiveBriefBuilder().build(reasoning);
+    new BasicExecutiveBriefBuilder().build({
+      reasoningInput,
+      reasoningResult: reasoning,
+    });
 
   assert.equal(
     brief.priorities.length,
@@ -111,6 +114,24 @@ async function main(): Promise<void> {
     brief.priorities[0].suggestedNextStep,
     reasoning.priorities[0].suggestedNextStep,
     "Expected the executive brief to preserve the suggested next step."
+  );
+
+  assert(
+    brief.priorities.every((priority) =>
+      priority.evidence.every(
+        (evidence) => !evidence.includes(":signal:")
+      )
+    ),
+    "Expected the executive brief not to expose internal evidence IDs."
+  );
+
+  assert(
+    brief.priorities.some((priority) =>
+      priority.evidence.some((evidence) =>
+        evidence.includes("Signal detected during context reflection")
+      )
+    ),
+    "Expected the executive brief to resolve evidence IDs into human-readable evidence summaries."
   );
 
   const emptyContextInput = {
@@ -140,7 +161,10 @@ async function main(): Promise<void> {
   );
 
   const emptyBrief =
-    new BasicExecutiveBriefBuilder().build(emptyReasoning);
+    new BasicExecutiveBriefBuilder().build({
+      reasoningInput: emptyReasoningInput,
+      reasoningResult: emptyReasoning,
+    });
 
   assert.equal(
     emptyBrief.priorities.length,

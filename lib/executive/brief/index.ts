@@ -5,6 +5,7 @@ export type {
 
 export type {
   ExecutiveBriefBuilder,
+  ExecutiveBriefBuilderInput,
 } from "./executive-brief-builder";
 
 export {
