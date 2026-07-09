@@ -1,14 +1,28 @@
 import { BasicExecutivePresentationProjector } from "@/lib/executive";
-import type { ExecutiveOutput } from "@/lib/executive";
+import type {
+  ExecutiveAttentionResult,
+  ExecutiveOutput,
+} from "@/lib/executive";
 import { ClarificationCard } from "./clarification-card";
 import { SuggestionCard } from "./suggestion-card";
 
-export function TodayExperience({ output }: { output?: ExecutiveOutput }) {
+export function TodayExperience({
+  output,
+  attention,
+}: {
+  output?: ExecutiveOutput;
+  attention?: ExecutiveAttentionResult;
+}) {
   const presentedSuggestions = output
     ? new BasicExecutivePresentationProjector().project({
         suggestions: output.suggestions,
       })
     : [];
+
+  const surfacedAttention =
+    attention?.attention.filter(
+      (item) => item.state === "surfaced"
+    ) ?? [];
 
   const hasSession = Boolean(output);
   const hasSuggestions = presentedSuggestions.length > 0;
@@ -30,6 +44,35 @@ export function TodayExperience({ output }: { output?: ExecutiveOutput }) {
             Here&apos;s what deserves your attention.
           </p>
         </header>
+
+        <section className="mb-8 rounded-3xl border border-slate-800 bg-slate-900/70 p-6">
+          <p className="text-sm font-semibold uppercase tracking-[0.25em] text-slate-500">
+            Forge is watching
+          </p>
+
+          {surfacedAttention.length > 0 ? (
+            <div className="mt-5 space-y-3">
+              {surfacedAttention.map((item) => (
+                <div
+                  key={item.priority.priority.title}
+                  className="rounded-2xl border border-slate-800 bg-slate-950/80 p-4"
+                >
+                  <p className="font-semibold text-slate-100">
+                    {item.priority.priority.title}
+                  </p>
+
+                  <p className="mt-2 text-sm leading-6 text-slate-400">
+                    Forge surfaced this because it appears important.
+                  </p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="mt-4 leading-7 text-slate-400">
+              Forge is not currently holding anything that needs attention.
+            </p>
+          )}
+        </section>
 
         <section aria-label="What matters today" className="space-y-4">
           {!hasSession ? (
