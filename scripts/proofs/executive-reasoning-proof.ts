@@ -17,12 +17,22 @@ async function main(): Promise<void> {
       {
         kind: "unresolved_obligation",
         label: "Unresolved obligation",
+        summary:
+          "The operator appears to have an unfinished insurance obligation.",
         confidence: 0.84,
+        payload: {
+          text: "Jess is mad at me for not contacting insurance.",
+        },
       },
       {
         kind: "relationship_impact",
         label: "Relationship impact",
+        summary:
+          "The unfinished insurance obligation may be affecting Jess.",
         confidence: 0.78,
+        payload: {
+          text: "Jess is mad at me for not contacting insurance.",
+        },
       },
     ],
   };
@@ -128,10 +138,12 @@ async function main(): Promise<void> {
   assert(
     brief.priorities.some((priority) =>
       priority.evidence.some((evidence) =>
-        evidence.includes("Signal detected during context reflection")
+        evidence.includes(
+          "The operator appears to have an unfinished insurance obligation."
+        )
       )
     ),
-    "Expected the executive brief to resolve evidence IDs into human-readable evidence summaries."
+    "Expected the executive brief to preserve rich semantic evidence summaries."
   );
 
   const emptyContextInput = {

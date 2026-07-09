@@ -1,6 +1,7 @@
 export type {
   ContextReflectionImportance,
   ContextReflectionInput,
+  ContextReflectionSignal,
   PersonalContextReflection,
 } from "./types";
 

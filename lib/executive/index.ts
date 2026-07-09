@@ -6,6 +6,7 @@ export type {
   ContextReflectionEngine,
   ContextReflectionImportance,
   ContextReflectionInput,
+  ContextReflectionSignal,
   PersonalContextReflection,
 } from "./context-reflection";
 

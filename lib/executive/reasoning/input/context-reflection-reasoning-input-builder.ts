@@ -30,7 +30,7 @@ export class BasicContextReflectionReasoningInputBuilder
       input.contextInput.signals.map((signal, index) => ({
         id: `${input.reflection.id}:signal:${index}`,
         label: signal.label,
-        summary: `Signal detected during context reflection: ${signal.label}.`,
+        summary: signal.summary,
         confidence: signal.confidence,
         source: input.reflection.evidence.sourceEventId,
       }));

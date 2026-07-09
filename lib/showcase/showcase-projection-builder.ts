@@ -413,7 +413,9 @@ export async function buildShowcaseProjection(
     signals: signals.map((signal) => ({
       kind: signal.kind,
       label: signal.label,
+      summary: signal.summary,
       confidence: signal.confidence,
+      payload: signal.payload,
     })),
   };
 

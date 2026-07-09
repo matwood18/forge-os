@@ -3,6 +3,14 @@ export type ContextReflectionImportance =
   | "medium"
   | "high";
 
+export type ContextReflectionSignal = {
+  kind: string;
+  label: string;
+  summary: string;
+  confidence: number;
+  payload: Record<string, unknown>;
+};
+
 export type PersonalContextReflection = {
   id: string;
 
@@ -22,9 +30,5 @@ export type PersonalContextReflection = {
 
 export type ContextReflectionInput = {
   eventId: string;
-  signals: {
-    kind: string;
-    label: string;
-    confidence: number;
-  }[];
+  signals: ContextReflectionSignal[];
 };
