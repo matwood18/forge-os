@@ -22,3 +22,11 @@ export {
   FallbackExecutiveSituationProvider,
   OpenAIExecutiveSituationProvider,
 } from "./provider";
+
+export type {
+  ExecutionSituationEvidenceBuilder,
+} from "./input";
+
+export {
+  BasicExecutionSituationEvidenceBuilder,
+} from "./input";
