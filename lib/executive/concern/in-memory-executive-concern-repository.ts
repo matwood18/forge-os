@@ -33,7 +33,7 @@ export class InMemoryExecutiveConcernRepository
 {
   private readonly concerns = new Map<string, ExecutiveConcern>();
 
-  create(input: ExecutiveConcernCreateInput): ExecutiveConcern {
+  async create(input: ExecutiveConcernCreateInput): Promise<ExecutiveConcern> {
     if (this.concerns.has(input.id)) {
       throw new Error(`Executive concern already exists: ${input.id}`);
     }
@@ -58,7 +58,7 @@ export class InMemoryExecutiveConcernRepository
     return concern;
   }
 
-  update(input: ExecutiveConcernUpdateInput): ExecutiveConcern {
+  async update(input: ExecutiveConcernUpdateInput): Promise<ExecutiveConcern> {
     const existing = this.concerns.get(input.id);
 
     if (!existing) {
@@ -99,22 +99,25 @@ export class InMemoryExecutiveConcernRepository
     return updated;
   }
 
-  findById(id: string): ExecutiveConcern | undefined {
+  async findById(id: string): Promise<ExecutiveConcern | undefined> {
     return this.concerns.get(id);
   }
 
-  list(): ExecutiveConcern[] {
+  async list(): Promise<ExecutiveConcern[]> {
     return [...this.concerns.values()].sort(
       (a, b) => b.lastObserved.getTime() - a.lastObserved.getTime()
     );
   }
 
-  listByStatus(status: ExecutiveConcernStatus): ExecutiveConcern[] {
-    return this.list().filter((concern) => concern.status === status);
+  async listByStatus(
+    status: ExecutiveConcernStatus
+  ): Promise<ExecutiveConcern[]> {
+    const concerns = await this.list();
+
+    return concerns.filter((concern) => concern.status === status);
   }
 
-  clear(): void {
+  async clear(): Promise<void> {
     this.concerns.clear();
   }
 }
-

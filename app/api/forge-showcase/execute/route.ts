@@ -30,7 +30,7 @@ export async function POST(request: Request) {
       output: projection.executiveOutput,
     });
 
-    executiveConcernCoordinator.coordinate({
+    await executiveConcernCoordinator.coordinate({
       projection: concernProjection,
     });
 

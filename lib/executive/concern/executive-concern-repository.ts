@@ -6,11 +6,10 @@ import type {
 } from "./types";
 
 export interface ExecutiveConcernRepository {
-  create(input: ExecutiveConcernCreateInput): ExecutiveConcern;
-  update(input: ExecutiveConcernUpdateInput): ExecutiveConcern;
-  findById(id: string): ExecutiveConcern | undefined;
-  list(): ExecutiveConcern[];
-  listByStatus(status: ExecutiveConcernStatus): ExecutiveConcern[];
-  clear(): void;
+  create(input: ExecutiveConcernCreateInput): Promise<ExecutiveConcern>;
+  update(input: ExecutiveConcernUpdateInput): Promise<ExecutiveConcern>;
+  findById(id: string): Promise<ExecutiveConcern | undefined>;
+  list(): Promise<ExecutiveConcern[]>;
+  listByStatus(status: ExecutiveConcernStatus): Promise<ExecutiveConcern[]>;
+  clear(): Promise<void>;
 }
-

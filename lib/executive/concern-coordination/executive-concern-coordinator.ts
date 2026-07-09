@@ -6,6 +6,5 @@ import type {
 export interface ExecutiveConcernCoordinator {
   coordinate(
     input: ExecutiveConcernCoordinationInput
-  ): ExecutiveConcernCoordinationResult;
+  ): Promise<ExecutiveConcernCoordinationResult>;
 }
-

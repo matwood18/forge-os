@@ -24,13 +24,13 @@ export class BasicExecutiveConcernCoordinator
     private readonly reconciliationEngine: ExecutiveConcernReconciliationEngine
   ) {}
 
-  coordinate(
+  async coordinate(
     input: ExecutiveConcernCoordinationInput
-  ): ExecutiveConcernCoordinationResult {
+  ): Promise<ExecutiveConcernCoordinationResult> {
     const records: ExecutiveConcernCoordinationRecord[] = [];
 
     for (const observation of input.projection.observations) {
-      const existingConcern = this.repository.findById(
+      const existingConcern = await this.repository.findById(
         observation.concernId
       );
 
@@ -41,7 +41,7 @@ export class BasicExecutiveConcernCoordinator
 
       switch (decision.kind) {
         case "create": {
-          const concern = this.repository.create(decision.createInput);
+          const concern = await this.repository.create(decision.createInput);
 
           records.push({
             decision,
@@ -52,7 +52,7 @@ export class BasicExecutiveConcernCoordinator
         }
 
         case "update": {
-          const concern = this.repository.update(decision.updateInput);
+          const concern = await this.repository.update(decision.updateInput);
 
           records.push({
             decision,
@@ -94,4 +94,3 @@ export class BasicExecutiveConcernCoordinator
     };
   }
 }
-
