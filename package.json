@@ -46,7 +46,8 @@
     "proof:executive-attention-memory": "tsx scripts/proofs/executive-attention-memory-proof.ts",
     "proof:executive-attention-reconciliation": "tsx scripts/proofs/executive-attention-reconciliation-proof.ts",
     "proof:executive-attention-transition": "tsx scripts/proofs/executive-attention-transition-proof.ts",
-    "proof:executive-attention-integration": "tsx scripts/proofs/executive-attention-integration-proof.ts"
+    "proof:executive-attention-integration": "tsx scripts/proofs/executive-attention-integration-proof.ts",
+    "proof:executive-concern": "tsx scripts/proofs/executive-concern-proof.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",
