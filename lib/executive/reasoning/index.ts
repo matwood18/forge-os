@@ -11,7 +11,10 @@ export type { ExecutiveReasoningProvider } from "./executive-reasoning-provider"
 
 export { BasicExecutiveReasoningEngine } from "./basic-executive-reasoning-engine";
 
-export { BasicExecutiveReasoningProvider } from "./provider";
+export {
+  BasicExecutiveReasoningProvider,
+  OpenAIExecutiveReasoningProvider,
+} from "./provider";
 
 export type {
   ContextReflectionReasoningInputBuilder,
