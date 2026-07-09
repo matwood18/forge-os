@@ -32,7 +32,8 @@
     "proof:executive-situation-fallback": "tsx scripts/proofs/executive-situation-fallback-proof.ts",
     "proof:executive-situation-integration": "tsx scripts/proofs/executive-situation-integration-proof.ts",
     "proof:suggestion-projection": "tsx scripts/proofs/suggestion-projection-proof.ts",
-    "proof:clarification-request": "tsx scripts/proofs/clarification-request-proof.ts"
+    "proof:clarification-request": "tsx scripts/proofs/clarification-request-proof.ts",
+    "proof:executive-output-projection": "tsx scripts/proofs/executive-output-projection-proof.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",
