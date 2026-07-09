@@ -76,8 +76,12 @@ export class BasicExecutiveSelectionEngine
         0
       );
 
+      const requiresUserAttention = selectionSignals.some(
+        (signal) => signal.kind === "requiresUserAttention"
+      );
+
       const decision: "surface" | "quiet" =
-        totalWeight >= 30 ? "surface" : "quiet";
+        totalWeight >= 30 || requiresUserAttention ? "surface" : "quiet";
 
       return {
         priority,

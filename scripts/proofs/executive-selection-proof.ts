@@ -65,6 +65,36 @@ if (quiet.decisions[0].priority.priority.evidenceIds[0] !== "e2") {
   throw new Error("Evidence was not preserved");
 }
 
+
+const concreteNextStepOnly = engine.select({
+  generatedAt: now,
+  priorities: [
+    {
+      priority: {
+        title: "Call insurance",
+        rationale: "A concrete next step exists.",
+        suggestedNextStep: "Call insurance.",
+        evidenceIds: ["e3"],
+        confidence: 0.7,
+      },
+      comparisonSignals: [
+        {
+          kind: "concreteNextStep",
+          label: "Concrete next step exists",
+          weight: 8,
+          evidenceIds: ["e3"],
+        },
+      ],
+      executiveWeight: 8,
+      originalIndex: 0,
+    },
+  ],
+});
+
+if (concreteNextStepOnly.decisions[0].decision !== "surface") {
+  throw new Error("Concrete user attention priority failed to surface");
+}
+
 const empty = engine.select({
   generatedAt: now,
   priorities: [],
@@ -82,6 +112,8 @@ console.log(
       quiet: quiet.decisions[0].decision,
       evidencePreserved:
         quiet.decisions[0].priority.priority.evidenceIds[0] === "e2",
+      concreteNextStepSurfaced:
+        concreteNextStepOnly.decisions[0].decision === "surface",
       emptyHandled: empty.decisions.length === 0,
     },
     null,
