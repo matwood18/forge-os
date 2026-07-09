@@ -57,7 +57,13 @@ Executive Concern Reconciliation
         ↓
 Executive Concern Coordination
         ↓
-Executive Concern Repository
+Durable Executive Concern Repository
+        ↓
+Executive Recall
+        ↓
+Executive Recall Context
+        ↓
+Current Executive Reasoning
 ```
 
 This pipeline marks the shift from a cognitive kernel toward an executive operating system.
@@ -465,9 +471,17 @@ The current runtime can:
 - preserve first observation time;
 - advance last observation time;
 - update confidence;
-- preserve unresolved concerns.
+- preserve unresolved concerns;
+- persist Executive Concerns durably through Prisma;
+- reload Executive Concerns across executions and process restarts;
+- recall a bounded set of relevant unresolved concerns;
+- project recalled concerns into a reasoning-safe context;
+- integrate recalled concern context into current executive reasoning;
+- preserve recalled concern provenance through executive output.
 
-The current runtime does not yet provide durable Executive Concern state across process restarts.
+The real Showcase execution path now has longitudinal executive behavior.
+
+A concern created by one execution can be recalled during a later execution even when the later source input does not repeat the original concern.
 
 ---
 
@@ -475,15 +489,28 @@ The current runtime does not yet provide durable Executive Concern state across 
 
 ### Executive Concerns
 
-Executive Concerns currently use a shared in-memory repository.
+Executive Concerns use an explicit asynchronous repository contract.
 
-This proves runtime accumulation within a server process.
+The real executive concern runtime uses `PrismaExecutiveConcernRepository`.
 
-It is not durable across process restarts.
+Durable concern state survives across executions and process restarts.
 
-Durable Executive Concern persistence remains future architecture.
+The durable repository preserves:
 
-The next persistence implementation should preserve the existing repository boundary.
+- concern identity;
+- lifecycle status;
+- importance;
+- confidence;
+- first observed time;
+- last observed time;
+- accumulated supporting evidence;
+- latest recommendation;
+- clarification need;
+- resolution state.
+
+Persistence technology remains behind the Executive Concern Repository boundary.
+
+Executive reasoning, projection, reconciliation, recall, and coordination do not depend directly on Prisma or SQLite.
 
 ### Executive Session
 
@@ -571,9 +598,75 @@ Executive Memory is not a task list.
 
 Executive Memory is the durable executive representation of the user's evolving world.
 
-The current Executive Concern architecture establishes the write-side foundation for Executive Memory.
+The current Executive Concern architecture establishes both write-side durability and the first bounded read-side recall path for Executive Memory.
 
-Durable persistence, stronger identity, lifecycle semantics, and read-side projection remain future work.
+Stronger identity, richer lifecycle semantics, Morning Review projection, and deeper longitudinal reasoning remain future work.
+
+---
+
+## Executive Recall
+
+Executive Recall is the bounded read-side projection of durable Executive Concerns.
+
+Executive Recall answers:
+
+> Which remembered concerns are eligible to influence current executive reasoning?
+
+The current recall path is:
+
+```text
+Durable Executive Concern Repository
+        ↓
+BasicExecutiveRecallProjector
+        ↓
+ExecutiveRecallResult
+        ↓
+BasicExecutiveRecallContextProjector
+        ↓
+ExecutiveRecallContext
+        ↓
+Recall Context Reasoning Input
+        ↓
+Current Executive Reasoning
+```
+
+Executive Recall is intentionally distinct from repository access.
+
+Reasoning must not query durable concern storage directly.
+
+The recall boundary owns eligibility, filtering, ordering, and bounded retrieval.
+
+The recall context boundary owns translation into reasoning-safe data.
+
+This prevents the full historical concern repository from becoming implicit AI context.
+
+Remembered concerns are not automatically deserving of attention.
+
+Recall makes bounded historical state available for executive judgment.
+
+Comparison, selection, and attention remain responsible for deciding what deserves to surface.
+
+Recall preserves:
+
+- concern identity;
+- lifecycle status;
+- importance;
+- confidence;
+- recall reason;
+- first and last observed times;
+- bounded evidence summaries and provenance;
+- latest recommendation;
+- clarification need.
+
+Recall does not expose full repository entities downstream.
+
+Recall does not treat remembered concerns as facts from the current execution.
+
+Recall does not silently convert historical concerns into Tasks, reminders, commitments, or actions.
+
+The real Showcase reasoning path consumes Executive Recall Context.
+
+Executable longitudinal proof demonstrates that a concern persisted by one execution can influence a later execution without appearing in the later source input.
 
 ---
 
@@ -600,14 +693,32 @@ Morning Review should derive from the current state and history of Executive Con
 
 ## Target Architecture
 
-The target architecture is:
+The current longitudinal architecture is:
 
 ```text
-Execution
+Past Executions
         ↓
-Executive Attention
+Durable Executive Concerns
         ↓
-Executive Memory
+Executive Recall
+        ↓
+Executive Recall Context
+        ↓
+Current Executive Reasoning
+        ↓
+Comparison
+        ↓
+Selection
+        ↓
+Attention
+        ↓
+Updated Durable Executive Concerns
+```
+
+The next product projection target is:
+
+```text
+Durable Executive Memory
         ↓
 Morning Review
         ↓
@@ -716,14 +827,16 @@ The Executive System should preserve these invariants:
 
 ## Current Architectural Priority
 
-Teach Forge to remember what still matters.
+Teach Forge to turn durable longitudinal executive state into a calm current-world product experience.
+
+Forge can now persist Executive Concerns, recall a bounded set of unresolved concerns, project them into reasoning-safe context, and use remembered concern state in later executive reasoning.
 
 The next major architectural questions are:
 
-1. durable Executive Concern persistence;
-2. stronger concern identity than title-derived slugs;
-3. explicit concern lifecycle and resolution semantics;
-4. Morning Review projection from Executive Memory;
-5. migration of Today away from latest-session state.
+1. stronger concern identity than title-derived slugs;
+2. explicit concern lifecycle and resolution semantics;
+3. Morning Review projection from Executive Memory;
+4. migration of Today away from latest-session state;
+5. richer longitudinal reasoning over concern history and change.
 
-Do not skip directly to generic task management or autonomous action execution.
+Do not skip directly to generic task management, reminders, notifications, or autonomous action execution.

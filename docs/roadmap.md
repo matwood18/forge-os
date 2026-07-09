@@ -69,23 +69,34 @@ Forge has executable architecture for:
 - concern projection;
 - concern reconciliation;
 - concern coordination;
-- runtime concern integration.
+- runtime concern integration;
+- durable Executive Concern persistence;
+- bounded Executive Recall projection;
+- reasoning-safe Executive Recall Context;
+- recall integration into real Showcase reasoning;
+- executable longitudinal recall behavior.
 
 ---
 
 ## Current Architectural Phase
 
-### Executive Memory
+### Longitudinal Executive Product Experience
 
 Current goal:
 
-> Teach Forge to remember what still matters.
+> Turn durable remembered concerns into a calm, trustworthy view of what matters now.
 
-The real showcase execution path now projects Executive Concerns, reconciles repeated observations, and coordinates mutations into a shared concern repository.
+The real Showcase execution path now:
 
-Repeated observations can update one concern rather than replacing all executive state.
+- projects Executive Concerns;
+- reconciles repeated observations;
+- persists concern state durably through Prisma;
+- recalls a bounded set of relevant unresolved concerns;
+- projects recalled concerns into reasoning-safe context;
+- integrates remembered concern state into current executive reasoning;
+- preserves recall provenance through executive output.
 
-Executive Concerns are not yet durable across process restarts.
+Executable longitudinal proof demonstrates that a concern created by one execution can influence a later execution even when the later input does not repeat the original concern.
 
 The Showcase to Today bridge separately uses temporary file-backed Executive Session persistence.
 
@@ -97,33 +108,17 @@ The Executive Session must not become the Executive Memory model accidentally.
 
 ## Next Architectural Direction
 
-### 1. Durable Executive Concern Persistence
+### 1. Stronger Concern Identity
 
-Introduce a proper persistence boundary and durable implementation for Executive Concerns.
-
-Preserve:
-
-- evidence accumulation;
-- first observed time;
-- last observed time;
-- lifecycle state;
-- recommendations;
-- clarification needs;
-- resolved history.
-
-Durability must preserve the existing Executive Concern repository contract rather than leaking storage technology into executive reasoning.
-
-### 2. Stronger Concern Identity
-
-Replace title-derived concern identity with evidence-grounded stable identity.
+Replace presentation-derived concern identity with evidence-grounded stable identity.
 
 Repeated situations should converge on the same concern even when wording changes.
 
 Distinct situations should not collapse accidentally.
 
-Concern identity should not depend on presentation wording.
+Concern identity should not depend on titles or presentation wording.
 
-### 3. Explicit Concern Lifecycle
+### 2. Explicit Concern Lifecycle
 
 Define grounded lifecycle semantics for states such as:
 
@@ -140,9 +135,9 @@ Absence is not resolution.
 
 Resolved concerns remain part of executive history.
 
-### 4. Morning Review
+### 3. Morning Review
 
-Project Executive Memory into a calm daily executive review.
+Project durable Executive Memory into a calm current-world executive review.
 
 Morning Review should answer:
 
@@ -152,21 +147,42 @@ Morning Review should answer:
 - what needs clarification;
 - what can leave the user's mind.
 
-Morning Review is a projection from Executive Memory.
+Morning Review is a read-side product projection.
 
 It does not own Executive Memory.
 
-### 5. Today Migration
+It must use bounded, explicit executive state rather than dumping durable concern history directly into presentation or AI context.
 
-Move Today from latest-session state to Morning Review derived from Executive Memory.
+### 4. Today Migration
+
+Move Today from latest-session state to Morning Review derived from durable Executive Memory.
 
 Today should represent the current state of the user's world rather than the most recent execution.
+
+The temporary `FileExecutiveSessionStore` should remain explicitly temporary until this migration is complete.
+
+### 5. Richer Longitudinal Executive Reasoning
+
+Teach Forge to reason about change across concern history.
+
+Examples include:
+
+- repeated unresolved concerns;
+- rising or falling importance;
+- accumulating evidence;
+- stale recommendations;
+- recurring clarification needs;
+- concerns that remain unresolved despite repeated attention.
+
+Historical state should influence judgment through explicit bounded projections.
+
+Do not expose all durable concern history directly to AI providers.
 
 ---
 
 ## Later Direction
 
-After Executive Memory is durable and trustworthy:
+After Executive Memory is durable, recall-capable, and product-visible:
 
 - authorized actions;
 - source connectors;
