@@ -1,4 +1,4 @@
-import type { ExecutiveBrief } from "@/lib/executive";
+import type { ExecutiveBrief, ExecutiveOutput } from "@/lib/executive";
 import type { ShowcaseNarrative } from "./narrative";
 
 // lib/showcase/types.ts
@@ -41,5 +41,6 @@ export type ShowcaseProjection = {
   stages: ShowcaseStage[];
   understanding: ShowcaseUnderstanding;
   executiveBrief: ExecutiveBrief;
+  executiveOutput: ExecutiveOutput;
   narrative: ShowcaseNarrative;
 };

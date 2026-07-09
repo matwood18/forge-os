@@ -15,9 +15,11 @@ import {
   BasicContextReflectionReasoningInputBuilder,
   BasicExecutionSituationEvidenceBuilder,
   BasicExecutiveBriefBuilder,
+  BasicExecutiveOutputProjector,
   BasicExecutiveReasoningEngine,
   BasicExecutiveReasoningProvider,
   BasicExecutiveSituationEngine,
+  BasicSuggestionProjector,
   BasicExecutiveSituationProvider,
   FallbackExecutiveReasoningProvider,
   FallbackExecutiveSituationProvider,
@@ -503,6 +505,19 @@ export async function buildShowcaseProjection(
       reasoningResult: reasoning,
     });
 
+  const suggestions =
+    new BasicSuggestionProjector().project({
+      reasoningInput,
+      reasoningResult: reasoning,
+    });
+
+  const executiveOutput =
+    new BasicExecutiveOutputProjector().project({
+      suggestions,
+      clarifications: [],
+      generatedAt: reasoning.generatedAt,
+    });
+
   const projection: ShowcaseProjection = {
     executionId: execution.id,
     input: execution.input,
@@ -512,6 +527,7 @@ export async function buildShowcaseProjection(
     stages,
     understanding,
     executiveBrief,
+    executiveOutput,
     narrative: undefined as never,
   };
 
