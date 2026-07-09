@@ -20,33 +20,7 @@ export class StructuredOpenAIModel implements StructuredLanguageModel {
       input: [
         {
           role: "system",
-          content: `${system}
-
-You MUST return JSON in exactly this shape:
-
-{
-  "observations": [
-    {
-      "kind": "possible-person",
-      "value": "John Dade",
-      "confidence": 0.95,
-      "source": "Mentioned by name."
-    }
-  ]
-}
-
-Allowed kind values:
-- possible-person
-- possible-organization
-- possible-location
-- activity
-- commitment
-- follow-up
-- relationship
-- business-opportunity
-- unknown
-
-Return ONLY JSON.`,
+          content: system,
         },
         {
           role: "user",
