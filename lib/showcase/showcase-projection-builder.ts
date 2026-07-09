@@ -14,6 +14,10 @@ import {
   BasicContextReflectionEngine,
   BasicContextReflectionReasoningInputBuilder,
   BasicExecutionSituationEvidenceBuilder,
+  BasicExecutiveRecallContextProjector,
+  BasicExecutiveRecallProjector,
+  BasicRecallContextReasoningInputBuilder,
+  executiveConcernRepository,
   BasicExecutiveBriefBuilder,
   BasicExecutiveOutputProjector,
   BasicExecutivePresentationProjector,
@@ -463,11 +467,29 @@ export async function buildShowcaseProjection(
     })
   );
 
+  const recallResult =
+    await new BasicExecutiveRecallProjector(
+      executiveConcernRepository
+    ).project({
+      maxConcerns: 3,
+      asOf: new Date(),
+    });
+
+  const recallContext =
+    new BasicExecutiveRecallContextProjector().project(recallResult);
+
+  const recallReasoningInput =
+    new BasicRecallContextReasoningInputBuilder().build({
+      sourceText: execution.input,
+      recallContext,
+    });
+
   const reasoningInput = {
     input: baseReasoningInput.input,
     evidence: [
       ...baseReasoningInput.evidence,
       ...situationEvidence,
+      ...recallReasoningInput.evidence,
     ],
   };
 
