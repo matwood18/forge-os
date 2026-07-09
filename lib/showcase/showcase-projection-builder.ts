@@ -13,11 +13,16 @@ import { buildShowcaseNarrative } from "./narrative";
 import {
   BasicContextReflectionEngine,
   BasicContextReflectionReasoningInputBuilder,
+  BasicExecutionSituationEvidenceBuilder,
   BasicExecutiveBriefBuilder,
   BasicExecutiveReasoningEngine,
   BasicExecutiveReasoningProvider,
+  BasicExecutiveSituationEngine,
+  BasicExecutiveSituationProvider,
   FallbackExecutiveReasoningProvider,
+  FallbackExecutiveSituationProvider,
   OpenAIExecutiveReasoningProvider,
+  OpenAIExecutiveSituationProvider,
 } from "@/lib/executive";
 import type {
   ShowcaseProjection,
@@ -423,19 +428,74 @@ export async function buildShowcaseProjection(
     contextInput
   );
 
-  const reasoningInput =
+  const baseReasoningInput =
     new BasicContextReflectionReasoningInputBuilder().build({
       sourceText: execution.input,
       reflection,
       contextInput,
     });
 
-  const reasoning = await new BasicExecutiveReasoningEngine(
+  const situationInput =
+    new BasicExecutionSituationEvidenceBuilder().build(execution);
+
+  const situationResult =
+    await new BasicExecutiveSituationEngine(
+      new FallbackExecutiveSituationProvider(
+        new OpenAIExecutiveSituationProvider(),
+        new BasicExecutiveSituationProvider()
+      )
+    ).interpret(situationInput);
+
+  const situationEvidence = situationResult.situations.map(
+    (situation) => ({
+      id: situation.id,
+      label: `Executive situation: ${situation.title}`,
+      summary: situation.summary,
+      confidence: situation.confidence,
+      source: execution.id,
+    })
+  );
+
+  const reasoningInput = {
+    input: baseReasoningInput.input,
+    evidence: [
+      ...baseReasoningInput.evidence,
+      ...situationEvidence,
+    ],
+  };
+
+  const initialReasoning = await new BasicExecutiveReasoningEngine(
     new FallbackExecutiveReasoningProvider(
       new OpenAIExecutiveReasoningProvider(),
       new BasicExecutiveReasoningProvider()
     )
   ).reason(reasoningInput);
+
+  const referencedEvidenceIds = new Set(
+    initialReasoning.priorities.flatMap(
+      (priority) => priority.evidenceIds
+    )
+  );
+
+  const missingSituationPriorities = situationResult.situations
+    .filter((situation) => !referencedEvidenceIds.has(situation.id))
+    .map((situation) => ({
+      title: situation.title,
+      rationale:
+        situation.summary,
+      suggestedNextStep:
+        "Review this situation and decide whether it needs attention today.",
+      evidenceIds: [situation.id],
+      confidence: situation.confidence,
+    }));
+
+  const reasoning = {
+    ...initialReasoning,
+    priorities: [
+      ...initialReasoning.priorities,
+      ...missingSituationPriorities,
+    ],
+  };
 
   const executiveBrief =
     new BasicExecutiveBriefBuilder().build({

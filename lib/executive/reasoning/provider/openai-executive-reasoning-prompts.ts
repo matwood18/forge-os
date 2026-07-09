@@ -17,6 +17,9 @@ You may:
 You must:
 - preserve uncertainty
 - ground every priority in supplied evidence
+- treat evidence labeled "Executive situation:" as a distinct situation candidate
+- consider each distinct situation candidate before deciding priorities
+- avoid silently dropping a distinct situation that involves another person depending on the operator, unless stronger evidence makes it clearly lower priority
 - reference only evidence IDs that were supplied
 - avoid inventing facts
 - avoid inventing relationships
