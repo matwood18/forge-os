@@ -1,10 +1,10 @@
-import type { Suggestion } from "@/lib/executive";
+import type { PresentedExecutiveSuggestion } from "@/lib/executive";
 
 export function SuggestionCard({
   suggestion,
   position,
 }: {
-  suggestion: Suggestion;
+  suggestion: PresentedExecutiveSuggestion;
   position: number;
 }) {
   return (
@@ -50,13 +50,29 @@ export function SuggestionCard({
               Snooze
             </button>
 
-            <button
-              type="button"
-              disabled
-              className="rounded-full border border-slate-700 px-4 py-2 text-sm font-semibold text-slate-500 disabled:cursor-not-allowed"
-            >
-              Why?
-            </button>
+            <details className="w-full pt-3">
+              <summary className="cursor-pointer rounded-full border border-slate-700 px-4 py-2 text-sm font-semibold text-slate-300">
+                Why?
+              </summary>
+
+              <div className="mt-4 rounded-2xl border border-slate-800 bg-slate-950/80 p-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">
+                  {suggestion.why.headline}
+                </p>
+
+                {suggestion.why.supportingFacts.length > 0 ? (
+                  <ul className="mt-4 space-y-2 text-sm leading-6 text-slate-300">
+                    {suggestion.why.supportingFacts.map((fact) => (
+                      <li key={fact}>• {fact}</li>
+                    ))}
+                  </ul>
+                ) : null}
+
+                <p className="mt-4 text-sm leading-6 text-slate-400">
+                  {suggestion.why.rationale}
+                </p>
+              </div>
+            </details>
           </div>
         </div>
       </div>

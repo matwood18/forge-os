@@ -1,10 +1,17 @@
+import { BasicExecutivePresentationProjector } from "@/lib/executive";
 import type { ExecutiveOutput } from "@/lib/executive";
 import { ClarificationCard } from "./clarification-card";
 import { SuggestionCard } from "./suggestion-card";
 
 export function TodayExperience({ output }: { output?: ExecutiveOutput }) {
+  const presentedSuggestions = output
+    ? new BasicExecutivePresentationProjector().project({
+        suggestions: output.suggestions,
+      })
+    : [];
+
   const hasSession = Boolean(output);
-  const hasSuggestions = (output?.suggestions.length ?? 0) > 0;
+  const hasSuggestions = presentedSuggestions.length > 0;
   const hasClarifications = (output?.clarifications.length ?? 0) > 0;
 
   return (
@@ -36,7 +43,7 @@ export function TodayExperience({ output }: { output?: ExecutiveOutput }) {
               </p>
             </div>
           ) : hasSuggestions ? (
-            output?.suggestions.map((suggestion, index) => (
+            presentedSuggestions.map((suggestion, index) => (
               <SuggestionCard
                 key={suggestion.id}
                 suggestion={suggestion}

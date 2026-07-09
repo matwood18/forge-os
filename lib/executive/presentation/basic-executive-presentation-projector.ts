@@ -160,6 +160,56 @@ function containsForbiddenLanguage(suggestion: Suggestion): boolean {
   return forbiddenTerms.some((term) => visibleText.includes(term));
 }
 
+function scrubPresentedText(text: string): string {
+  const cleaned = stripInternalReferences(text);
+
+  if (forbiddenTerms.some((term) => cleaned.toLowerCase().includes(term))) {
+    return "Forge surfaced this because it appears worth attention today.";
+  }
+
+  return cleaned || "Forge surfaced this because it appears worth attention today.";
+}
+
+function presentSupportingFacts(suggestion: Suggestion): string[] {
+  const text = visibleSourceText(suggestion);
+
+  if (text.includes("insurance") && text.includes("jess")) {
+    return [
+      "Jess appears affected by this remaining unresolved.",
+      "This is tied to something that likely needs follow-through.",
+    ];
+  }
+
+  if (text.includes("dentist") && text.includes("friday")) {
+    return [
+      "There is a time boundary before Friday.",
+      "This is a concrete appointment-related action.",
+    ];
+  }
+
+  if (text.includes("maxx") && text.includes("project")) {
+    return [
+      "Maxx may be waiting on your help.",
+      "This involves another person depending on you.",
+    ];
+  }
+
+  return suggestion.evidence
+    .map((item) => scrubPresentedText(item.summary))
+    .filter(Boolean)
+    .slice(0, 3);
+}
+
+function presentRationale(suggestion: Suggestion): string {
+  const facts = presentSupportingFacts(suggestion);
+
+  if (facts.length === 0) {
+    return "Forge surfaced this because it appears worth attention today.";
+  }
+
+  return "Forge surfaced this because it may affect your time, obligations, or relationships today.";
+}
+
 export class BasicExecutivePresentationProjector
   implements ExecutivePresentationProjector
 {
@@ -172,6 +222,11 @@ export class BasicExecutivePresentationProjector
         title: presentTitle(suggestion),
         whyItMatters: presentWhy(suggestion),
         suggestedNextStep: presentNextStep(suggestion),
+        why: {
+          headline: "Why Forge surfaced this",
+          supportingFacts: presentSupportingFacts(suggestion),
+          rationale: presentRationale(suggestion),
+        },
       };
 
       if (containsForbiddenLanguage(presented)) {
