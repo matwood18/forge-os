@@ -17,6 +17,7 @@ export class BasicExecutiveSituationProvider
         title: evidence.label,
         summary: evidence.summary,
         evidenceIds: [evidence.id],
+        identityEvidenceIds: evidence.identityEvidenceIds,
         confidence: evidence.confidence ?? 0.5,
       }));
 

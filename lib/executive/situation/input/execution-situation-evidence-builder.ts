@@ -124,6 +124,12 @@ export class BasicExecutionSituationEvidenceBuilder
           summary: describeClaim(step.artifact),
           confidence: step.artifact.confidence,
           source: step.artifact.provenance.sourceId,
+          identityMetadata: {
+            kind: "semantic_claim",
+            subject: step.artifact.subject,
+            predicate: step.artifact.predicate,
+            object: step.artifact.object,
+          },
         });
       }
 

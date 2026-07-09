@@ -59,6 +59,30 @@ function findClarificationForTitle(
   );
 }
 
+function identityEvidenceIdsForAttention(
+  attention: ExecutiveAttentionRecord,
+  suggestion?: Suggestion
+): string[] {
+  const priorityEvidenceIds = new Set(attention.priority.priority.evidenceIds);
+  const identityEvidenceIds = new Set<string>();
+
+  for (const evidence of suggestion?.evidence ?? []) {
+    if (!priorityEvidenceIds.has(evidence.id)) {
+      continue;
+    }
+
+    for (const identityEvidenceId of evidence.identityEvidenceIds ?? []) {
+      identityEvidenceIds.add(identityEvidenceId);
+    }
+  }
+
+  if (identityEvidenceIds.size > 0) {
+    return [...identityEvidenceIds].sort();
+  }
+
+  return [...priorityEvidenceIds].sort();
+}
+
 export class BasicExecutiveConcernProjector implements ExecutiveConcernProjector {
   project(input: ExecutiveConcernProjectionInput): ExecutiveConcernProjectionResult {
     const observations: ExecutiveConcernObservation[] = input.attention.attention.map(
@@ -112,7 +136,10 @@ export class BasicExecutiveConcernProjector implements ExecutiveConcernProjector
           confidence: attention.priority.priority.confidence,
           observedAt: attention.createdAt,
           evidence,
-          identityEvidenceIds: attention.priority.priority.evidenceIds,
+          identityEvidenceIds: identityEvidenceIdsForAttention(
+            attention,
+            suggestion
+          ),
           latestRecommendation: suggestion
             ? {
                 id: suggestion.id,

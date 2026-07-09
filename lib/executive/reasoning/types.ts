@@ -4,6 +4,7 @@ export type ExecutiveReasoningEvidence = {
   summary: string;
   confidence?: number;
   source?: string;
+  identityEvidenceIds?: string[];
 };
 
 export type ExecutiveReasoningInput = {

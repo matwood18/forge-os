@@ -14,6 +14,7 @@ import {
   BasicContextReflectionEngine,
   BasicContextReflectionReasoningInputBuilder,
   BasicExecutionSituationEvidenceBuilder,
+  BasicExecutiveConcernIdentityEvidenceProjector,
   BasicExecutiveRecallContextProjector,
   BasicExecutiveRecallProjector,
   BasicRecallContextReasoningInputBuilder,
@@ -446,8 +447,37 @@ export async function buildShowcaseProjection(
       contextInput,
     });
 
-  const situationInput =
+  const rawSituationInput =
     new BasicExecutionSituationEvidenceBuilder().build(execution);
+
+  const identityEvidenceResult =
+    new BasicExecutiveConcernIdentityEvidenceProjector().project({
+      evidence: rawSituationInput.evidence,
+    });
+
+  const identityEvidenceIdsBySourceEvidenceId = new Map<string, string[]>();
+
+  for (const identityEvidence of identityEvidenceResult.identityEvidence) {
+    for (const sourceEvidenceId of identityEvidence.sourceEvidenceIds) {
+      const existing =
+        identityEvidenceIdsBySourceEvidenceId.get(sourceEvidenceId) ?? [];
+
+      identityEvidenceIdsBySourceEvidenceId.set(sourceEvidenceId, [
+        ...existing,
+        identityEvidence.id,
+      ]);
+    }
+  }
+
+  const situationInput = {
+    ...rawSituationInput,
+    evidence: rawSituationInput.evidence.map((evidence) => ({
+      ...evidence,
+      identityEvidenceIds:
+        identityEvidenceIdsBySourceEvidenceId.get(evidence.id) ??
+        evidence.identityEvidenceIds,
+    })),
+  };
 
   const situationResult =
     await new BasicExecutiveSituationEngine(
@@ -464,6 +494,7 @@ export async function buildShowcaseProjection(
       summary: situation.summary,
       confidence: situation.confidence,
       source: execution.id,
+      identityEvidenceIds: situation.identityEvidenceIds,
     })
   );
 

@@ -77,6 +77,7 @@ export * from "./attention";
 
 export * from "./concern";
 export * from "./concern-identity";
+export * from "./concern-identity-evidence";
 export * from "./concern-reconciliation";
 export * from "./concern-projection";
 export * from "./concern-coordination";
