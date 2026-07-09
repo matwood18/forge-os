@@ -23,7 +23,8 @@
     "proof:import-status": "tsx scripts/proofs/import-status-projection-proof.ts",
     "proof:import-boundary": "tsx scripts/proofs/import-boundary-proof.ts",
     "proof:import-recovery": "tsx scripts/proofs/import-recovery-proof.ts",
-    "proof:memory-challenge": "tsx scripts/proofs/memory-challenge-proof.ts"
+    "proof:memory-challenge": "tsx scripts/proofs/memory-challenge-proof.ts",
+    "proof:executive-reasoning": "tsx scripts/proofs/executive-reasoning-proof.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",
