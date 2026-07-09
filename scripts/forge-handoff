@@ -1,0 +1,92 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+ROOT="$(git rev-parse --show-toplevel)"
+cd "$ROOT"
+
+OUTPUT=".forge/handoff.txt"
+
+mkdir -p .forge
+
+section() {
+  echo
+  echo "================================================================================"
+  echo "$1"
+  echo "================================================================================"
+}
+
+{
+  echo "Forge OS Repository Handoff"
+  echo "Generated: $(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+  echo "Repository: $(basename "$ROOT")"
+  echo "Commit: $(git rev-parse --short HEAD)"
+
+  section "FORGE CONSTITUTION"
+  cat docs/forge-constitution.md
+
+  section "DOMAIN MODEL"
+  cat docs/domain-model.md
+
+  section "EVENT MODEL"
+  cat docs/event-model.md
+
+  section "FORGE KERNEL"
+  cat docs/forge-kernel.md
+
+  section "EXECUTIVE SYSTEM"
+  cat docs/executive-system.md
+
+  section "ROADMAP"
+  cat docs/roadmap.md
+
+  section "DEVELOPMENT WORKFLOW"
+  cat docs/development-workflow.md
+
+  section "FORGE STATUS"
+  npm run forge:status
+
+  section "GIT STATUS"
+  git status
+
+  section "RECENT COMMITS"
+  git log --oneline -25
+
+  section "MESSAGE FOR THE NEXT CHAT"
+  cat <<'MESSAGE'
+Forge OS development handoff.
+
+Treat the attached repository handoff as the source of project continuity.
+
+Read the Forge Constitution, Domain Model, Event Model, Forge Kernel, Executive System, Roadmap, Development Workflow, Forge status, Git status, and recent commit history before proposing changes.
+
+Continue the established development workflow:
+
+- one architectural ticket at a time;
+- request all needed inspection files in one batch;
+- use deterministic Python patch scripts for multi-file edits;
+- prefer complete file replacements when practical;
+- provide mkdir -p / touch scaffolding for new files;
+- avoid recursive grep -R searches;
+- protect kernel contracts and explicit domain boundaries;
+- preserve unrelated dirty work;
+- end tickets with relevant proofs and npm run lint;
+- end milestones with npm run build and npm run forge:status;
+- do not commit generated .forge artifacts.
+
+Do not assume the latest execution is the user's current world state.
+
+The current architectural direction is Executive Memory: teach Forge to remember what still matters across executions.
+
+Start by summarizing:
+
+1. the current architecture;
+2. the latest completed architectural boundary;
+3. temporary architecture that must not become permanent accidentally;
+4. the strongest next architectural ticket.
+
+Then wait for confirmation before proposing code changes.
+MESSAGE
+} > "$OUTPUT"
+
+echo "Forge handoff generated: $OUTPUT"

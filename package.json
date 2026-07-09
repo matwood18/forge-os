@@ -51,7 +51,8 @@
     "proof:executive-concern-reconciliation": "tsx scripts/proofs/executive-concern-reconciliation-proof.ts",
     "proof:executive-concern-projection": "tsx scripts/proofs/executive-concern-projection-proof.ts",
     "proof:executive-concern-coordination": "tsx scripts/proofs/executive-concern-coordination-proof.ts",
-    "proof:executive-concern-runtime-integration": "tsx scripts/proofs/executive-concern-runtime-integration-proof.ts"
+    "proof:executive-concern-runtime-integration": "tsx scripts/proofs/executive-concern-runtime-integration-proof.ts",
+    "forge:handoff": "bash ./scripts/forge-handoff"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",
