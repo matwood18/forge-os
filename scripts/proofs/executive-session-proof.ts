@@ -1,4 +1,4 @@
-import { InMemoryExecutiveSessionStore } from "@/lib/executive";
+import { FileExecutiveSessionStore } from "@/lib/executive";
 import type { ShowcaseProjection } from "@/lib/showcase";
 
 function fakeProjection(id: string): ShowcaseProjection {
@@ -95,7 +95,8 @@ function fakeProjection(id: string): ShowcaseProjection {
   };
 }
 
-const store = new InMemoryExecutiveSessionStore();
+const store = new FileExecutiveSessionStore();
+store.clear();
 
 if (store.current() !== undefined) {
   throw new Error("Expected empty store to have no current session.");

@@ -1,5 +1,5 @@
 export {
-  InMemoryExecutiveSessionStore,
+  FileExecutiveSessionStore,
   executiveSessionStore,
 } from "./in-memory-executive-session-store";
 
